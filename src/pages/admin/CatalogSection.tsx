@@ -38,6 +38,7 @@ interface QuestionFormData {
   difficulty: number;
   options: { A: string; B: string; C: string; D: string };
   correct_option: string;
+  explanation: string;
 }
 
 export default function CatalogSection() {
@@ -70,6 +71,7 @@ export default function CatalogSection() {
     text: '', difficulty: 1,
     options: { A: '', B: '', C: '', D: '' },
     correct_option: 'A',
+    explanation: '',
   });
   const [editQuestionId, setEditQuestionId] = useState<number | null>(null);
   const [questionFormError, setQuestionFormError] = useState<string | null>(null);
@@ -161,7 +163,7 @@ export default function CatalogSection() {
 
   // Question CRUD
   const openCreateQuestion = () => {
-    setQuestionForm({ text: '', difficulty: 1, options: { A: '', B: '', C: '', D: '' }, correct_option: 'A' });
+    setQuestionForm({ text: '', difficulty: 1, options: { A: '', B: '', C: '', D: '' }, correct_option: 'A', explanation: '' });
     setEditQuestionId(null); setQuestionFormError(null); setQuestionModal(true);
   };
   const openEditQuestion = (q: Question, e: React.MouseEvent) => {
@@ -170,6 +172,7 @@ export default function CatalogSection() {
       text: q.text, difficulty: q.difficulty || 1,
       options: q.options as any || { A: '', B: '', C: '', D: '' },
       correct_option: (q as any).correct_option || 'A',
+      explanation: q.explanation || '',
     });
     setEditQuestionId(q.id); setQuestionFormError(null); setQuestionModal(true);
   };
@@ -181,6 +184,7 @@ export default function CatalogSection() {
       text: questionForm.text, difficulty: questionForm.difficulty,
       options: Object.fromEntries(Object.entries(questionForm.options).filter(([, v]) => v.trim())),
       correct_option: questionForm.correct_option,
+      explanation: questionForm.explanation,
       topic: selectedTopic.id,
     };
     try {
@@ -466,6 +470,10 @@ export default function CatalogSection() {
                     {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{'★'.repeat(n)} ({n})</option>)}
                   </select>
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Пояснение к решению</label>
+                <textarea value={questionForm.explanation} onChange={e => setQuestionForm(p => ({ ...p, explanation: e.target.value }))} className={INPUT + ' h-20 resize-none'} placeholder="Объяснение правильного ответа..." />
               </div>
               {questionFormError && (
                 <div className="flex items-start gap-2 px-3 py-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">

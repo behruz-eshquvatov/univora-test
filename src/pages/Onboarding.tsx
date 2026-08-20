@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuizStore } from '../store/useQuizStore';
-import { MOCK_QUESTIONS } from '../lib/mockData';
 import { ChevronLeft, Plus, Check, AlertCircle, Clock, X, BookOpen } from 'lucide-react';
+import { catalogApi } from '../lib/api/catalog';
+import { testengineApi } from '../lib/api/testengine';
 
 const FACULTY_SUBJECTS: Record<string, string[]> = {
   'IT и Инженерия': ['Математика', 'Физика', 'Информатика', 'Английский', 'Логика'],
@@ -20,9 +21,10 @@ const DIRECTIONS = Object.keys(FACULTY_SUBJECTS);
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { direction, setDirection, selectedSubjects, toggleSubject, setGeneratedQuestions } = useQuizStore();
+  const { direction, setDirection, selectedSubjects, toggleSubject } = useQuizStore();
   const [step, setStep] = useState(1);
   const [showReadyModal, setShowReadyModal] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
   const handleNext = () => {
     if (step === 1 && direction) {
@@ -40,23 +42,30 @@ export default function Onboarding() {
     }
   };
 
-  const handleStartTest = () => {
-    let generated: any[] = [];
-    const subjectsToUse = selectedSubjects.length > 0 ? selectedSubjects : ['Математика', 'Биология'];
+  const handleStartTest = async () => {
+    setIsStarting(true);
+    const subjectsToUse = selectedSubjects.length > 0 ? selectedSubjects : ['Математика', 'Физика'];
+    const chosenSubjectName = subjectsToUse[0];
 
-    subjectsToUse.forEach(subj => {
-      const subjectQuestions = MOCK_QUESTIONS.filter(q => q.subject === subj);
-      generated.push(...subjectQuestions.slice(0, 2));
-    });
-
-    if (generated.length < 4) {
-      const extraNeeded = 4 - generated.length;
-      const otherQuestions = MOCK_QUESTIONS.filter(q => !generated.includes(q)).slice(0, extraNeeded);
-      generated.push(...otherQuestions);
+    try {
+      const dbSubjects = await catalogApi.getSubjects();
+      const list = Array.isArray(dbSubjects) ? dbSubjects : (dbSubjects as any).results ?? [];
+      const match = list.find((s: any) => s.name.toLowerCase().trim() === chosenSubjectName.toLowerCase().trim());
+      const targetSubjectId = match ? match.id : (list[0]?.id || 1);
+      
+      const session = await testengineApi.startSession(targetSubjectId);
+      navigate(`/quiz/${session.id}`);
+    } catch (err) {
+      console.error('Failed to start real session, falling back to first available:', err);
+      try {
+        const session = await testengineApi.startSession(1);
+        navigate(`/quiz/${session.id}`);
+      } catch {
+        navigate('/dashboard');
+      }
+    } finally {
+      setIsStarting(false);
     }
-
-    setGeneratedQuestions(generated);
-    navigate('/quiz/guest');
   };
 
   const availableSubjects = direction ? FACULTY_SUBJECTS[direction] || [] : [];
@@ -213,9 +222,10 @@ export default function Onboarding() {
               </button>
               <button 
                 onClick={handleStartTest}
-                className="flex-1 py-4 rounded-xl font-bold text-white bg-primary hover:bg-violet-600 transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+                disabled={isStarting}
+                className="flex-1 py-4 rounded-xl font-bold text-white bg-primary hover:bg-violet-600 disabled:opacity-50 transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)] flex items-center justify-center gap-2"
               >
-                Я готов!
+                {isStarting ? <span className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span> : 'Я готов!'}
               </button>
             </div>
           </div>
