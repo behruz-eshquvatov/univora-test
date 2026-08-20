@@ -22,6 +22,15 @@ export default {
           amber: '#F59E0B',
           mint: '#10B981',
           coral: '#F43F5E',
+        },
+        dark: {
+          bg: '#090d16',       // Deep blueish-slate background
+          surface: '#111726',  // Blueish-dark slate for containers/cards/sidebar
+          border: '#1b253b',   // Dark border color
+          text: {
+            main: '#f8fafc',   // Bright white/slate text
+            muted: '#94a3b8',  // Secondary muted text
+          }
         }
       },
       fontFamily: {
