@@ -86,7 +86,7 @@ export default function DashboardLayout() {
       {/* Sidebar */}
       <aside className={`
         fixed top-4 bottom-4 left-4 z-50
-        bg-white dark:bg-dark-surface rounded-3xl border border-slate-100 dark:border-dark-border shadow-xl shadow-slate-200/40 dark:shadow-[0_4px_25px_rgba(0,0,0,0.5)]
+        bg-white dark:bg-dark-surface rounded-3xl border border-slate-100 dark:border-dark-border shadow-xl shadow-slate-200/40 dark:shadow-[0_4px_25px_rgba(0,0,0,0.6)] dark:shadow-black/60
         flex flex-col
         transition-all duration-300 ease-in-out
         w-[88px] hover:w-72 group
@@ -154,7 +154,7 @@ export default function DashboardLayout() {
 
           {/* Popover Menu */}
           {isSettingsMenuOpen && (
-            <div className="absolute bottom-[calc(100%+8px)] left-[calc(100%+8px)] w-64 bg-white dark:bg-dark-surface border border-slate-100 dark:border-dark-border shadow-xl dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 z-50">
+            <div className="absolute bottom-[calc(100%+8px)] left-[calc(100%+8px)] w-64 bg-white dark:bg-dark-surface border border-slate-100 dark:border-dark-border shadow-xl dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)] dark:shadow-black/60 rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 z-50">
               <div className="py-2">
                 <div className="px-4 py-2 text-xs font-bold text-slate-400 dark:text-dark-text-muted uppercase tracking-wider mb-1">Профиль</div>
                 
