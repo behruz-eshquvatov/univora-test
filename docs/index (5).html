@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TestYourself — DTM'ga tayyorgarlik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================
+   TestYourself — design tokens
+   Signature: "bilim harorati" rings (heat-rings) + exam countdown
+   Display: Golos Text (geometric, strong Cyrillic support)
+   Body: Inter
+   ========================================================== */
+:root{
+  --ink:#0E0B1A;
+  --surface:#161129;
+  --surface-2:#1E1938;
+  --surface-3:#292149;
+  --border:rgba(255,255,255,.08);
+  --violet:#7C5CFC;
+  --violet-soft:#A996FF;
+  --amber:#FFB238;
+  --mint:#34D399;
+  --coral:#FB7185;
+  --sky:#38BDF8;
+  --text-hi:#F5F3FF;
+  --text-mid:#B6B1D9;
+  --text-low:#726C99;
+  --radius-lg:22px;
+  --radius-md:16px;
+  --radius-sm:10px;
+  --shadow:0 20px 40px -20px rgba(0,0,0,.6);
+  --font-display:'Golos Text', 'Inter', sans-serif;
+  --font-body:'Inter', sans-serif;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(124,92,252,.25), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(255,178,56,.10), transparent 55%),
+    var(--ink);
+  color:var(--text-hi);
+  font-family:var(--font-body);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.display{font-family:var(--font-display);letter-spacing:-.01em;}
+p{margin:0;}
+button{font-family:inherit;cursor:pointer;}
+::selection{background:var(--violet);color:#fff;}
+:focus-visible{outline:2px solid var(--violet-soft);outline-offset:2px;}
+
+/* ---------- topbar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(14,11,26,.75);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.topbar-inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,var(--violet),#5A3FE0);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:800;font-size:14px;color:#fff;
+  box-shadow:0 6px 16px -4px rgba(124,92,252,.7);
+}
+.brand-name{font-family:var(--font-display);font-weight:700;font-size:17px;}
+.role-switch{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px;}
+.role-btn{
+  border:none;background:transparent;color:var(--text-mid);
+  padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600;
+  transition:all .18s ease;
+}
+.role-btn.active{background:var(--violet);color:#fff;box-shadow:0 4px 14px -4px rgba(124,92,252,.8);}
+.role-btn:not(.active):hover{color:var(--text-hi);}
+
+/* ---------- stage layout ---------- */
+#stage{max-width:1200px;margin:0 auto;padding:32px 24px 80px;}
+
+/* ---------- website layout (student role) ---------- */
+.app-shell{display:flex;gap:28px;align-items:flex-start;}
+
+.sidebar{
+  width:240px;flex-shrink:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:20px 14px;
+  position:sticky;top:96px;
+}
+.sidebar-user{
+  display:flex;align-items:center;gap:12px;
+  padding:4px 8px 18px;margin-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-avatar{
+  width:42px;height:42px;border-radius:13px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--violet),#5A3FE0);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-family:var(--font-display);font-size:16px;color:#fff;
+}
+.sidebar-nav{display:flex;flex-direction:column;gap:3px;}
+.side-link{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  padding:11px 14px;border-radius:13px;border:none;background:transparent;
+  color:var(--text-mid);font-weight:600;font-size:14px;
+  transition:all .15s ease;
+}
+.side-link .side-icon{font-size:17px;line-height:1;}
+.side-link.active{background:rgba(124,92,252,.16);color:var(--violet-soft);}
+.side-link:hover:not(.active){background:var(--surface-2);color:var(--text-hi);}
+
+.app-content{flex:1;min-width:0;max-width:880px;}
+
+/* onboarding / session / result — centered website page (no sidebar) */
+.page-center{max-width:620px;margin:36px auto;padding:0 16px;}
+
+@media (max-width:900px){
+  .app-shell{flex-direction:column;}
+  .sidebar{
+    width:100%;position:static;top:auto;
+    padding:12px;border-radius:18px;
+  }
+  .sidebar-user{display:none;}
+  .sidebar-nav{flex-direction:row;overflow-x:auto;gap:6px;}
+  .side-link{flex-direction:column;gap:4px;min-width:64px;font-size:10.5px;padding:8px 6px;text-align:center;}
+  .side-link .side-icon{font-size:18px;}
+}
+
+/* ---------- generic components ---------- */
+.card{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:18px;
+}
+.card + .card{margin-top:14px;}
+.eyebrow{
+  font-size:11px;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--text-low);font-weight:700;
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:none;border-radius:14px;padding:13px 20px;
+  font-weight:700;font-size:14.5px;
+  transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  width:100%;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:linear-gradient(135deg,var(--violet),#5A3FE0);color:#fff;box-shadow:0 10px 24px -8px rgba(124,92,252,.65);}
+.btn-primary:hover{box-shadow:0 14px 28px -8px rgba(124,92,252,.85);}
+.btn-secondary{background:var(--surface-3);color:var(--text-hi);}
+.btn-ghost{background:transparent;color:var(--text-mid);border:1px solid var(--border);}
+.btn-amber{background:linear-gradient(135deg,var(--amber),#E8931A);color:#241400;box-shadow:0 10px 24px -8px rgba(255,178,56,.55);}
+.btn-block{width:100%;}
+.btn-sm{padding:9px 14px;font-size:13px;width:auto;}
+.btn[disabled]{opacity:.45;pointer-events:none;}
+
+.chip{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 15px;border-radius:999px;
+  background:var(--surface-3);border:1px solid var(--border);
+  color:var(--text-mid);font-size:13px;font-weight:600;
+  transition:all .15s ease;
+}
+.chip.selected{background:rgba(124,92,252,.18);border-color:var(--violet);color:var(--violet-soft);}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+
+.pill{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+.pill-mint{background:rgba(52,211,153,.16);color:var(--mint);}
+.pill-amber{background:rgba(255,178,56,.16);color:var(--amber);}
+.pill-coral{background:rgba(251,113,133,.16);color:var(--coral);}
+.pill-violet{background:rgba(124,92,252,.18);color:var(--violet-soft);}
+
+hr.div{border:none;border-top:1px solid var(--border);margin:14px 0;}
+
+/* ---------- heat ring (signature element) ---------- */
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-label{position:absolute;text-align:center;font-family:var(--font-display);font-weight:800;}
+
+/* ---------- subject grid ---------- */
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+@media (max-width:600px){.subject-grid{grid-template-columns:1fr 1fr;}}
+.subject-card{
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:14px;
+  display:flex;flex-direction:column;gap:8px;align-items:flex-start;
+  text-align:left;color:var(--text-hi);
+}
+.subject-card .icon{font-size:22px;}
+.subject-card .sname{font-weight:700;font-size:14px;font-family:var(--font-display);}
+.subject-card:active{transform:scale(.97);}
+
+/* ---------- test screen ---------- */
+.progress-track{height:8px;border-radius:999px;background:var(--surface-3);overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--violet-soft));border-radius:999px;transition:width .3s ease;}
+.timer-badge{
+  display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;
+  padding:6px 12px;border-radius:999px;background:rgba(251,113,133,.14);color:var(--coral);
+}
+.q-text{font-family:var(--font-display);font-size:19px;font-weight:700;line-height:1.4;margin:16px 0 18px;}
+.option{
+  width:100%;text-align:left;padding:14px 16px;border-radius:14px;
+  background:var(--surface-2);border:1.5px solid var(--border);color:var(--text-hi);
+  margin-bottom:10px;font-size:14.5px;font-weight:600;
+  display:flex;align-items:center;gap:12px;
+}
+.option .opt-letter{
+  width:26px;height:26px;border-radius:8px;background:var(--surface-3);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;
+  flex-shrink:0;color:var(--text-mid);
+}
+.option.selected{border-color:var(--violet);background:rgba(124,92,252,.12);}
+.option.selected .opt-letter{background:var(--violet);color:#fff;}
+.option.correct{border-color:var(--mint);background:rgba(52,211,153,.12);}
+.option.correct .opt-letter{background:var(--mint);color:#0E0B1A;}
+.option.incorrect{border-color:var(--coral);background:rgba(251,113,133,.12);}
+.option.incorrect .opt-letter{background:var(--coral);color:#fff;}
+.option[disabled]{opacity:.55;}
+.option:not([disabled]):active{transform:scale(.985);}
+
+.explain-box{
+  margin-top:6px;padding:14px;border-radius:14px;
+  background:var(--surface-3);border-left:3px solid var(--violet);
+  font-size:13.5px;color:var(--text-mid);line-height:1.5;
+}
+.explain-box b{color:var(--violet-soft);}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed;left:50%;bottom:28px;transform:translate(-50%,140%);
+  background:var(--surface-3);border:1px solid var(--border);
+  padding:13px 20px;border-radius:14px;font-size:13.5px;font-weight:600;
+  box-shadow:var(--shadow);z-index:200;transition:transform .28s ease;
+  max-width:90vw;
+}
+.toast.show{transform:translate(-50%,0);}
+
+/* ---------- modal ---------- */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(6,4,14,.72);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;z-index:300;padding:20px;
+}
+.modal-box{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:22px;
+  padding:26px;max-width:380px;width:100%;box-shadow:var(--shadow);
+}
+
+/* ---------- dashboard (mentor / admin — wide layout) ---------- */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+.kpi-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;}
+.kpi-value{font-family:var(--font-display);font-size:28px;font-weight:800;margin-top:6px;}
+.kpi-target{font-size:11px;color:var(--text-low);margin-top:4px;}
+table.data-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+table.data-table th{text-align:left;color:var(--text-low);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:10px 12px;border-bottom:1px solid var(--border);}
+table.data-table td{padding:12px;border-bottom:1px solid var(--border);}
+table.data-table tr:last-child td{border-bottom:none;}
+.bar-mini{height:6px;border-radius:999px;background:var(--surface-3);width:120px;overflow:hidden;}
+.bar-mini-fill{height:100%;border-radius:999px;}
+.two-col{display:grid;grid-template-columns:1.3fr .9fr;gap:20px;align-items:start;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+
+.icon-btn{
+  width:38px;height:38px;border-radius:12px;background:var(--surface-3);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  color:var(--text-hi);font-size:16px;
+}
+
+.badge-row{display:flex;gap:12px;flex-wrap:wrap;}
+.badge{
+  display:flex;flex-direction:column;align-items:center;gap:6px;width:74px;text-align:center;
+}
+.badge .bicon{
+  width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;
+  background:var(--surface-3);border:1px solid var(--border);
+}
+.badge.got .bicon{background:linear-gradient(135deg,var(--amber),#E8931A);}
+.badge span.blabel{font-size:10px;color:var(--text-low);font-weight:600;line-height:1.2;}
+.badge.got span.blabel{color:var(--text-mid);}
+
+/* ---------- onboarding ---------- */
+.onb-wrap{max-width:420px;margin:0 auto;}
+.onb-dots{display:flex;gap:6px;justify-content:center;margin-bottom:22px;}
+.onb-dot{width:8px;height:8px;border-radius:50%;background:var(--surface-3);}
+.onb-dot.active{background:var(--violet);width:22px;transition:all .25s ease;}
+
+/* ---------- responsive ---------- */
+@media (max-width:980px){
+  .dash-grid{grid-template-columns:1fr 1fr;}
+  .two-col{grid-template-columns:1fr;}
+}
+@media (max-width:640px){
+  .dash-grid{grid-template-columns:1fr 1fr;}
+  .topbar-inner{padding:12px 16px;}
+  .role-btn{padding:7px 11px;font-size:12px;}
+  #stage{padding:20px 12px 60px;}
+}
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark">TY</span>
+      <span class="brand-name">TestYourself</span>
+    </div>
+    <div class="role-switch" id="roleSwitch">
+      <button class="role-btn active" data-action="setRole" data-role="student">Talaba</button>
+      <button class="role-btn" data-action="setRole" data-role="mentor">Nazoratchi</button>
+      <button class="role-btn" data-action="setRole" data-role="admin">Admin</button>
+    </div>
+  </div>
+</div>
+
+<main id="stage"></main>
+
+<div id="toast" class="toast"></div>
+<div id="modalRoot"></div>
+
+<script>
+// ============================================================
+// TestYourself — demo ma'lumotlar bazasi (frontend-only, xotirada)
+// Haqiqiy loyihada bu ma'lumotlar backend API orqali keladi
+// (qarang: API_DIZAYN.md — /catalog/, /testengine/ endpointlari)
+// ============================================================
+
+const SUBJECTS = [
+  { id: "math", name: "Matematika", icon: "📐", color: "violet" },
+  { id: "chem", name: "Kimyo", icon: "🧪", color: "mint" },
+  { id: "uzb", name: "Ona tili", icon: "📖", color: "amber" },
+  { id: "eng", name: "Ingliz tili", icon: "🇬🇧", color: "coral" },
+  { id: "bio", name: "Biologiya", icon: "🧬", color: "sky" },
+];
+
+const QUESTIONS = [
+  // ---------------- MATEMATIKA ----------------
+  { id:"m1", subject:"math", topic:"Algebra", difficulty:2,
+    text:"2x + 5 = 17 tenglamani yeching. x = ?",
+    options:{A:"5",B:"6",C:"7",D:"8"}, correct:"B",
+    explain:"17 dan 5 ni ayirsak 12 qoladi, 12 ni 2 ga bo'lsak x = 6 bo'ladi." },
+  { id:"m2", subject:"math", topic:"Algebra", difficulty:2,
+    text:"Agar a = 3, b = 4 bo'lsa, a² + b² nechaga teng?",
+    options:{A:"7",B:"12",C:"25",D:"49"}, correct:"C",
+    explain:"3² = 9, 4² = 16, ularning yig'indisi 9 + 16 = 25." },
+  { id:"m3", subject:"math", topic:"Algebra", difficulty:1,
+    text:"200 ning 15% i nechaga teng?",
+    options:{A:"20",B:"30",C:"40",D:"50"}, correct:"B",
+    explain:"200 × 0.15 = 30. Foizni hisoblashda sonni 100 ga bo'lib, foiz qiymatiga ko'paytiramiz." },
+  { id:"m4", subject:"math", topic:"Geometriya", difficulty:1,
+    text:"Uchburchakning ichki burchaklari yig'indisi necha gradus?",
+    options:{A:"90°",B:"180°",C:"270°",D:"360°"}, correct:"B",
+    explain:"Har qanday uchburchakda ichki burchaklar yig'indisi doim 180° ga teng — bu asosiy geometrik qonuniyat." },
+  { id:"m5", subject:"math", topic:"Algebra", difficulty:2,
+    text:"f(x) = 2x − 3 funksiya uchun f(5) nechaga teng?",
+    options:{A:"7",B:"8",C:"10",D:"13"}, correct:"A",
+    explain:"x o'rniga 5 ni qo'yamiz: 2×5 − 3 = 10 − 3 = 7." },
+  { id:"m6", subject:"math", topic:"Geometriya", difficulty:2,
+    text:"To'g'ri to'rtburchakning yuzi 48 sm², eni 6 sm bo'lsa, uzunligi nechaga teng?",
+    options:{A:"6 sm",B:"7 sm",C:"8 sm",D:"9 sm"}, correct:"C",
+    explain:"Yuza = uzunlik × en, shuning uchun uzunlik = 48 ÷ 6 = 8 sm." },
+  { id:"m7", subject:"math", topic:"Algebra", difficulty:3,
+    text:"Ketma-ketlik: 2, 5, 8, 11, ... keyingi son nechaga teng?",
+    options:{A:"12",B:"13",C:"14",D:"15"}, correct:"C",
+    explain:"Har bir son oldingisidan 3 taga katta (arifmetik progressiya), shuning uchun 11 + 3 = 14." },
+  { id:"m8", subject:"math", topic:"Algebra", difficulty:3,
+    text:"log₂8 nechaga teng?",
+    options:{A:"2",B:"3",C:"4",D:"8"}, correct:"B",
+    explain:"2 ni qaysi darajaga ko'tarsak 8 chiqadi? 2³ = 8, demak log₂8 = 3." },
+  { id:"m9", subject:"math", topic:"Geometriya", difficulty:2,
+    text:"Doira radiusi 7 sm bo'lsa, uning aylana uzunligi (π ≈ 22/7) taxminan nechaga teng?",
+    options:{A:"22 sm",B:"44 sm",C:"14 sm",D:"28 sm"}, correct:"B",
+    explain:"Aylana uzunligi = 2πr = 2 × 22/7 × 7 = 44 sm." },
+  { id:"m10", subject:"math", topic:"Algebra", difficulty:3,
+    text:"x² − 9 = 0 tenglamaning ildizlari qanday?",
+    options:{A:"x = 3",B:"x = −3",C:"x = ±3",D:"Yechimi yo'q"}, correct:"C",
+    explain:"x² = 9 dan x = 3 yoki x = −3, ya'ni x = ±3 — ikkala son ham tenglamani qanoatlantiradi." },
+
+  // ---------------- KIMYO ----------------
+  { id:"c1", subject:"chem", topic:"Anorganik kimyo", difficulty:1,
+    text:"Suvning kimyoviy formulasi qanday?",
+    options:{A:"CO₂",B:"H₂O",C:"O₂",D:"NaCl"}, correct:"B",
+    explain:"Suv molekulasi ikkita vodorod va bitta kislorod atomidan tashkil topgan — H₂O." },
+  { id:"c2", subject:"chem", topic:"Umumiy kimyo", difficulty:2,
+    text:"Koinotda eng ko'p tarqalgan kimyoviy element qaysi?",
+    options:{A:"Kislorod",B:"Vodorod",C:"Uglerod",D:"Azot"}, correct:"B",
+    explain:"Vodorod koinot massasining taxminan 75% ini tashkil qiladi — u eng sodda va eng ko'p tarqalgan element." },
+  { id:"c3", subject:"chem", topic:"Anorganik kimyo", difficulty:1,
+    text:"Osh tuzining kimyoviy formulasi qanday?",
+    options:{A:"NaCl",B:"KCl",C:"CaCl₂",D:"MgCl₂"}, correct:"A",
+    explain:"Osh tuzi natriy xloriddan iborat — Na (natriy) va Cl (xlor) atomlari birikkan." },
+  { id:"c4", subject:"chem", topic:"Umumiy kimyo", difficulty:2,
+    text:"Atom yadrosida qanday zarrachalar joylashgan?",
+    options:{A:"Proton va neytron",B:"Faqat elektron",C:"Faqat proton",D:"Elektron va neytron"}, correct:"A",
+    explain:"Atom yadrosi proton (musbat zaryad) va neytrondan (zaryadsiz) tashkil topgan, elektronlar esa yadro atrofida aylanadi." },
+  { id:"c5", subject:"chem", topic:"Anorganik kimyo", difficulty:2,
+    text:"pH qiymati 7 bo'lgan eritma qanday muhitga ega?",
+    options:{A:"Kislotali",B:"Neytral",C:"Ishqoriy",D:"Aniqlab bo'lmaydi"}, correct:"B",
+    explain:"pH shkalasida 7 — neytral nuqta (masalan, toza suv). 7 dan past — kislotali, 7 dan yuqori — ishqoriy." },
+  { id:"c6", subject:"chem", topic:"Umumiy kimyo", difficulty:1,
+    text:"Kislorodning davriy jadvaldagi belgisi qanday?",
+    options:{A:"O",B:"Ox",C:"K",D:"Ok"}, correct:"A",
+    explain:"Kislorod lotincha 'Oxygenium' so'zidan olingan bo'lib, davriy jadvalda 'O' belgisi bilan ifodalanadi." },
+  { id:"c7", subject:"chem", topic:"Umumiy kimyo", difficulty:3,
+    text:"Oksidlanish reaksiyasida modda nimani yo'qotadi?",
+    options:{A:"Proton",B:"Elektron",C:"Neytron",D:"Atom"}, correct:"B",
+    explain:"Oksidlanish — elektron yo'qotish jarayoni; qaytarilish esa elektron qabul qilish jarayoni." },
+  { id:"c8", subject:"chem", topic:"Umumiy kimyo", difficulty:2,
+    text:"Metan gazining kimyoviy formulasi qanday?",
+    options:{A:"CH₄",B:"C₂H₆",C:"C₂H₄",D:"CO₂"}, correct:"A",
+    explain:"Metan — eng sodda uglevodorod, bitta uglerod va to'rtta vodorod atomidan iborat: CH₄." },
+  { id:"c9", subject:"chem", topic:"Anorganik kimyo", difficulty:1,
+    text:"Quyidagi elementlardan qaysi biri metall emas?",
+    options:{A:"Temir",B:"Mis",C:"Kislorod",D:"Alyuminiy"}, correct:"C",
+    explain:"Temir, mis va alyuminiy — metallar. Kislorod esa nometall element hisoblanadi." },
+  { id:"c10", subject:"chem", topic:"Umumiy kimyo", difficulty:2,
+    text:"Sirka kislotasining kimyoviy formulasi qanday?",
+    options:{A:"CH₃COOH",B:"HCl",C:"H₂SO₄",D:"HNO₃"}, correct:"A",
+    explain:"Sirka kislota — organik kislota bo'lib, formulasi CH₃COOH ko'rinishida yoziladi." },
+
+  // ---------------- ONA TILI ----------------
+  { id:"u1", subject:"uzb", topic:"Morfologiya", difficulty:1,
+    text:"\"Kitob\" so'zi qaysi so'z turkumiga oid?",
+    options:{A:"Ot",B:"Sifat",C:"Fe'l",D:"Ravish"}, correct:"A",
+    explain:"\"Kitob\" — narsa nomini bildiradi, demak bu ot so'z turkumiga kiradi." },
+  { id:"u2", subject:"uzb", topic:"Morfologiya", difficulty:1,
+    text:"\"Chiroyli\" so'zi qanday so'z turkumiga oid?",
+    options:{A:"Ot",B:"Sifat",C:"Son",D:"Olmosh"}, correct:"B",
+    explain:"\"Chiroyli\" narsaning belgisini bildiradi, shuning uchun bu sifat so'z turkumi." },
+  { id:"u3", subject:"uzb", topic:"Morfologiya", difficulty:1,
+    text:"Ko'plik qo'shimchasi qaysi qatorda to'g'ri ko'rsatilgan?",
+    options:{A:"-lar",B:"-ni",C:"-da",D:"-ga"}, correct:"A",
+    explain:"O'zbek tilida ko'plik ma'nosi -lar qo'shimchasi orqali ifodalanadi: kitob → kitoblar." },
+  { id:"u4", subject:"uzb", topic:"Sintaksis", difficulty:2,
+    text:"\"Men kitob o'qidim\" gapida kesim qaysi so'z hisoblanadi?",
+    options:{A:"Men",B:"kitob",C:"o'qidim",D:"Hech biri"}, correct:"C",
+    explain:"Kesim — gapda ega bajargan harakatni bildiradi. Bu gapda harakatni \"o'qidim\" so'zi ifodalayapti." },
+  { id:"u5", subject:"uzb", topic:"Sintaksis", difficulty:2,
+    text:"Undosh tovushlar necha guruhga (jarangli/jarangsiz) bo'linadi?",
+    options:{A:"1",B:"2",C:"3",D:"4"}, correct:"B",
+    explain:"Undoshlar ovoz ishtirokiga ko'ra ikki guruhga bo'linadi: jarangli va jarangsiz." },
+  { id:"u6", subject:"uzb", topic:"Morfologiya", difficulty:2,
+    text:"\"Bormoq\" fe'lining bo'lishsiz shakli qanday bo'ladi?",
+    options:{A:"Bormaslik",B:"Bormaydi",C:"Bordi",D:"Boradigan"}, correct:"B",
+    explain:"Fe'lga -ma qo'shimchasi qo'shilib bo'lishsizlik ma'nosi hosil qilinadi: bor-ma-ydi." },
+  { id:"u7", subject:"uzb", topic:"Sintaksis", difficulty:2,
+    text:"Quyidagi qatorlardan qaysi birida faqat sifatlar berilgan?",
+    options:{A:"katta, chiroyli, baland",B:"kitob, daftar, stol",C:"yugurmoq, o'qimoq",D:"tez, sekin"}, correct:"A",
+    explain:"Katta, chiroyli, baland — barchasi narsaning belgisini bildiradi, ya'ni sifat so'z turkumi." },
+  { id:"u8", subject:"uzb", topic:"Morfologiya", difficulty:1,
+    text:"\"Bog'\" so'ziga qanday qo'shimcha qo'shilsa \"bog'lar\" hosil bo'ladi?",
+    options:{A:"-lar",B:"-ga",C:"-da",D:"-dan"}, correct:"A",
+    explain:"Ko'plik qo'shimchasi -lar so'zga qo'shilib, bir nechta narsani anglatuvchi shakl hosil qiladi." },
+  { id:"u9", subject:"uzb", topic:"Sintaksis", difficulty:2,
+    text:"Ega va kesim qatnashgan, bitta grammatik markazga ega gap qanday nomlanadi?",
+    options:{A:"Sodda gap",B:"Qo'shma gap",C:"Ergash gap",D:"Bosh gap"}, correct:"A",
+    explain:"Bitta ega va bitta kesimga ega bo'lgan gap — sodda gap deb ataladi." },
+  { id:"u10", subject:"uzb", topic:"Sintaksis", difficulty:3,
+    text:"\"Kel-\" fe'l o'zagiga -di qo'shimchasi qo'shilsa, qanday zamon hosil bo'ladi?",
+    options:{A:"Hozirgi zamon",B:"O'tgan zamon",C:"Kelasi zamon",D:"Buyruq mayli"}, correct:"B",
+    explain:"-di qo'shimchasi fe'lga qo'shilib, aniq o'tgan zamon ma'nosini beradi: keldi." },
+
+  // ---------------- INGLIZ TILI ----------------
+  { id:"e1", subject:"eng", topic:"Grammar", difficulty:1,
+    text:"Choose the correct form: \"She ___ to school every day.\"",
+    options:{A:"go",B:"goes",C:"going",D:"gone"}, correct:"B",
+    explain:"With he/she/it in Present Simple, we add -s to the verb: she goes." },
+  { id:"e2", subject:"eng", topic:"Vocabulary", difficulty:1,
+    text:"What is the plural form of \"child\"?",
+    options:{A:"childs",B:"childes",C:"children",D:"child's"}, correct:"C",
+    explain:"\"Child\" has an irregular plural form: children — it doesn't follow the normal -s rule." },
+  { id:"e3", subject:"eng", topic:"Grammar", difficulty:2,
+    text:"Choose the correct sentence.",
+    options:{A:"I am go home",B:"I going home",C:"I am going home",D:"I go home now"}, correct:"C",
+    explain:"Present Continuous is formed with am/is/are + verb-ing: I am going home." },
+  { id:"e4", subject:"eng", topic:"Vocabulary", difficulty:1,
+    text:"What does the word \"book\" mean in Uzbek?",
+    options:{A:"Qalam",B:"Kitob",C:"Stol",D:"Deraza"}, correct:"B",
+    explain:"\"Book\" so'zi o'zbek tilida \"kitob\" degan ma'noni anglatadi." },
+  { id:"e5", subject:"eng", topic:"Grammar", difficulty:2,
+    text:"Fill in: \"They ___ finished their homework.\"",
+    options:{A:"has",B:"have",C:"is",D:"am"}, correct:"B",
+    explain:"With the plural subject \"they\", we use \"have\" in Present Perfect tense, not \"has\"." },
+  { id:"e6", subject:"eng", topic:"Vocabulary", difficulty:1,
+    text:"Choose the opposite (antonym) of \"big\".",
+    options:{A:"large",B:"huge",C:"small",D:"tall"}, correct:"C",
+    explain:"\"Small\" is the opposite of \"big\", while large and huge are synonyms of big." },
+  { id:"e7", subject:"eng", topic:"Grammar", difficulty:2,
+    text:"What is the past tense of \"go\"?",
+    options:{A:"goed",B:"went",C:"gone",D:"going"}, correct:"B",
+    explain:"\"Go\" is an irregular verb: go — went — gone. The Past Simple form is \"went\"." },
+  { id:"e8", subject:"eng", topic:"Grammar", difficulty:2,
+    text:"\"How ___ apples do you have?\"",
+    options:{A:"much",B:"many",C:"a lot",D:"little"}, correct:"B",
+    explain:"\"Apples\" is a countable noun, so we use \"many\", not \"much\" (which is for uncountable nouns)." },
+  { id:"e9", subject:"eng", topic:"Grammar", difficulty:2,
+    text:"Choose the correct article: \"___ apple a day keeps the doctor away.\"",
+    options:{A:"A",B:"An",C:"The",D:"No article"}, correct:"B",
+    explain:"\"Apple\" starts with a vowel sound, so we use the article \"an\", not \"a\"." },
+  { id:"e10", subject:"eng", topic:"Grammar", difficulty:3,
+    text:"Which of the following words is a verb?",
+    options:{A:"Beautiful",B:"Quickly",C:"Run",D:"Table"}, correct:"C",
+    explain:"\"Run\" describes an action, which makes it a verb. The others are an adjective, adverb, and noun." },
+
+  // ---------------- BIOLOGIYA ----------------
+  { id:"b1", subject:"bio", topic:"Odam anatomiyasi", difficulty:1,
+    text:"Inson yuragi necha kamerali (bo'limli)?",
+    options:{A:"2",B:"3",C:"4",D:"5"}, correct:"C",
+    explain:"Inson yuragi 4 ta kameradan iborat: 2 ta bo'lmacha va 2 ta qorincha." },
+  { id:"b2", subject:"bio", topic:"Hujayra va o'simliklar", difficulty:1,
+    text:"Fotosintez jarayoni asosan qayerda sodir bo'ladi?",
+    options:{A:"Ildizda",B:"Barglarda",C:"Poyada",D:"Gulda"}, correct:"B",
+    explain:"Barglarda xlorofill ko'p bo'lganligi sababli fotosintez asosan shu yerda sodir bo'ladi." },
+  { id:"b3", subject:"bio", topic:"Hujayra va o'simliklar", difficulty:2,
+    text:"DNK hujayraning qaysi qismida joylashgan?",
+    options:{A:"Sitoplazma",B:"Yadro",C:"Membrana",D:"Mitoxondriya"}, correct:"B",
+    explain:"Eukariot hujayralarda DNK asosan yadroda, xromosomalar tarkibida joylashgan." },
+  { id:"b4", subject:"bio", topic:"Odam anatomiyasi", difficulty:2,
+    text:"Odamda nechta asosiy qon guruhi mavjud?",
+    options:{A:"2",B:"3",C:"4",D:"5"}, correct:"C",
+    explain:"ABO tizimi bo'yicha inson qoni 4 ta guruhga bo'linadi: I (O), II (A), III (B), IV (AB)." },
+  { id:"b5", subject:"bio", topic:"Odam anatomiyasi", difficulty:1,
+    text:"Quyidagi organlardan qaysi biri nafas olish tizimiga kiradi?",
+    options:{A:"Jigar",B:"O'pka",C:"Buyrak",D:"Me'da"}, correct:"B",
+    explain:"O'pka — nafas olish tizimining asosiy organi bo'lib, gazlar almashinuvini ta'minlaydi." },
+  { id:"b6", subject:"bio", topic:"Hujayra va o'simliklar", difficulty:2,
+    text:"Hujayraning \"energiya stansiyasi\" deb ataladigan organoidi qaysi?",
+    options:{A:"Ribosoma",B:"Mitoxondriya",C:"Golji apparati",D:"Lizosoma"}, correct:"B",
+    explain:"Mitoxondriya hujayra uchun ATP shaklida energiya ishlab chiqaradi, shuning uchun uni \"energiya stansiyasi\" deb atashadi." },
+  { id:"b7", subject:"bio", topic:"Odam anatomiyasi", difficulty:2,
+    text:"Kattalar skeletida taxminan nechta suyak mavjud?",
+    options:{A:"106",B:"156",C:"206",D:"256"}, correct:"C",
+    explain:"Kattalar odam skeletida taxminan 206 ta suyak bo'ladi (chaqaloqlarda esa ko'proq, ular o'sish jarayonida qo'shilib ketadi)." },
+  { id:"b8", subject:"bio", topic:"Hujayra va o'simliklar", difficulty:1,
+    text:"Fotosintez jarayonida qaysi gaz atrof-muhitga ajralib chiqadi?",
+    options:{A:"Kislorod",B:"Karbonat angidrid",C:"Azot",D:"Vodorod"}, correct:"A",
+    explain:"O'simliklar fotosintez jarayonida karbonat angidridni yutib, kislorodni ajratib chiqaradi." },
+  { id:"b9", subject:"bio", topic:"Odam anatomiyasi", difficulty:2,
+    text:"Qaysi organ qonni tozalab, chiqindilarni siydik orqali chiqarib yuboradi?",
+    options:{A:"Yurak",B:"Buyrak",C:"O'pka",D:"Taloq"}, correct:"B",
+    explain:"Buyraklar qondagi ortiqcha suyuqlik va chiqindi moddalarni filtrlab, siydik shaklida tashqariga chiqaradi." },
+  { id:"b10", subject:"bio", topic:"Hujayra va o'simliklar", difficulty:2,
+    text:"Bakteriyalar qaysi organizmlar guruhiga kiradi?",
+    options:{A:"Prokariotlar",B:"Eukariotlar",C:"Viruslar",D:"Zamburug'lar"}, correct:"A",
+    explain:"Bakteriyalar shakllangan yadrosi bo'lmagan prokariot organizmlar guruhiga kiradi." },
+];
+
+// Yo'nalishlar (onboarding uchun) — real loyihada /catalog/directions/ dan keladi
+const DIRECTIONS = [
+  "Axborot texnologiyalari", "Tibbiyot", "Yuridik yo'nalish", "Iqtisodiyot",
+  "Pedagogika", "Muhandislik", "Xalqaro munosabatlar", "Filologiya",
+  "Arxitektura", "Biznes boshqaruvi",
+];
+
+// Nazoratchi (mentor) roli uchun mock guruh
+const MENTOR_GROUP = [
+  { name: "Diyora N.", subject: "Matematika", progress: 78, streak: 12, weak: "Geometriya" },
+  { name: "Sardor T.", subject: "Kimyo", progress: 54, streak: 3, weak: "Umumiy kimyo" },
+  { name: "Malika R.", subject: "Ingliz tili", progress: 91, streak: 21, weak: "—" },
+  { name: "Jasur B.", subject: "Ona tili", progress: 39, streak: 0, weak: "Sintaksis" },
+  { name: "Nilufar S.", subject: "Biologiya", progress: 66, streak: 7, weak: "Hujayra va o'simliklar" },
+];
+
+const ACHIEVEMENTS = [
+  { icon: "🔥", name: "7 kunlik streak", got: true },
+  { icon: "💯", name: "Birinchi 100 to'g'ri javob", got: true },
+  { icon: "🧮", name: "Matematikada usta", got: false },
+  { icon: "🌙", name: "Kechqurun mashq", got: true },
+  { icon: "🎯", name: "10/10 natija", got: false },
+];
+
+</script>
+<script>
+// ============================================================
+// TestYourself — frontend prototype logic
+// Vanilla JS, single state object, full re-render on change.
+// Barcha ma'lumotlar shu sessiyada xotirada saqlanadi (demo).
+// Real loyihada bular backend API orqali keladi/yuboriladi —
+// qarang API_DIZAYN.md
+// ============================================================
+
+const state = {
+  role: "student",
+  screen: "onboarding",      // onboarding | app | session | result
+  onbStep: 0,
+  onbDirection: null,
+  onbWeak: [],
+  studentTab: "home",         // home | tests | aiustoz | progress | profile | premium
+  modeSelectSubject: null,
+  session: null,
+  lastResult: null,
+  registered: false,
+  userName: "Akbar",
+  xp: 240,
+  streak: 5,
+  freezes: 1,
+  dailyDone: 1,
+  dailyGoal: 5,
+  premium: false,
+  consent: false,
+  lang: "uz",
+  subjectProgress: { math: 72, chem: 45, uzb: 30, eng: 85, bio: 58 },
+  topicMastery: {
+    math: [{ t: "Algebra", p: 78 }, { t: "Geometriya", p: 55 }],
+    chem: [{ t: "Anorganik kimyo", p: 60 }, { t: "Umumiy kimyo", p: 32 }],
+    uzb:  [{ t: "Morfologiya", p: 41 }, { t: "Sintaksis", p: 22 }],
+    eng:  [{ t: "Grammar", p: 88 }, { t: "Vocabulary", p: 80 }],
+    bio:  [{ t: "Odam anatomiyasi", p: 66 }, { t: "Hujayra va o'simliklar", p: 49 }],
+  },
+  mistakeLog: [],
+  pendingRegisterAfterOnboarding: false,
+  modal: null, // {type, ...}
+};
+
+// ---------- utils ----------
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+const subjectById = id => SUBJECTS.find(s => s.id === id);
+
+let toastTimer = null;
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function masteryColor(pct) {
+  if (pct >= 70) return "var(--mint)";
+  if (pct >= 40) return "var(--amber)";
+  return "var(--coral)";
+}
+function masteryLabel(pct) {
+  if (pct >= 70) return "Mustahkam";
+  if (pct >= 40) return "O'rtacha";
+  return "Zaif";
+}
+
+function ring(percent, size = 56, stroke = 6, color = null, label = null) {
+  const c = color || masteryColor(percent);
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const off = circ - (Math.min(percent, 100) / 100) * circ;
+  return `
+  <div class="ring-wrap" style="width:${size}px;height:${size}px;">
+    <svg width="${size}" height="${size}">
+      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" stroke="var(--surface-3)" stroke-width="${stroke}" fill="none"/>
+      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" stroke="${c}" stroke-width="${stroke}" fill="none"
+        stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}"
+        style="transition:stroke-dashoffset .6s ease"/>
+    </svg>
+    <div class="ring-label" style="font-size:${size * 0.22}px;color:${c}">${label ?? Math.round(percent) + "%"}</div>
+  </div>`;
+}
+
+// ---------- modal ----------
+function openModal(html) {
+  $("#modalRoot").innerHTML = `<div class="modal-overlay" data-action="closeModalOverlay">
+    <div class="modal-box" onclick="event.stopPropagation()">${html}</div>
+  </div>`;
+}
+function closeModal() { $("#modalRoot").innerHTML = ""; }
+
+// ==================================================================
+// RENDER ROOT
+// ==================================================================
+function render() {
+  $$(".role-btn").forEach(b => b.classList.toggle("active", b.dataset.role === state.role));
+  const stage = $("#stage");
+  if (state.role === "student") stage.innerHTML = renderStudentApp();
+  else if (state.role === "mentor") stage.innerHTML = renderMentorDash();
+  else stage.innerHTML = renderAdminDash();
+}
+
+// ==================================================================
+// STUDENT — website layout (sidebar + content)
+// ==================================================================
+function renderStudentApp() {
+  if (state.screen !== "app") {
+    let inner;
+    if (state.screen === "onboarding") inner = renderOnboarding();
+    else if (state.screen === "session") inner = renderSession();
+    else inner = renderResult();
+    return `<div class="page-center">${inner}</div>`;
+  }
+  return `
+  <div class="app-shell">
+    ${renderSidebar()}
+    <div class="app-content">${renderStudentTab()}</div>
+  </div>`;
+}
+
+function renderSidebar() {
+  const tabs = [
+    { id: "home", icon: "🏠", label: "Bosh sahifa" },
+    { id: "tests", icon: "📝", label: "Testlar" },
+    { id: "aiustoz", icon: "🤖", label: "AI Ustoz" },
+    { id: "progress", icon: "📊", label: "Progress" },
+    { id: "profile", icon: "👤", label: "Profil" },
+  ];
+  const name = state.registered ? state.userName : "Mehmon";
+  return `
+  <aside class="sidebar">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">${name[0]}</div>
+      <div>
+        <div style="font-weight:700;font-size:13.5px;">${name}</div>
+        <div style="color:var(--text-low);font-size:11px;">🔥 ${state.streak} kun ketma-ket</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      ${tabs.map(t => `
+        <button class="side-link ${state.studentTab === t.id ? "active" : ""}" data-action="setTab" data-tab="${t.id}">
+          <span class="side-icon">${t.icon}</span>${t.label}
+        </button>`).join("")}
+    </nav>
+  </aside>`;
+}
+
+function renderStudentTab() {
+  if (state.studentTab === "home") return renderHome();
+  if (state.studentTab === "tests") return renderTests();
+  if (state.studentTab === "aiustoz") return renderAiUstoz();
+  if (state.studentTab === "progress") return renderProgress();
+  if (state.studentTab === "profile") return renderProfile();
+  if (state.studentTab === "premium") return renderPremium();
+  return "";
+}
+
+// ---------------- ONBOARDING ----------------
+function renderOnboarding() {
+  const step = state.onbStep;
+  const dots = [0, 1, 2, 3].map(i => `<div class="onb-dot ${i === step ? "active" : ""}"></div>`).join("");
+
+  if (step === 0) {
+    return `
+    <div class="onb-wrap" style="padding-top:40px;text-align:center;">
+      <div style="font-size:44px;margin-bottom:10px;">🎓</div>
+      <h1 class="display" style="font-size:26px;margin:0 0 10px;">Aqlliroq tayyorlaning,<br><span style="color:var(--violet-soft)">DTM'da g'alaba qiling</span></h1>
+      <p style="color:var(--text-mid);font-size:14px;line-height:1.6;margin-bottom:26px;">
+        Shaxsiy AI ustoz zaif mavzularingizni topadi, xatolaringizni tushuntiradi va kunlik mashq rejasini tuzadi.
+      </p>
+      <button class="btn btn-primary" data-action="onbNext">Boshlash →</button>
+      <p style="margin-top:14px;font-size:12px;color:var(--text-low);">Ro'yxatdan o'tishsiz, 10 soniyada boshlaymiz</p>
+    </div>`;
+  }
+  if (step === 1) {
+    return `
+    <div class="onb-wrap">
+      <div class="onb-dots">${dots}</div>
+      <div class="eyebrow" style="margin-bottom:8px;">1-qadam / 3</div>
+      <h2 class="display" style="font-size:21px;margin:0 0 16px;">Qaysi yo'nalishga tayyorlanyapsiz?</h2>
+      <div class="chip-row">
+        ${DIRECTIONS.map(d => `<button class="chip ${state.onbDirection === d ? "selected" : ""}" data-action="selectDirection" data-dir="${d}">${d}</button>`).join("")}
+      </div>
+      <button class="btn btn-primary" style="margin-top:24px;" data-action="onbNext" ${state.onbDirection ? "" : "disabled"}>Davom etish →</button>
+    </div>`;
+  }
+  if (step === 2) {
+    return `
+    <div class="onb-wrap">
+      <div class="onb-dots">${dots}</div>
+      <div class="eyebrow" style="margin-bottom:8px;">2-qadam / 3</div>
+      <h2 class="display" style="font-size:21px;margin:0 0 16px;">Qaysi fanlar sizga qiyinroq?</h2>
+      <p style="color:var(--text-mid);font-size:13px;margin-bottom:14px;">Bir nechtasini belgilashingiz mumkin</p>
+      <div class="chip-row">
+        ${SUBJECTS.map(s => `<button class="chip ${state.onbWeak.includes(s.id) ? "selected" : ""}" data-action="toggleWeak" data-subj="${s.id}">${s.icon} ${s.name}</button>`).join("")}
+      </div>
+      <button class="btn btn-primary" style="margin-top:24px;" data-action="onbNext" ${state.onbWeak.length ? "" : "disabled"}>Davom etish →</button>
+    </div>`;
+  }
+  // step 3
+  return `
+  <div class="onb-wrap" style="text-align:center;padding-top:24px;">
+    <div class="onb-dots">${dots}</div>
+    <div style="font-size:40px;margin-bottom:6px;">⚡</div>
+    <h2 class="display" style="font-size:21px;margin:0 0 10px;">Ajoyib! Endi qisqa sinov bilan boshlaymiz</h2>
+    <p style="color:var(--text-mid);font-size:14px;line-height:1.6;margin-bottom:22px;">
+      3 ta savol — sizning boshlang'ich darajangizni aniqlash uchun. Natijangizni keyin saqlab qo'yasiz.
+    </p>
+    <button class="btn btn-primary" data-action="startMiniTest">Mini-testni boshlash</button>
+    <button class="btn btn-ghost" style="margin-top:10px;" data-action="skipOnboarding">O'tkazib yuborish</button>
+  </div>`;
+}
+
+// ---------------- HOME ----------------
+function renderHome() {
+  const pct = Math.round((state.dailyDone / state.dailyGoal) * 100);
+  const name = state.registered ? state.userName : "Mehmon";
+  return `
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div>
+        <div style="color:var(--text-mid);font-size:13px;">Xayrli kun 👋</div>
+        <div class="display" style="font-size:19px;font-weight:700;">${name}</div>
+      </div>
+      <div class="pill pill-amber">🔥 ${state.streak} kun</div>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg,var(--surface-2),var(--surface-3));">
+      <div class="eyebrow">DTM 2026 imtihoniga</div>
+      <div class="display" style="font-size:30px;font-weight:800;margin:4px 0;color:var(--violet-soft);">62 kun qoldi</div>
+      <p style="color:var(--text-mid);font-size:12.5px;">Har kuni muntazam mashq — eng yaxshi tayyorgarlik strategiyasi.</p>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;gap:16px;">
+      ${ring(pct, 66, 7, "var(--violet)", state.dailyDone + "/" + state.dailyGoal)}
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:14.5px;">Kunlik maqsad</div>
+        <div style="color:var(--text-mid);font-size:12.5px;margin:4px 0 10px;">Bugun ${state.dailyGoal} ta test bajaring</div>
+        <button class="btn btn-primary btn-sm" data-action="setTab" data-tab="tests">Mashq qilish</button>
+      </div>
+    </div>
+
+    <div class="card" style="border:1px solid rgba(124,92,252,.35);">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:700;font-size:14.5px;">🧠 Bugungi takrorlash</div>
+          <div style="color:var(--text-mid);font-size:12.5px;margin-top:4px;">4 ta savol unutilish arafasida</div>
+        </div>
+        <button class="btn btn-amber btn-sm" data-action="startReview">Boshlash</button>
+      </div>
+    </div>
+
+    <div class="eyebrow" style="margin:18px 0 10px;">Fan tanlang</div>
+    <div class="subject-grid">
+      ${SUBJECTS.map(s => `
+        <button class="subject-card" data-action="openSubjectModes" data-subject="${s.id}">
+          <span class="icon">${s.icon}</span>
+          <span class="sname">${s.name}</span>
+          ${ring(state.subjectProgress[s.id], 40, 5, null, "")}
+        </button>`).join("")}
+    </div>
+  </div>`;
+}
+
+// ---------------- TESTS ----------------
+function renderTests() {
+  if (state.modeSelectSubject) {
+    const s = subjectById(state.modeSelectSubject);
+    return `
+    <div>
+      <button class="icon-btn" data-action="backToSubjects" style="margin-bottom:14px;">←</button>
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:36px;">${s.icon}</div>
+        <h2 class="display" style="font-size:20px;margin:6px 0 0;">${s.name}</h2>
+        <p style="color:var(--text-mid);font-size:12.5px;">10 ta savol tayyor</p>
+      </div>
+      <button class="card" style="width:100%;text-align:left;display:flex;gap:14px;align-items:center;" data-action="startSession" data-subject="${s.id}" data-mode="practice">
+        <span style="font-size:26px;">📘</span>
+        <span style="flex:1;">
+          <div style="font-weight:700;font-size:14.5px;">O'rganish rejimi</div>
+          <div style="color:var(--text-mid);font-size:12px;margin-top:2px;">Vaqt chegarasiz, har javobdan so'ng izoh</div>
+        </span>
+      </button>
+      <button class="card" style="width:100%;text-align:left;display:flex;gap:14px;align-items:center;" data-action="startSession" data-subject="${s.id}" data-mode="exam">
+        <span style="font-size:26px;">⏱️</span>
+        <span style="flex:1;">
+          <div style="font-weight:700;font-size:14.5px;">Imtihon rejimi</div>
+          <div style="color:var(--text-mid);font-size:12px;margin-top:2px;">Vaqt chegarali, natija oxirida ko'rsatiladi</div>
+        </span>
+      </button>
+    </div>`;
+  }
+  return `
+  <div>
+    <h2 class="display" style="font-size:20px;margin:0 0 4px;">Barcha testlar</h2>
+    <p style="color:var(--text-mid);font-size:12.5px;margin-bottom:16px;">Fanni tanlang va rejimni belgilang</p>
+    <div class="subject-grid">
+      ${SUBJECTS.map(s => `
+        <button class="subject-card" data-action="openSubjectModes" data-subject="${s.id}">
+          <span class="icon">${s.icon}</span>
+          <span class="sname">${s.name}</span>
+          <span style="font-size:11px;color:var(--text-low);">10 ta savol</span>
+          ${ring(state.subjectProgress[s.id], 40, 5, null, "")}
+        </button>`).join("")}
+    </div>
+  </div>`;
+}
+
+// ---------------- AI USTOZ ----------------
+function renderAiUstoz() {
+  const log = state.mistakeLog;
+  return `
+  <div style="display:flex;flex-direction:column;height:100%;">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:34px;">🤖</div>
+      <h2 class="display" style="font-size:19px;margin:6px 0 0;">AI Ustoz</h2>
+      <p style="color:var(--text-mid);font-size:12px;">Har bir xatoni shaxsan sizga tushuntiraman</p>
+    </div>
+    ${log.length === 0 ? `
+      <div class="card" style="text-align:center;color:var(--text-mid);font-size:13px;">
+        Hali xatolaringiz yo'q 🎉<br>Test yeching — men har bir xatoni sodda tilda tushuntirib beraman.
+      </div>` : log.slice().reverse().map(m => `
+      <div class="card" style="margin-bottom:10px;">
+        <div class="pill pill-violet" style="margin-bottom:8px;">${subjectById(m.subject).name} · ${m.topic}</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px;">${m.text}</div>
+        <div class="explain-box"><b>AI Ustoz:</b> ${m.explain}</div>
+      </div>`).join("")}
+    <div style="margin-top:auto;padding-top:14px;display:flex;gap:8px;">
+      <input id="aiInput" placeholder="Savolingizni yozing..." style="flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text-hi);font-size:13px;">
+      <button class="icon-btn" data-action="aiSend">➤</button>
+    </div>
+  </div>`;
+}
+
+// ---------------- PROGRESS ----------------
+function renderProgress() {
+  return `
+  <div>
+    <h2 class="display" style="font-size:20px;margin:0 0 4px;">Progress</h2>
+    <p style="color:var(--text-mid);font-size:12.5px;margin-bottom:16px;">Bilim harorati — har bir mavzu bo'yicha</p>
+
+    ${SUBJECTS.map(s => `
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span style="font-size:18px;">${s.icon}</span>
+          <span style="font-weight:700;font-size:14px;flex:1;">${s.name}</span>
+          ${ring(state.subjectProgress[s.id], 36, 5, null, "")}
+        </div>
+        ${state.topicMastery[s.id].map(t => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">
+            <span style="font-size:12.5px;color:var(--text-mid);">${t.t}</span>
+            <span class="pill" style="background:rgba(255,255,255,.05);color:${masteryColor(t.p)}">${masteryLabel(t.p)} · ${t.p}%</span>
+          </div>`).join("")}
+      </div>`).join("")}
+
+    <div class="eyebrow" style="margin:18px 0 10px;">Haftalik reyting</div>
+    <div class="card">
+      ${["Malika R. — 1420 XP", "Sardor T. — 1180 XP", `Siz — ${state.xp} XP`, "Jasur B. — 210 XP", "Nilufar S. — 190 XP"]
+        .map((row, i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;${row.includes('Siz') ? 'background:rgba(124,92,252,.1);border-radius:10px;padding-left:8px;' : ''}">
+          <span style="width:20px;color:var(--text-low);font-weight:700;font-size:12px;">${i + 1}</span>
+          <span style="flex:1;font-size:13px;font-weight:${row.includes('Siz') ? '700' : '500'};">${row}</span>
+        </div>`).join("")}
+    </div>
+
+    <div class="eyebrow" style="margin:18px 0 10px;">Yutuqlar</div>
+    <div class="card">
+      <div class="badge-row">
+        ${ACHIEVEMENTS.map(a => `
+          <div class="badge ${a.got ? "got" : ""}">
+            <div class="bicon">${a.icon}</div>
+            <span class="blabel">${a.name}</span>
+          </div>`).join("")}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ---------------- PROFILE ----------------
+function renderProfile() {
+  return `
+  <div>
+    <h2 class="display" style="font-size:20px;margin:0 0 16px;">Profil</h2>
+    <div class="card" style="display:flex;align-items:center;gap:14px;">
+      <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--violet),#5A3FE0);display:flex;align-items:center;justify-content:center;font-weight:800;font-family:var(--font-display);font-size:18px;">${state.registered ? state.userName[0] : "?"}</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:15px;">${state.registered ? state.userName : "Mehmon foydalanuvchi"}</div>
+        <div style="color:var(--text-mid);font-size:12px;">${state.registered ? "+998 90 123 45 67" : "Ro'yxatdan o'tilmagan"}</div>
+      </div>
+      ${state.registered ? "" : `<button class="btn btn-primary btn-sm" data-action="registerOpen">Kirish</button>`}
+    </div>
+
+    <button class="card" style="width:100%;text-align:left;border:1px solid rgba(255,178,56,.4);background:linear-gradient(135deg,rgba(255,178,56,.12),var(--surface-2));" data-action="setTab" data-tab="premium">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:800;font-size:14.5px;color:var(--amber);">${state.premium ? "⭐ Premium faol" : "⭐ Premium'ga o'ting"}</div>
+          <div style="color:var(--text-mid);font-size:12px;margin-top:3px;">${state.premium ? "Cheksiz test va AI izohlar ochiq" : "Cheksiz test, to'liq takrorlash, AI izohlar"}</div>
+        </div>
+        <span style="color:var(--amber);">→</span>
+      </div>
+    </button>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:700;font-size:13.5px;">Natijalarni OTMlar bilan ulashish</div>
+          <div style="color:var(--text-mid);font-size:11.5px;margin-top:2px;">Ixtiyoriy — istalgan vaqt bekor qilinadi</div>
+        </div>
+        <button class="chip ${state.consent ? "selected" : ""}" data-action="toggleConsent">${state.consent ? "Yoqilgan" : "O'chirilgan"}</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:700;font-size:13.5px;margin-bottom:10px;">Til</div>
+      <div class="chip-row">
+        <button class="chip ${state.lang === "uz" ? "selected" : ""}" data-action="setLang" data-lang="uz">O'zbekcha</button>
+        <button class="chip ${state.lang === "ru" ? "selected" : ""}" data-action="setLang" data-lang="ru">Русский</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;font-size:13.5px;">Streak muzlatish</span>
+        <span class="pill pill-amber">❄️ ${state.freezes} ta qoldi</span>
+      </div>
+    </div>
+
+    <button class="btn btn-ghost" style="margin-top:6px;" data-action="logout">Chiqish</button>
+  </div>`;
+}
+
+// ---------------- PREMIUM ----------------
+function renderPremium() {
+  const plans = [
+    { id: "free", name: "Bepul", price: "0 so'm", features: ["Kuniga 5 ta test", "Asosiy statistikа"], cta: "Joriy tarif" },
+    { id: "monthly", name: "Oylik", price: "39 000 so'm", features: ["Cheksiz test", "To'liq takrorlash moduli", "AI xato izohlari"], cta: "Tanlash", highlight: true },
+    { id: "quarterly", name: "3 oylik", price: "99 000 so'm", features: ["Barcha Oylik imkoniyatlar", "17% tejamkor", "Ustuvor qo'llab-quvvatlash"], cta: "Tanlash" },
+  ];
+  return `
+  <div>
+    <button class="icon-btn" data-action="setTab" data-tab="profile" style="margin-bottom:14px;">←</button>
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="font-size:32px;">⭐</div>
+      <h2 class="display" style="font-size:20px;margin:6px 0 4px;">Premium'ga o'ting</h2>
+      <p style="color:var(--text-mid);font-size:12.5px;">Cheksiz mashq, chuqur tahlil, AI ustoz</p>
+    </div>
+    ${plans.map(p => `
+      <div class="card" style="${p.highlight ? "border-color:var(--violet);box-shadow:0 0 0 1px var(--violet);" : ""}">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-weight:800;font-family:var(--font-display);font-size:15px;">${p.name}</div>
+          <div style="font-weight:700;color:var(--violet-soft);font-size:14px;">${p.price}</div>
+        </div>
+        <ul style="margin:10px 0 12px;padding-left:18px;color:var(--text-mid);font-size:12.5px;line-height:1.8;">
+          ${p.features.map(f => `<li>${f}</li>`).join("")}
+        </ul>
+        <button class="btn ${p.id === "free" ? "btn-ghost" : "btn-primary"}" ${p.id === "free" ? "disabled" : ""} data-action="buyPlan" data-plan="${p.id}">${p.cta}</button>
+      </div>`).join("")}
+    <p style="text-align:center;color:var(--text-low);font-size:11px;margin-top:10px;">To'lov: Payme · Click — istalgan vaqt bekor qilish mumkin</p>
+  </div>`;
+}
+
+// ==================================================================
+// TEST SESSION
+// ==================================================================
+function startSession(subjectId, mode, opts = {}) {
+  const count = opts.count || 10;
+  let pool = QUESTIONS.filter(q => q.subject === subjectId);
+  if (opts.pickIds) pool = QUESTIONS.filter(q => opts.pickIds.includes(q.id));
+  const questions = shuffle(pool).slice(0, Math.min(count, pool.length));
+  state.session = {
+    subjectId, mode, questions, idx: 0,
+    answers: [], selected: null, confidence: null, confirmed: false,
+    timeLeft: mode === "exam" ? 45 : null, timerId: null,
+    startedAt: Date.now(), isMini: !!opts.isMini, isReview: !!opts.isReview,
+  };
+  state.screen = "session";
+  render();
+  if (mode === "exam") startTimer();
+}
+
+function startTimer() {
+  clearInterval(state.session.timerId);
+  state.session.timerId = setInterval(() => {
+    if (!state.session) return;
+    state.session.timeLeft--;
+    if (state.session.timeLeft <= 0) {
+      clearInterval(state.session.timerId);
+      if (!state.session.confirmed) confirmAnswer(true);
+    } else {
+      const el = $("#timerVal");
+      if (el) el.textContent = state.session.timeLeft + "s";
+    }
+  }, 1000);
+}
+
+function renderSession() {
+  const s = state.session;
+  const q = s.questions[s.idx];
+  const pct = Math.round(((s.idx) / s.questions.length) * 100);
+
+  return `
+  <div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <button class="icon-btn" data-action="exitSessionAsk">✕</button>
+      <div style="flex:1;">
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+      ${s.mode === "exam" ? `<span class="timer-badge">⏱ <span id="timerVal">${s.timeLeft}s</span></span>` : `<span class="pill pill-violet">O'rganish</span>`}
+    </div>
+    <div class="eyebrow">${subjectById(s.subjectId).name} · ${q.topic} · Savol ${s.idx + 1}/${s.questions.length}</div>
+    <div class="q-text">${q.text}</div>
+
+    ${Object.entries(q.options).map(([letter, text]) => {
+      let cls = "option";
+      if (s.confirmed) {
+        if (letter === q.correct) cls += " correct";
+        else if (letter === s.selected) cls += " incorrect";
+      } else if (letter === s.selected) cls += " selected";
+      return `<button class="${cls}" ${s.confirmed ? "disabled" : ""} data-action="selectOption" data-letter="${letter}">
+        <span class="opt-letter">${letter}</span><span>${text}</span>
+      </button>`;
+    }).join("")}
+
+    ${!s.confirmed && s.selected ? `
+      <div style="margin:14px 0 6px;">
+        <div class="eyebrow" style="margin-bottom:8px;">Javobingizga qanchalik ishonchingiz bor?</div>
+        <div class="chip-row">
+          <button class="chip ${s.confidence === "ishonchli" ? "selected" : ""}" data-action="selectConfidence" data-level="ishonchli">✅ Ishonchliman</button>
+          <button class="chip ${s.confidence === "tahmin" ? "selected" : ""}" data-action="selectConfidence" data-level="tahmin">🤔 Taxmin qilyapman</button>
+        </div>
+      </div>` : ""}
+
+    ${s.confirmed ? `
+      <div class="explain-box"><b>AI Ustoz izohi:</b> ${q.explain}</div>
+    ` : ""}
+
+    <div style="margin-top:16px;">
+      ${!s.confirmed
+        ? `<button class="btn btn-primary" data-action="confirmAnswer" ${s.selected && s.confidence ? "" : "disabled"}>Javobni tasdiqlash</button>`
+        : `<button class="btn btn-primary" data-action="nextQuestion">${s.idx + 1 >= s.questions.length ? "Natijani ko'rish" : "Keyingi savol →"}</button>`
+      }
+    </div>
+  </div>`;
+}
+
+function confirmAnswer(auto = false) {
+  const s = state.session;
+  if (s.confirmed) return;
+  const q = s.questions[s.idx];
+  if (!s.selected && !auto) return;
+  const isCorrect = s.selected === q.correct;
+  s.confirmed = true;
+  s.answers.push({
+    qid: q.id, subject: q.subject, topic: q.topic,
+    selected: s.selected, correct: q.correct, isCorrect,
+    confidence: s.confidence || "n/a", timeSpent: Math.round((Date.now() - s.startedAt) / 1000),
+  });
+  if (!isCorrect) {
+    state.mistakeLog.push({ subject: q.subject, topic: q.topic, text: q.text, explain: q.explain });
+  }
+  if (s.timerId) clearInterval(s.timerId);
+  render();
+}
+
+function nextQuestion() {
+  const s = state.session;
+  if (s.idx + 1 >= s.questions.length) return finishSession();
+  s.idx++;
+  s.selected = null;
+  s.confidence = null;
+  s.confirmed = false;
+  s.startedAt = Date.now();
+  if (s.mode === "exam") { s.timeLeft = 45; }
+  render();
+  if (s.mode === "exam") startTimer();
+}
+
+function finishSession() {
+  const s = state.session;
+  const correct = s.answers.filter(a => a.isCorrect).length;
+  const total = s.answers.length;
+  const totalTime = s.answers.reduce((sum, a) => sum + a.timeSpent, 0);
+
+  const byTopic = {};
+  s.answers.forEach(a => {
+    byTopic[a.topic] = byTopic[a.topic] || { total: 0, correct: 0 };
+    byTopic[a.topic].total++;
+    if (a.isCorrect) byTopic[a.topic].correct++;
+  });
+
+  const xpGained = correct * 12 + (total === correct ? 20 : 0);
+  state.xp += xpGained;
+  if (!s.isReview) state.dailyDone = Math.min(state.dailyGoal, state.dailyDone + 1);
+  state.subjectProgress[s.subjectId] = Math.min(100, Math.round(
+    state.subjectProgress[s.subjectId] * 0.7 + (correct / total) * 100 * 0.3
+  ));
+
+  state.lastResult = { subjectId: s.subjectId, mode: s.mode, correct, total, totalTime, byTopic, xpGained, isMini: s.isMini };
+  state.session = null;
+  state.screen = "result";
+
+  if (state.lastResult.isMini && !state.registered) {
+    render();
+    openRegisterModal();
+  } else {
+    render();
+  }
+}
+
+function renderResult() {
+  const r = state.lastResult;
+  const pct = Math.round((r.correct / r.total) * 100);
+  const mins = Math.floor(r.totalTime / 60), secs = r.totalTime % 60;
+  return `
+  <div style="text-align:center;">
+    <div style="margin:10px 0 6px;">${ring(pct, 130, 11, null, pct + "%")}</div>
+    <h2 class="display" style="font-size:20px;margin:14px 0 4px;">${pct >= 70 ? "Ajoyib natija! 🎉" : pct >= 40 ? "Yaxshi urinish 👍" : "Mashq davom etsin 💪"}</h2>
+    <p style="color:var(--text-mid);font-size:13px;margin-bottom:18px;">${r.correct}/${r.total} to'g'ri · ${mins}:${String(secs).padStart(2, "0")} sarflandi</p>
+
+    <div class="card" style="text-align:left;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;font-size:13.5px;">⚡ Olingan XP</span>
+        <span class="pill pill-violet">+${r.xpGained} XP</span>
+      </div>
+    </div>
+
+    <div class="eyebrow" style="text-align:left;margin:16px 0 8px;">Mavzular kesimida</div>
+    ${Object.entries(r.byTopic).map(([topic, d]) => {
+      const p = Math.round((d.correct / d.total) * 100);
+      return `<div class="card" style="text-align:left;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;">${topic}</span>
+        <span class="pill" style="color:${masteryColor(p)};background:rgba(255,255,255,.05);">${d.correct}/${d.total}</span>
+      </div>`;
+    }).join("")}
+
+    <button class="btn btn-primary" style="margin-top:16px;" data-action="restartSubject" data-subject="${r.subjectId}">Yana bir bor</button>
+    <button class="btn btn-ghost" style="margin-top:10px;" data-action="goHome">Bosh sahifaga qaytish</button>
+  </div>`;
+}
+
+// ---------------- register modal (after mini test) ----------------
+function openRegisterModal() {
+  openModal(`
+    <div style="text-align:center;">
+      <div style="font-size:30px;">📱</div>
+      <h3 class="display" style="font-size:17px;margin:8px 0 4px;">Natijangizni saqlang</h3>
+      <p style="color:var(--text-mid);font-size:12.5px;margin-bottom:16px;">Telefon raqamingizni kiriting — SMS orqali kod yuboramiz</p>
+      <input id="regPhone" placeholder="+998 90 123 45 67" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text-hi);font-size:14px;margin-bottom:10px;text-align:center;">
+      <div id="otpBox" style="display:none;">
+        <input id="regOtp" placeholder="4 xonali kod" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text-hi);font-size:14px;margin-bottom:10px;text-align:center;letter-spacing:4px;">
+      </div>
+      <button class="btn btn-primary" id="regBtn" data-action="sendOtp">SMS kod yuborish</button>
+      <button class="btn btn-ghost" style="margin-top:8px;" data-action="closeModalSkip">Keyinroq</button>
+    </div>
+  `);
+}
+
+// ==================================================================
+// MENTOR DASHBOARD
+// ==================================================================
+function renderMentorDash() {
+  const avgProgress = Math.round(MENTOR_GROUP.reduce((s, m) => s + m.progress, 0) / MENTOR_GROUP.length);
+  const avgStreak = Math.round(MENTOR_GROUP.reduce((s, m) => s + m.streak, 0) / MENTOR_GROUP.length);
+  return `
+  <div>
+    <div class="section-head">
+      <div>
+        <h1 class="display" style="font-size:24px;margin:0;">Nazoratchi paneli</h1>
+        <p style="color:var(--text-mid);font-size:13px;margin-top:4px;">O'quvchilar guruhi progressi va zaif mavzular</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost btn-sm" data-action="downloadReport">📄 Hisobot yuklash</button>
+        <button class="btn btn-primary btn-sm" data-action="openMessageModal">✉️ Guruhga xabar</button>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="kpi-card"><div class="eyebrow">O'quvchilar</div><div class="kpi-value">${MENTOR_GROUP.length}</div></div>
+      <div class="kpi-card"><div class="eyebrow">O'rtacha progress</div><div class="kpi-value" style="color:${masteryColor(avgProgress)}">${avgProgress}%</div></div>
+      <div class="kpi-card"><div class="eyebrow">O'rtacha streak</div><div class="kpi-value">🔥 ${avgStreak}</div></div>
+      <div class="kpi-card"><div class="eyebrow">Faollik (D7)</div><div class="kpi-value">80%</div></div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow" style="margin-bottom:12px;">Guruh ro'yxati</div>
+      <table class="data-table">
+        <thead><tr><th>O'quvchi</th><th>Asosiy fan</th><th>Progress</th><th>Streak</th><th>Zaif mavzu</th></tr></thead>
+        <tbody>
+          ${MENTOR_GROUP.map(m => `
+            <tr>
+              <td style="font-weight:600;">${m.name}</td>
+              <td>${m.subject}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="bar-mini"><div class="bar-mini-fill" style="width:${m.progress}%;background:${masteryColor(m.progress)}"></div></div>
+                  <span style="font-size:12px;color:var(--text-mid);">${m.progress}%</span>
+                </div>
+              </td>
+              <td>🔥 ${m.streak}</td>
+              <td><span class="pill" style="background:rgba(251,113,133,.14);color:var(--coral);">${m.weak}</span></td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ==================================================================
+// ADMIN DASHBOARD
+// ==================================================================
+const KPIS = [
+  { label: "Aktivatsiya", value: "62%", target: "Maqsad ≥ 60%", ok: true },
+  { label: "D1 retensiya", value: "41%", target: "Maqsad ≥ 35%", ok: true },
+  { label: "D7 retensiya", value: "22%", target: "Maqsad ≥ 18%", ok: true },
+  { label: "O'rtacha sessiya", value: "9:40", target: "Maqsad 8–12 daq", ok: true },
+  { label: "Free → Premium", value: "4.2%", target: "Maqsad 3–5%", ok: true },
+  { label: "Test yakunlash", value: "78%", target: "Maqsad ≥ 75%", ok: true },
+];
+
+function renderAdminDash() {
+  return `
+  <div>
+    <div class="section-head">
+      <div>
+        <h1 class="display" style="font-size:24px;margin:0;">Admin panel</h1>
+        <p style="color:var(--text-mid);font-size:13px;margin-top:4px;">Savol banki, fanlar, foydalanuvchilar va MVP metrikalari</p>
+      </div>
+      <button class="btn btn-primary btn-sm" data-action="addQuestionOpen">+ Yangi savol</button>
+    </div>
+
+    <div class="dash-grid" style="grid-template-columns:repeat(6,1fr);">
+      ${KPIS.map(k => `
+        <div class="kpi-card">
+          <div class="eyebrow">${k.label}</div>
+          <div class="kpi-value" style="color:var(--mint);font-size:22px;">${k.value}</div>
+          <div class="kpi-target">${k.target}</div>
+        </div>`).join("")}
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="section-head" style="margin-bottom:10px;">
+          <div class="eyebrow">Savollar banki (${QUESTIONS.length})</div>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Fan</th><th>Mavzu</th><th>Savol</th><th>Qiyinlik</th><th></th></tr></thead>
+          <tbody>
+            ${QUESTIONS.map(q => `
+              <tr>
+                <td>${subjectById(q.subject).icon} ${subjectById(q.subject).name}</td>
+                <td style="color:var(--text-mid);">${q.topic}</td>
+                <td style="max-width:220px;">${q.text.length > 40 ? q.text.slice(0, 40) + "…" : q.text}</td>
+                <td><span class="pill pill-violet">${q.difficulty}/5</span></td>
+                <td style="white-space:nowrap;">
+                  <button class="btn btn-ghost btn-sm" data-action="editQuestion" data-id="${q.id}">Tahrirlash</button>
+                  <button class="btn btn-ghost btn-sm" data-action="deleteQuestion" data-id="${q.id}">O'chirish</button>
+                </td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="eyebrow" style="margin-bottom:12px;">Fanlar</div>
+          ${SUBJECTS.map(s => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+              <span>${s.icon} ${s.name}</span>
+              <span class="pill pill-violet">${QUESTIONS.filter(q => q.subject === s.id).length} savol</span>
+            </div>`).join("")}
+        </div>
+
+        <div class="card">
+          <div class="section-head" style="margin-bottom:10px;">
+            <div class="eyebrow">Yo'nalishlar</div>
+            <button class="icon-btn" style="width:30px;height:30px;font-size:14px;" data-action="addDirection">+</button>
+          </div>
+          <div class="chip-row" id="directionChips">
+            ${DIRECTIONS.map(d => `<span class="chip">${d}</span>`).join("")}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="eyebrow" style="margin-bottom:10px;">Foydalanuvchilar</div>
+          ${["Akbar Yusupov", "Diyora Nazarova", "Sardor Tojiyev"].map((u, i) => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;">
+              <span style="font-size:13px;">${u}</span>
+              <button class="btn btn-ghost btn-sm" data-action="toggleUserBlock" data-idx="${i}">Bloklash</button>
+            </div>`).join("")}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ==================================================================
+// EVENT DELEGATION
+// ==================================================================
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-action]");
+  if (!t) return;
+  const a = t.dataset.action;
+
+  switch (a) {
+    case "closeModalOverlay": closeModal(); break;
+
+    case "setRole":
+      state.role = t.dataset.role;
+      toast(`${t.textContent.trim()} rejimiga o'tildi`);
+      render();
+      break;
+
+    case "onbNext":
+      state.onbStep++;
+      render();
+      break;
+
+    case "skipOnboarding":
+      state.screen = "app"; state.studentTab = "home";
+      render();
+      break;
+
+    case "selectDirection":
+      state.onbDirection = t.dataset.dir;
+      render();
+      break;
+
+    case "toggleWeak": {
+      const id = t.dataset.subj;
+      const i = state.onbWeak.indexOf(id);
+      if (i >= 0) state.onbWeak.splice(i, 1); else state.onbWeak.push(id);
+      render();
+      break;
+    }
+
+    case "startMiniTest": {
+      const subj = state.onbWeak[0] || "math";
+      startSession(subj, "practice", { count: 3, isMini: true });
+      break;
+    }
+
+    case "setTab":
+      state.studentTab = t.dataset.tab;
+      state.modeSelectSubject = null;
+      render();
+      break;
+
+    case "openSubjectModes":
+      state.modeSelectSubject = t.dataset.subject;
+      state.studentTab = "tests";
+      render();
+      break;
+
+    case "backToSubjects":
+      state.modeSelectSubject = null;
+      render();
+      break;
+
+    case "startSession":
+      startSession(t.dataset.subject, t.dataset.mode);
+      break;
+
+    case "startReview": {
+      const ids = shuffle(QUESTIONS).slice(0, 4).map(q => q.id);
+      startSession(QUESTIONS.find(q => q.id === ids[0]).subject, "practice", { pickIds: ids, count: 4, isReview: true });
+      break;
+    }
+
+    case "selectOption":
+      if (state.session.confirmed) return;
+      state.session.selected = t.dataset.letter;
+      render();
+      break;
+
+    case "selectConfidence":
+      state.session.confidence = t.dataset.level;
+      render();
+      break;
+
+    case "confirmAnswer":
+      confirmAnswer();
+      break;
+
+    case "nextQuestion":
+      nextQuestion();
+      break;
+
+    case "exitSessionAsk":
+      openModal(`
+        <div style="text-align:center;">
+          <div style="font-size:28px;">⚠️</div>
+          <h3 class="display" style="font-size:16px;margin:8px 0 6px;">Testdan chiqmoqchimisiz?</h3>
+          <p style="color:var(--text-mid);font-size:12.5px;margin-bottom:16px;">Joriy progress saqlanmaydi</p>
+          <button class="btn btn-primary" data-action="exitSessionConfirm">Ha, chiqish</button>
+          <button class="btn btn-ghost" style="margin-top:8px;" data-action="closeModalOverlay">Bekor qilish</button>
+        </div>`);
+      break;
+
+    case "exitSessionConfirm":
+      if (state.session?.timerId) clearInterval(state.session.timerId);
+      state.session = null;
+      state.screen = "app";
+      closeModal();
+      render();
+      break;
+
+    case "restartSubject":
+      startSession(t.dataset.subject, "practice");
+      break;
+
+    case "goHome":
+      state.screen = "app";
+      state.studentTab = "home";
+      render();
+      break;
+
+    case "registerOpen":
+      openRegisterModal();
+      break;
+
+    case "sendOtp": {
+      const phone = $("#regPhone")?.value.trim();
+      if (!phone) { toast("Telefon raqamini kiriting"); return; }
+      const box = $("#otpBox");
+      if (box.style.display === "none") {
+        box.style.display = "block";
+        $("#regBtn").textContent = "Tasdiqlash";
+        $("#regBtn").dataset.action = "confirmOtp";
+        toast("SMS kod yuborildi: 1234 (demo)");
+      }
+      break;
+    }
+
+    case "confirmOtp": {
+      const otp = $("#regOtp")?.value.trim();
+      if (!otp) { toast("Kodni kiriting"); return; }
+      state.registered = true;
+      closeModal();
+      state.screen = "app";
+      state.studentTab = "home";
+      toast("Xush kelibsiz! Ro'yxatdan muvaffaqiyatli o'tdingiz 🎉");
+      render();
+      break;
+    }
+
+    case "closeModalSkip":
+      closeModal();
+      state.screen = "app";
+      state.studentTab = "home";
+      render();
+      break;
+
+    case "aiSend": {
+      const val = $("#aiInput")?.value.trim();
+      if (!val) return;
+      toast("To'liq suhbat-AI tyutor Phase 2 bosqichida qo'shiladi (ТЗ 10.2)");
+      $("#aiInput").value = "";
+      break;
+    }
+
+    case "buyPlan": {
+      const plan = t.dataset.plan;
+      openModal(`
+        <div style="text-align:center;">
+          <div style="font-size:28px;">💳</div>
+          <h3 class="display" style="font-size:16px;margin:8px 0 6px;">To'lovni yakunlash</h3>
+          <p style="color:var(--text-mid);font-size:12.5px;margin-bottom:16px;">Tarif: <b style="color:var(--text-hi)">${plan === "monthly" ? "Oylik" : "3 oylik"}</b></p>
+          <div class="chip-row" style="justify-content:center;margin-bottom:16px;">
+            <span class="chip selected">Payme</span><span class="chip">Click</span>
+          </div>
+          <button class="btn btn-primary" data-action="payConfirm">To'lovni amalga oshirish</button>
+          <button class="btn btn-ghost" style="margin-top:8px;" data-action="closeModalOverlay">Bekor qilish</button>
+        </div>`);
+      break;
+    }
+
+    case "payConfirm":
+      state.premium = true;
+      closeModal();
+      state.studentTab = "profile";
+      toast("Tabriklaymiz! Endi Premium foydalanuvchisiz ⭐");
+      render();
+      break;
+
+    case "toggleConsent":
+      state.consent = !state.consent;
+      render();
+      break;
+
+    case "setLang":
+      state.lang = t.dataset.lang;
+      toast(t.dataset.lang === "ru" ? "Til: Русский (demo)" : "Til: O'zbekcha");
+      render();
+      break;
+
+    case "logout":
+      Object.assign(state, {
+        screen: "onboarding", onbStep: 0, onbDirection: null, onbWeak: [],
+        registered: false, studentTab: "home",
+      });
+      render();
+      break;
+
+    // ---------- mentor ----------
+    case "downloadReport":
+      toast("PDF hisobot tayyorlanmoqda — backend ulanganda ishga tushadi (demo)");
+      break;
+
+    case "openMessageModal":
+      openModal(`
+        <h3 class="display" style="font-size:16px;margin:0 0 10px;">Guruhga xabar yuborish</h3>
+        <textarea id="grpMsg" rows="4" placeholder="Xabar matni..." style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:12px;padding:12px;color:var(--text-hi);font-size:13px;resize:vertical;"></textarea>
+        <button class="btn btn-primary" style="margin-top:12px;" data-action="sendGroupMessage">Yuborish</button>
+        <button class="btn btn-ghost" style="margin-top:8px;" data-action="closeModalOverlay">Bekor qilish</button>
+      `);
+      break;
+
+    case "sendGroupMessage":
+      closeModal();
+      toast("Xabar guruhdagi 5 nafar o'quvchiga yuborildi ✅");
+      break;
+
+    // ---------- admin ----------
+    case "editQuestion": {
+      const q = QUESTIONS.find(x => x.id === t.dataset.id);
+      openModal(`
+        <h3 class="display" style="font-size:16px;margin:0 0 12px;">Savolni tahrirlash</h3>
+        <textarea id="editText" rows="3" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:12px;padding:12px;color:var(--text-hi);font-size:13px;margin-bottom:10px;">${q.text}</textarea>
+        <div style="font-size:11px;color:var(--text-low);margin-bottom:14px;">To'g'ri javob: <b style="color:var(--mint)">${q.correct}</b> — ${q.options[q.correct]}</div>
+        <button class="btn btn-primary" data-action="saveQuestionEdit" data-id="${q.id}">Saqlash</button>
+        <button class="btn btn-ghost" style="margin-top:8px;" data-action="closeModalOverlay">Bekor qilish</button>
+      `);
+      break;
+    }
+
+    case "saveQuestionEdit": {
+      const q = QUESTIONS.find(x => x.id === t.dataset.id);
+      const val = $("#editText")?.value.trim();
+      if (val) q.text = val;
+      closeModal();
+      toast("Savol yangilandi ✅");
+      render();
+      break;
+    }
+
+    case "deleteQuestion": {
+      const idx = QUESTIONS.findIndex(x => x.id === t.dataset.id);
+      if (idx >= 0) QUESTIONS.splice(idx, 1);
+      toast("Savol o'chirildi");
+      render();
+      break;
+    }
+
+    case "addQuestionOpen":
+      openModal(`
+        <h3 class="display" style="font-size:16px;margin:0 0 12px;">Yangi savol qo'shish</h3>
+        <select id="newSubj" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:12px;padding:11px;color:var(--text-hi);font-size:13px;margin-bottom:10px;">
+          ${SUBJECTS.map(s => `<option value="${s.id}">${s.name}</option>`).join("")}
+        </select>
+        <textarea id="newText" rows="2" placeholder="Savol matni" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:12px;padding:11px;color:var(--text-hi);font-size:13px;margin-bottom:10px;"></textarea>
+        <input id="newA" placeholder="Variant A (to'g'ri javob)" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:12px;padding:11px;color:var(--text-hi);font-size:13px;margin-bottom:8px;">
+        <input id="newB" placeholder="Variant B" style="width:100%;background:var(--surface-3);border:1px solid var(--border);border-radius:12px;padding:11px;color:var(--text-hi);font-size:13px;margin-bottom:14px;">
+        <button class="btn btn-primary" data-action="saveNewQuestion">Qo'shish</button>
+        <button class="btn btn-ghost" style="margin-top:8px;" data-action="closeModalOverlay">Bekor qilish</button>
+      `);
+      break;
+
+    case "saveNewQuestion": {
+      const subj = $("#newSubj").value, text = $("#newText").value.trim();
+      const a = $("#newA").value.trim(), b = $("#newB").value.trim();
+      if (!text || !a || !b) { toast("Barcha maydonlarni to'ldiring"); return; }
+      QUESTIONS.push({
+        id: "new" + Date.now(), subject: subj, topic: "Qo'shimcha", difficulty: 3,
+        text, options: { A: a, B: b, C: "—", D: "—" }, correct: "A",
+        explain: "Bu savol admin panel orqali qo'shildi.",
+      });
+      closeModal();
+      toast("Yangi savol qo'shildi ✅");
+      render();
+      break;
+    }
+
+    case "addDirection": {
+      const name = prompt("Yangi yo'nalish nomi:");
+      if (name) { DIRECTIONS.push(name); toast("Yo'nalish qo'shildi"); render(); }
+      break;
+    }
+
+    case "toggleUserBlock":
+      toast("Foydalanuvchi holati o'zgartirildi (demo)");
+      t.textContent = t.textContent === "Bloklash" ? "Blokdan chiqarish" : "Bloklash";
+      break;
+  }
+});
+
+render();
+
+</script>
+</body>
+</html>

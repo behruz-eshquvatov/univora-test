@@ -1,0 +1,133 @@
+// @ts-nocheck
+import React, { useState, useRef, useEffect } from 'react';
+import { Bot, User, ArrowUpRight, Copy, Sparkles } from 'lucide-react';
+
+const MOCK_MESSAGES = [
+  { id: 1, sender: 'ai', text: 'Привет! Я твой персональный AI Наставник. Чем я могу помочь тебе сегодня?', time: '10:00' },
+  { id: 2, sender: 'user', text: 'У меня проблемы с решением задач по динамике в физике. Можешь объяснить второй закон Ньютона?', time: '10:05' },
+  { id: 3, sender: 'ai', text: 'Конечно! Второй закон Ньютона звучит так: ускорение тела прямо пропорционально равнодействующей всех сил, приложенных к телу, и обратно пропорционально его массе. Формула: **F = m * a**. Давай разберем пример с блоками, который был в твоем последнем тесте...', time: '10:06' },
+];
+
+const Mentor = () => {
+  const [inputText, setInputText] = useState('');
+
+  return (
+    <div className="bg-slate-50/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 min-h-[calc(100vh-2rem)] p-6 sm:p-8 flex flex-col gap-8 relative overflow-hidden">
+      
+      {/* Decorative top-left glare inside the card */}
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent rounded-t-2xl pointer-events-none"></div>
+
+      {/* Header */}
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
+            AI Наставник
+          </h1>
+          <p className="text-slate-500 mt-2 font-medium text-lg">Задавайте вопросы и получайте помощь 24/7</p>
+        </div>
+      </div>
+
+      <div className="relative z-10 grid grid-cols-1 xl:grid-cols-3 gap-8 mt-2 h-full min-h-[500px] flex-1">
+        
+        {/* Left Column (2/3) - Chat Interface */}
+        <div className="xl:col-span-2 flex flex-col bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative">
+          
+          {/* Chat Messages Area */}
+          <div className="flex-1 p-6 sm:p-8 overflow-y-auto space-y-6">
+            {MOCK_MESSAGES.map((msg) => {
+              const isAi = msg.sender === 'ai';
+              return (
+                <div key={msg.id} className={`flex gap-4 max-w-[85%] ${isAi ? '' : 'ml-auto flex-row-reverse'}`}>
+                  
+                  {/* Avatar */}
+                  <div className={`w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center shadow-sm ${isAi ? 'bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                    {isAi ? <Bot className="w-6 h-6" /> : <User className="w-6 h-6" />}
+                  </div>
+                  
+                  {/* Message Bubble */}
+                  <div className={`flex flex-col gap-1 ${isAi ? 'items-start' : 'items-end'}`}>
+                    <div className={`p-4 rounded-2xl shadow-sm leading-relaxed ${isAi ? 'bg-slate-50 border border-slate-100 text-slate-700 rounded-tl-sm' : 'bg-violet-600 text-white rounded-tr-sm'}`}>
+                      {/* Very basic markdown rendering for strong tag just for this mock */}
+                      <p className="whitespace-pre-wrap text-sm md:text-base font-medium" dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}></p>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-400 px-1">{msg.time}</span>
+                  </div>
+
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Chat Input Area */}
+          <div className="p-4 sm:p-6 bg-white border-t border-slate-100">
+            <div className="relative">
+              <input 
+                type="text" 
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Задайте свой вопрос..." 
+                className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-medium rounded-2xl focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 block p-4 pr-16 outline-none transition-all shadow-inner"
+              />
+              <button className="absolute right-2 top-2 bottom-2 w-12 bg-violet-600 hover:bg-violet-700 text-white rounded-xl flex items-center justify-center transition-colors shadow-md shadow-violet-500/30">
+                <ArrowUpRight className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex gap-2 mt-4 text-xs font-bold text-slate-500 justify-center">
+              <span>ИИ может допускать ошибки. Проверяйте важную информацию.</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column (1/3) - Insights & Prompts */}
+        <div className="xl:col-span-1 flex flex-col gap-6">
+          
+          {/* Quick Prompts */}
+          <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <h3 className="font-extrabold text-slate-800 text-lg">Быстрые запросы</h3>
+            </div>
+            
+            <div className="space-y-3">
+              <button className="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-violet-50 border border-slate-100 hover:border-violet-200 text-slate-700 hover:text-violet-700 transition-all text-sm font-bold flex items-center justify-between group shadow-sm hover:shadow-md">
+                <span>Составь план обучения на неделю</span>
+                <Copy className="w-4 h-4 text-slate-400 group-hover:text-violet-500 opacity-50 group-hover:opacity-100 transition-all shrink-0" />
+              </button>
+              <button className="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-violet-50 border border-slate-100 hover:border-violet-200 text-slate-700 hover:text-violet-700 transition-all text-sm font-bold flex items-center justify-between group shadow-sm hover:shadow-md">
+                <span>Сгенерируй тест по слабым темам</span>
+                <Copy className="w-4 h-4 text-slate-400 group-hover:text-violet-500 opacity-50 group-hover:opacity-100 transition-all shrink-0" />
+              </button>
+              <button className="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-violet-50 border border-slate-100 hover:border-violet-200 text-slate-700 hover:text-violet-700 transition-all text-sm font-bold flex items-center justify-between group shadow-sm hover:shadow-md">
+                <span>Объясни сложную тему простыми словами</span>
+                <Copy className="w-4 h-4 text-slate-400 group-hover:text-violet-500 opacity-50 group-hover:opacity-100 transition-all shrink-0" />
+              </button>
+            </div>
+          </section>
+
+          {/* AI Insights Card */}
+          <section className="bg-gradient-to-r from-violet-600 to-purple-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg shadow-purple-500/20 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+            
+            <div className="relative z-10">
+              <h3 className="font-extrabold text-white text-xl mb-4 flex items-center gap-2">
+                Аналитика от AI
+              </h3>
+              <p className="text-violet-100 text-sm font-medium leading-relaxed mb-6">
+                Ваш средний балл по <strong className="text-white">Математике</strong> упал на 12% за последнюю неделю. Я рекомендую уделить внимание разделу "Тригонометрия".
+              </p>
+              <button className="w-full py-3 bg-white text-violet-700 hover:bg-slate-50 font-bold rounded-xl transition-colors shadow-sm text-sm">
+                Повторить тригонометрию
+              </button>
+            </div>
+          </section>
+
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+export default Mentor;

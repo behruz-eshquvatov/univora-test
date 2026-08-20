@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    background-color: theme('colors.background');
+    color: theme('colors.text.main');
+    @apply font-body min-h-screen antialiased;
+  }
+
+  h1, h2, h3, h4, .display {
+    @apply font-display tracking-tight text-slate-800;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 3s infinite;
+  }
+}
+
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 0 5px 0px rgba(250, 204, 21, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px 8px rgba(250, 204, 21, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 5px 0px rgba(250, 204, 21, 0.4);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-150%) skewX(-45deg);
+  }
+  15% {
+    transform: translateX(250%) skewX(-45deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-45deg);
+  }
+}
