@@ -31,7 +31,10 @@ export const testengineApi = {
   },
 
   startSession: async (subjectId: number): Promise<TestSession> => {
-    const response = await api.post('/testengine/sessions/', { subject_id: subjectId });
+    const response = await api.post('/testengine/sessions/', { 
+      subject: subjectId,
+      subject_id: subjectId 
+    });
     return response.data;
   },
 
