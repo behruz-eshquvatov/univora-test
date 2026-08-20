@@ -12,25 +12,25 @@ const Mentor = () => {
   const [inputText, setInputText] = useState('');
 
   return (
-    <div className="bg-slate-50/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 min-h-[calc(100vh-2rem)] p-6 sm:p-8 flex flex-col gap-8 relative overflow-hidden">
+    <div className="bg-slate-50/95 dark:bg-dark-surface/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 dark:border-dark-border/60 min-h-[calc(100vh-2rem)] p-6 sm:p-8 flex flex-col gap-8 relative overflow-hidden">
       
       {/* Decorative top-left glare inside the card */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent rounded-t-2xl pointer-events-none"></div>
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent dark:from-white/5 rounded-t-2xl pointer-events-none"></div>
 
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">
             AI Наставник
           </h1>
-          <p className="text-slate-500 mt-2 font-medium text-lg">Задавайте вопросы и получайте помощь 24/7</p>
+          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">Задавайте вопросы и получайте помощь 24/7</p>
         </div>
       </div>
 
       <div className="relative z-10 grid grid-cols-1 xl:grid-cols-3 gap-8 mt-2 h-full min-h-[500px] flex-1">
         
         {/* Left Column (2/3) - Chat Interface */}
-        <div className="xl:col-span-2 flex flex-col bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative">
+        <div className="xl:col-span-2 flex flex-col bg-white dark:bg-dark-surface rounded-3xl shadow-sm border border-slate-100 dark:border-dark-border overflow-hidden relative">
           
           {/* Chat Messages Area */}
           <div className="flex-1 p-6 sm:p-8 overflow-y-auto space-y-6">
@@ -40,17 +40,17 @@ const Mentor = () => {
                 <div key={msg.id} className={`flex gap-4 max-w-[85%] ${isAi ? '' : 'ml-auto flex-row-reverse'}`}>
                   
                   {/* Avatar */}
-                  <div className={`w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center shadow-sm ${isAi ? 'bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white' : 'bg-slate-200 text-slate-500'}`}>
+                  <div className={`w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center shadow-sm ${isAi ? 'bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white' : 'bg-slate-200 dark:bg-dark-bg text-slate-500 dark:text-dark-text-muted'}`}>
                     {isAi ? <Bot className="w-6 h-6" /> : <User className="w-6 h-6" />}
                   </div>
                   
                   {/* Message Bubble */}
                   <div className={`flex flex-col gap-1 ${isAi ? 'items-start' : 'items-end'}`}>
-                    <div className={`p-4 rounded-2xl shadow-sm leading-relaxed ${isAi ? 'bg-slate-50 border border-slate-100 text-slate-700 rounded-tl-sm' : 'bg-violet-600 text-white rounded-tr-sm'}`}>
+                    <div className={`p-4 rounded-2xl shadow-sm leading-relaxed ${isAi ? 'bg-slate-50 dark:bg-dark-bg/60 border border-slate-100 dark:border-dark-border text-slate-700 dark:text-dark-text-main rounded-tl-sm' : 'bg-violet-600 text-white rounded-tr-sm'}`}>
                       {/* Very basic markdown rendering for strong tag just for this mock */}
                       <p className="whitespace-pre-wrap text-sm md:text-base font-medium" dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}></p>
                     </div>
-                    <span className="text-[11px] font-bold text-slate-400 px-1">{msg.time}</span>
+                    <span className="text-[11px] font-bold text-slate-400 dark:text-dark-text-muted px-1">{msg.time}</span>
                   </div>
 
                 </div>
@@ -59,20 +59,20 @@ const Mentor = () => {
           </div>
 
           {/* Chat Input Area */}
-          <div className="p-4 sm:p-6 bg-white border-t border-slate-100">
+          <div className="p-4 sm:p-6 bg-white dark:bg-dark-surface border-t border-slate-100 dark:border-dark-border">
             <div className="relative">
               <input 
                 type="text" 
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Задайте свой вопрос..." 
-                className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-medium rounded-2xl focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 block p-4 pr-16 outline-none transition-all shadow-inner"
+                className="w-full bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border text-slate-800 dark:text-dark-text-main text-sm font-medium rounded-2xl focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 block p-4 pr-16 outline-none transition-all shadow-inner"
               />
               <button className="absolute right-2 top-2 bottom-2 w-12 bg-violet-600 hover:bg-violet-700 text-white rounded-xl flex items-center justify-center transition-colors shadow-md shadow-violet-500/30">
                 <ArrowUpRight className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex gap-2 mt-4 text-xs font-bold text-slate-500 justify-center">
+            <div className="flex gap-2 mt-4 text-xs font-bold text-slate-500 dark:text-dark-text-muted justify-center">
               <span>ИИ может допускать ошибки. Проверяйте важную информацию.</span>
             </div>
           </div>
@@ -82,26 +82,26 @@ const Mentor = () => {
         <div className="xl:col-span-1 flex flex-col gap-6">
           
           {/* Quick Prompts */}
-          <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
+          <section className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-950/20 text-amber-500 dark:text-amber-400 flex items-center justify-center shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
-              <h3 className="font-extrabold text-slate-800 text-lg">Быстрые запросы</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-lg">Быстрые запросы</h3>
             </div>
             
             <div className="space-y-3">
-              <button className="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-violet-50 border border-slate-100 hover:border-violet-200 text-slate-700 hover:text-violet-700 transition-all text-sm font-bold flex items-center justify-between group shadow-sm hover:shadow-md">
+              <button className="w-full text-left p-4 rounded-2xl bg-slate-50 dark:bg-dark-bg hover:bg-violet-50 dark:hover:bg-violet-950/20 border border-slate-100 dark:border-dark-border hover:border-violet-200 dark:hover:border-violet-900/30 text-slate-700 hover:text-violet-700 dark:text-dark-text-main dark:hover:text-violet-400 transition-all text-sm font-bold flex items-center justify-between group shadow-sm hover:shadow-md">
                 <span>Составь план обучения на неделю</span>
-                <Copy className="w-4 h-4 text-slate-400 group-hover:text-violet-500 opacity-50 group-hover:opacity-100 transition-all shrink-0" />
+                <Copy className="w-4 h-4 text-slate-400 dark:text-dark-text-muted group-hover:text-violet-500 opacity-50 group-hover:opacity-100 transition-all shrink-0" />
               </button>
-              <button className="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-violet-50 border border-slate-100 hover:border-violet-200 text-slate-700 hover:text-violet-700 transition-all text-sm font-bold flex items-center justify-between group shadow-sm hover:shadow-md">
+              <button className="w-full text-left p-4 rounded-2xl bg-slate-50 dark:bg-dark-bg hover:bg-violet-50 dark:hover:bg-violet-950/20 border border-slate-100 dark:border-dark-border hover:border-violet-200 dark:hover:border-violet-900/30 text-slate-700 hover:text-violet-700 dark:text-dark-text-main dark:hover:text-violet-400 transition-all text-sm font-bold flex items-center justify-between group shadow-sm hover:shadow-md">
                 <span>Сгенерируй тест по слабым темам</span>
-                <Copy className="w-4 h-4 text-slate-400 group-hover:text-violet-500 opacity-50 group-hover:opacity-100 transition-all shrink-0" />
+                <Copy className="w-4 h-4 text-slate-400 dark:text-dark-text-muted group-hover:text-violet-500 opacity-50 group-hover:opacity-100 transition-all shrink-0" />
               </button>
-              <button className="w-full text-left p-4 rounded-2xl bg-slate-50 hover:bg-violet-50 border border-slate-100 hover:border-violet-200 text-slate-700 hover:text-violet-700 transition-all text-sm font-bold flex items-center justify-between group shadow-sm hover:shadow-md">
+              <button className="w-full text-left p-4 rounded-2xl bg-slate-50 dark:bg-dark-bg hover:bg-violet-50 dark:hover:bg-violet-950/20 border border-slate-100 dark:border-dark-border hover:border-violet-200 dark:hover:border-violet-900/30 text-slate-700 hover:text-violet-700 dark:text-dark-text-main dark:hover:text-violet-400 transition-all text-sm font-bold flex items-center justify-between group shadow-sm hover:shadow-md">
                 <span>Объясни сложную тему простыми словами</span>
-                <Copy className="w-4 h-4 text-slate-400 group-hover:text-violet-500 opacity-50 group-hover:opacity-100 transition-all shrink-0" />
+                <Copy className="w-4 h-4 text-slate-400 dark:text-dark-text-muted group-hover:text-violet-500 opacity-50 group-hover:opacity-100 transition-all shrink-0" />
               </button>
             </div>
           </section>
