@@ -76,7 +76,7 @@ export default function Plans() {
                 className={`relative bg-white dark:bg-dark-surface rounded-3xl p-8 flex flex-col transition-all duration-300
                   ${isRecommended 
                     ? 'border-2 border-violet-500 dark:border-violet-600 shadow-2xl shadow-violet-500/10 dark:shadow-violet-950/20 scale-[1.02]' 
-                    : 'border border-slate-200 dark:border-dark-border shadow-lg shadow-slate-200/50 dark:shadow-none hover:shadow-xl dark:hover:border-violet-950'
+                    : 'border border-slate-200 dark:border-dark-border shadow-lg shadow-slate-200/50 dark:shadow-black/50 hover:shadow-xl dark:hover:shadow-black/70 dark:hover:border-violet-950'
                   }`}
               >
                 {/* Recommended Badge */}
