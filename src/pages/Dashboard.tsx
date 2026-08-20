@@ -130,10 +130,10 @@ const Dashboard = () => {
   const streak = 5; // To be fetched from /progress/streak
 
   return (
-    <div className="bg-slate-50/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 min-h-[calc(100vh-2rem)] p-6 sm:p-8 flex flex-col gap-8 relative">
+    <div className="bg-slate-50/95 dark:bg-dark-surface/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 dark:border-dark-border/60 min-h-[calc(100vh-2rem)] p-6 sm:p-8 flex flex-col gap-8 relative">
       
       {/* Decorative top-left glare inside the card */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent rounded-t-2xl pointer-events-none"></div>
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent dark:from-white/5 rounded-t-2xl pointer-events-none"></div>
 
       {/* Welcome Banner */}
       <section className="bg-gradient-to-r from-violet-600 to-purple-700 rounded-3xl p-8 sm:p-10 text-white flex flex-col md:flex-row items-center justify-between shadow-xl shadow-purple-500/20 relative overflow-hidden shrink-0 mt-2">
@@ -171,14 +171,14 @@ const Dashboard = () => {
         <div className="xl:col-span-2 flex flex-col gap-8">
           
           {/* Daily Tasks */}
-          <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:shadow-md transition-shadow">
+          <section className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-5">
-              <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center shrink-0">
+              <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/20 text-rose-500 dark:text-rose-400 rounded-2xl flex items-center justify-center shrink-0">
                 <Brain className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="font-extrabold text-slate-800 text-xl mb-1">Задачи на сегодня</h3>
-                <p className="text-slate-500 font-medium">Вас ждут <strong className="text-rose-500">10 карточек</strong> для интервального повторения.</p>
+                <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-1">Задачи на сегодня</h3>
+                <p className="text-slate-500 dark:text-dark-text-muted font-medium">Вас ждут <strong className="text-rose-500">10 карточек</strong> для интервального повторения.</p>
               </div>
             </div>
             <Link to="/history" className="w-full sm:w-auto px-6 py-3.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl transition-colors shrink-0 text-center shadow-md shadow-rose-500/20">
@@ -189,21 +189,21 @@ const Dashboard = () => {
           {/* Available Subjects */}
           <section>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-extrabold text-slate-800 text-xl">Доступные предметы</h3>
-              <Link to="/history" className="text-sm font-bold text-violet-600 hover:text-violet-700 transition-colors">Все предметы</Link>
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">Доступные предметы</h3>
+              <Link to="/history" className="text-sm font-bold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors">Все предметы</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {displaySubjects.map((subject) => (
                 <Link to="/tests" key={subject.id} className="block group">
-                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-lg hover:border-violet-100 transition-all cursor-pointer relative overflow-hidden min-h-[160px] flex flex-col justify-between">
+                  <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-dark-border hover:shadow-lg hover:border-violet-100 dark:hover:border-violet-950 transition-all cursor-pointer relative overflow-hidden min-h-[160px] flex flex-col justify-between">
                     <div className="flex items-start justify-between relative z-10">
                       <div className="flex items-center gap-4">
                         <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${subject.color} flex items-center justify-center text-2xl shadow-sm transform group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300`}>
                           {subject.icon}
                         </div>
                         <div>
-                          <h4 className="font-bold text-slate-800 text-lg leading-tight">{subject.name}</h4>
-                          <p className="text-slate-500 text-sm font-medium mt-1">{subject.totalTests} тестов</p>
+                          <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">{subject.name}</h4>
+                          <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">{subject.totalTests} тестов</p>
                         </div>
                       </div>
                     </div>
@@ -226,10 +226,10 @@ const Dashboard = () => {
           </section>
 
           {/* Mini Stats (XP Chart) */}
-          <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
+          <section className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="font-extrabold text-slate-800 text-xl">Ваш прогресс за неделю</h3>
-              <div className="text-sm font-bold text-violet-700 bg-violet-50 px-3 py-1.5 rounded-lg border border-violet-100">
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">Ваш прогресс за неделю</h3>
+              <div className="text-sm font-bold text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/40 px-3 py-1.5 rounded-lg border border-violet-100 dark:border-violet-950/40">
                 +350 XP
               </div>
             </div>
@@ -240,10 +240,10 @@ const Dashboard = () => {
 
         {/* Right Column (1/3 width) - Leaderboard */}
         <div className="xl:col-span-1">
-          <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 h-fit sticky top-0 flex flex-col">
+          <section className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border h-fit sticky top-0 flex flex-col">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-extrabold text-slate-800 text-xl">Топ недели</h3>
-              <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center">
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">Топ недели</h3>
+              <div className="w-10 h-10 rounded-full bg-yellow-50 dark:bg-yellow-950/20 flex items-center justify-center">
                 <Trophy className="w-5 h-5 text-yellow-500" />
               </div>
             </div>
@@ -253,7 +253,7 @@ const Dashboard = () => {
                 const isCurrentUser = usr.name === 'Behruz Eshquvatov';
                 const isFirst = usr.rank === 1;
                 return (
-                  <div key={idx} className={`flex items-center gap-3 p-3 rounded-2xl transition-all relative ${isCurrentUser ? 'bg-violet-50 border border-violet-100' : 'hover:bg-slate-50 border border-transparent'}`}>
+                  <div key={idx} className={`flex items-center gap-3 p-3 rounded-2xl transition-all relative ${isCurrentUser ? 'bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/30' : 'hover:bg-slate-50 dark:hover:bg-dark-bg border border-transparent'}`}>
                     
                     <div className={`w-8 text-center font-extrabold text-lg relative z-10 ${
                       usr.rank === 1 ? 'text-yellow-500' : 
@@ -264,7 +264,7 @@ const Dashboard = () => {
                       {usr.rank}
                     </div>
                     
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-white shrink-0 relative z-10 overflow-hidden ${isFirst ? 'bg-gradient-to-br from-yellow-400 to-orange-500 ring-2 ring-yellow-400/30' : usr.rank === 2 ? 'bg-slate-300' : usr.rank === 3 ? 'bg-orange-300' : 'bg-slate-200'}`}>
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-white shrink-0 relative z-10 overflow-hidden ${isFirst ? 'bg-gradient-to-br from-yellow-400 to-orange-500 ring-2 ring-yellow-400/30' : usr.rank === 2 ? 'bg-slate-300 dark:bg-slate-700' : usr.rank === 3 ? 'bg-orange-300 dark:bg-orange-950/60' : 'bg-slate-200 dark:bg-slate-850'}`}>
                       {usr.avatar}
                       {/* Glass Shimmer Effect for Top 1 */}
                       {isFirst && (
@@ -275,10 +275,10 @@ const Dashboard = () => {
                     </div>
                     
                     <div className="flex-1 min-w-0 relative z-10">
-                      <h4 className={`font-bold text-sm truncate ${isFirst ? 'text-yellow-900' : isCurrentUser ? 'text-violet-700' : 'text-slate-800'}`}>
+                      <h4 className={`font-bold text-sm truncate ${isFirst ? 'text-yellow-900 dark:text-yellow-200' : isCurrentUser ? 'text-violet-700 dark:text-violet-400' : 'text-slate-800 dark:text-dark-text-main'}`}>
                         {usr.name}
                       </h4>
-                      <p className={`text-xs font-bold mt-0.5 ${isFirst ? 'text-yellow-600' : isCurrentUser ? 'text-violet-500' : 'text-slate-500'}`}>
+                      <p className={`text-xs font-bold mt-0.5 ${isFirst ? 'text-yellow-600' : isCurrentUser ? 'text-violet-500 dark:text-violet-400' : 'text-slate-500 dark:text-dark-text-muted'}`}>
                         {usr.xp} XP
                       </p>
                     </div>
@@ -287,7 +287,7 @@ const Dashboard = () => {
               })}
             </div>
 
-            <button className="w-full mt-6 py-3.5 rounded-xl font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 transition-colors text-sm text-center">
+            <button className="w-full mt-6 py-3.5 rounded-xl font-bold text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/20 hover:bg-violet-100 dark:hover:bg-violet-950/40 transition-colors text-sm text-center">
               Смотреть весь рейтинг
             </button>
           </section>
