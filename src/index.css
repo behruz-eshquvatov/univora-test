@@ -9,11 +9,16 @@
   body {
     background-color: theme('colors.background');
     color: theme('colors.text.main');
-    @apply font-body min-h-screen antialiased;
+    @apply font-body min-h-screen antialiased transition-colors duration-300;
+  }
+
+  .dark body {
+    background-color: theme('colors.dark.bg');
+    color: theme('colors.dark.text.main');
   }
 
   h1, h2, h3, h4, .display {
-    @apply font-display tracking-tight text-slate-800;
+    @apply font-display tracking-tight text-slate-800 dark:text-dark-text-main transition-colors duration-300;
   }
 
   button:not(:disabled) {
