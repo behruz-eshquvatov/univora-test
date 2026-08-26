@@ -58,8 +58,10 @@ export default function MobileHeader() {
   }, []);
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    if (window.confirm('Вы уверены, что хотите выйти?')) {
+      logout();
+      navigate('/');
+    }
   };
 
   const openSettings = (tab: 'profile' | 'payments') => {

@@ -49,8 +49,10 @@ export default function Sidebar() {
   }, []);
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    if (window.confirm('Вы уверены, что хотите выйти?')) {
+      logout();
+      navigate('/');
+    }
   };
 
   const navLinks = [
