@@ -109,10 +109,10 @@ export const billingApi = {
   },
 
   approvePayment: async (id: number): Promise<void> => {
-    await api.post(`/billing/payments/${id}/approve/`);
+    await api.patch(`/billing/payments/${id}/approve/`);
   },
 
-  rejectPayment: async (id: number): Promise<void> => {
-    await api.post(`/billing/payments/${id}/reject/`);
+  rejectPayment: async (id: number, reason?: string): Promise<void> => {
+    await api.patch(`/billing/payments/${id}/reject/`, { reason });
   },
 };

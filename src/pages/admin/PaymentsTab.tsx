@@ -18,8 +18,11 @@ export default function PaymentsTab() {
   };
 
   const handleReject = async (id: number) => {
+    const reason = window.prompt('Укажите причину отклонения (необязательно):');
+    if (reason === null) return; // User cancelled prompt
+    
     try {
-      await billingApi.rejectPayment(id);
+      await billingApi.rejectPayment(id, reason);
       setPayments(cur => cur.map(p => p.id === id ? { ...p, status: 'rejected' } : p));
     } catch (err) { console.error(err); }
   };
@@ -33,7 +36,7 @@ export default function PaymentsTab() {
         <table className="w-full text-left">
           <thead>
             <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
-              {['ID', 'User ID', 'Сумма', 'Дата', 'Статус', 'Действия'].map(h => (
+              {['ID', 'User ID', 'Сумма', 'Дата', 'Контакты', 'Статус', 'Действия'].map(h => (
                 <th key={h} className="p-4 font-semibold">{h}</th>
               ))}
             </tr>
@@ -47,6 +50,17 @@ export default function PaymentsTab() {
                 </td>
                 <td className="p-4 font-medium">{p.amount_display || `${p.amount} UZS`}</td>
                 <td className="p-4 text-sm text-slate-500">{new Date(p.created_at).toLocaleDateString()}</td>
+                <td className="p-4 text-sm">
+                  {p.contact_telegram && (
+                    <a href={p.contact_telegram.startsWith('@') ? `https://t.me/${p.contact_telegram.substring(1)}` : p.contact_telegram} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline block">
+                      {p.contact_telegram}
+                    </a>
+                  )}
+                  {p.contact_phone && (
+                    <span className="text-slate-500 block">{p.contact_phone}</span>
+                  )}
+                  {!p.contact_telegram && !p.contact_phone && <span className="text-slate-400">-</span>}
+                </td>
                 <td className="p-4">
                   <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
                     p.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
