@@ -83,6 +83,11 @@ export const billingApi = {
     await api.post(`/billing/subscriptions/${id}/cancel/`);
   },
 
+  getPayments: async (): Promise<Payment[]> => {
+    const response = await api.get('/billing/payments/');
+    return response.data;
+  },
+
   createPayment: async (data: { plan_id: number; amount?: number; contact_phone?: string; contact_telegram?: string; note?: string }): Promise<SubscriptionRequestResponse> => {
     const response = await api.post('/billing/payments/', data);
     return response.data;

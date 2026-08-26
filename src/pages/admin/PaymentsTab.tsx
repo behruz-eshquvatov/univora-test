@@ -42,8 +42,10 @@ export default function PaymentsTab() {
             {payments.length > 0 ? payments.map(p => (
               <tr key={p.id} className="border-b border-slate-100 last:border-none hover:bg-slate-50">
                 <td className="p-4 text-slate-500">#{p.id}</td>
-                <td className="p-4 font-bold text-slate-900">User {p.user}</td>
-                <td className="p-4 font-medium">{p.amount} UZS</td>
+                <td className="p-4 font-bold text-slate-900">
+                  {p.user_full_name || p.user_email || `User ${p.user}`}
+                </td>
+                <td className="p-4 font-medium">{p.amount_display || `${p.amount} UZS`}</td>
                 <td className="p-4 text-sm text-slate-500">{new Date(p.created_at).toLocaleDateString()}</td>
                 <td className="p-4">
                   <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
@@ -51,7 +53,7 @@ export default function PaymentsTab() {
                     p.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-200' :
                     'bg-amber-50 text-amber-600 border-amber-200'
                   }`}>
-                    {p.status === 'approved' ? 'Одобрен' : p.status === 'rejected' ? 'Отклонён' : 'Ожидает'}
+                    {p.status_display || (p.status === 'approved' ? 'Одобрен' : p.status === 'rejected' ? 'Отклонён' : 'Ожидает')}
                   </span>
                 </td>
                 <td className="p-4">
