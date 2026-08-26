@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Bot, User, ArrowUpRight, Copy, Sparkles } from 'lucide-react';
 
 const MOCK_MESSAGES = [

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Send, CheckCircle2, Clock, Users } from 'lucide-react';
+import { Send, CheckCircle2, Clock } from 'lucide-react';
 import { notificationsApi, type Announcement } from '../../lib/api/notifications';
 
 export default function AnnouncementsTab() {

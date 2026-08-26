@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle2, Bell } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { notificationsApi, type NotificationLog } from '../lib/api/notifications';
 
 export default function Notifications() {

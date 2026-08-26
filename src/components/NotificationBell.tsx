@@ -3,11 +3,8 @@ import { Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { notificationsApi } from '../lib/api/notifications';
 
-interface NotificationBellProps {
-  direction?: 'up' | 'down'; // Kept for compatibility, though no longer needed for popover
-}
 
-export default function NotificationBell({ direction }: NotificationBellProps) {
+export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
