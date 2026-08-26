@@ -9,9 +9,21 @@ export default function PaymentsTab() {
   const [rejectReason, setRejectReason] = useState('');
   const [isRejecting, setIsRejecting] = useState(false);
 
-  useEffect(() => {
+  const loadPayments = () => {
     billingApi.getPayments().then(setPayments).catch(console.error);
+  };
+
+  useEffect(() => {
+    loadPayments();
   }, []);
+
+  useEffect(() => {
+    const hasPending = payments.some(p => p.status === 'pending');
+    if (!hasPending) return;
+
+    const interval = setInterval(loadPayments, 5000);
+    return () => clearInterval(interval);
+  }, [payments]);
 
   const handleApprove = async (id: number) => {
     try {
