@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { billingApi, type Plan, type CurrentSubscriptionResponse, type SubscriptionRequestResponse } from '../lib/api/billing';
-import { Check, Sparkles, Zap, Shield, Crown, XCircle, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { Check, Sparkles, Zap, Shield, Crown, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 
 export default function Plans() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -221,10 +221,6 @@ export default function Plans() {
       {showPlanModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
           <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl relative border dark:border-dark-border animate-in zoom-in-95 duration-200">
-            <button onClick={() => { setShowPlanModal(null); setRequestSuccess(null); }} className="absolute top-4 right-4 text-slate-400 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text-main transition-colors">
-              <XCircle className="w-6 h-6" />
-            </button>
-
             {!requestSuccess ? (
               <>
                 <div className="w-12 h-12 bg-violet-100 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-2xl flex items-center justify-center mb-5">
