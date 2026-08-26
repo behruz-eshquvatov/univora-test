@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, FileText, Bot, BarChart2, LogOut, Flame, GraduationCap, Globe, Moon, Crown, History, User } from 'lucide-react';
+import { Home, FileText, Bot, BarChart2, LogOut, Flame, GraduationCap, Globe, Bell, Moon, Crown, History, User } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import SettingsModal from './SettingsModal';
-import NotificationBell from './NotificationBell';
+import { notificationsApi } from '../lib/api/notifications';
 
 export default function Sidebar() {
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<'profile' | 'payments'>('profile');
+  const [unreadCount, setUnreadCount] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
@@ -29,6 +30,20 @@ export default function Sidebar() {
     }
   }, [isDark]);
 
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const data = await notificationsApi.getUnreadCount();
+        setUnreadCount(data.unread_count);
+      } catch (err) {
+        console.error('Failed to fetch unread count', err);
+      }
+    };
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -39,6 +54,7 @@ export default function Sidebar() {
     { name: 'Тесты', path: '/tests', icon: FileText },
     { name: 'AI Наставник', path: '/mentor', icon: Bot },
     { name: 'Прогресс', path: '/progress', icon: BarChart2 },
+    { name: 'Уведомления', path: '/notifications', icon: Bell },
   ];
 
   const displayName = user?.full_name || user?.name || 'Гость';
@@ -97,11 +113,19 @@ export default function Sidebar() {
                   }
                 `}
               >
-                <div className="shrink-0 flex items-center justify-center w-8 h-8">
+                <div className="shrink-0 flex items-center justify-center w-8 h-8 relative">
                   <link.icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : 'text-slate-400 dark:text-dark-text-muted'}`} />
+                  {link.path === '/notifications' && unreadCount > 0 && (
+                    <span className="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-dark-surface animate-pulse" />
+                  )}
                 </div>
-                <span className="opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity duration-300">
+                <span className="opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity duration-300 flex-1 flex items-center justify-between">
                   {link.name}
+                  {link.path === '/notifications' && unreadCount > 0 && (
+                    <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
                 </span>
               </Link>
             );
@@ -127,10 +151,6 @@ export default function Sidebar() {
                 <Flame className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
                 <span>{useAuthStore((state) => state.streak)} дн.</span>
               </div>
-            </div>
-            
-            <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <NotificationBell direction="up" />
             </div>
           </div>
 

@@ -31,7 +31,7 @@ export default function Notifications() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto w-full pb-20">
+    <div className="max-w-5xl mx-auto w-full pb-20">
       <div className="mb-6">
         <h1 className="text-2xl font-display font-bold text-slate-900 dark:text-dark-text-main flex items-center gap-3">
           <Bell className="w-6 h-6 text-violet-600" />
