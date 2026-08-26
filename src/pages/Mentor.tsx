@@ -12,10 +12,10 @@ const Mentor = () => {
   const [inputText, setInputText] = useState('');
 
   return (
-    <div className="bg-slate-50/95 dark:bg-dark-surface/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 dark:border-dark-border/60 min-h-[calc(100vh-2rem)] p-6 sm:p-8 flex flex-col gap-8 relative overflow-hidden">
+    <div className="md:bg-slate-50/95 dark:md:bg-dark-surface/90 md:backdrop-blur-xl md:rounded-2xl md:shadow-2xl md:border md:border-white/60 dark:md:border-dark-border/60 min-h-[calc(100vh-2rem)] md:p-8 flex flex-col gap-6 md:gap-8 relative overflow-hidden">
       
       {/* Decorative top-left glare inside the card */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent dark:from-white/5 rounded-t-2xl pointer-events-none"></div>
+      <div className="hidden md:block absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent dark:from-white/5 rounded-t-2xl pointer-events-none"></div>
 
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">

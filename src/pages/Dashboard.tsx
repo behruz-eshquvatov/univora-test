@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
-import { Trophy, Flame, Calculator, Atom, Terminal, Globe, Brain, ArrowUpRight, BookOpen } from 'lucide-react';
+import { Trophy, Flame, Calculator, Atom, Terminal, Globe, Brain, ArrowUpRight, BookOpen, Play } from 'lucide-react';
 import { catalogApi, type Subject } from '../lib/api/catalog';
 import { Link } from 'react-router-dom';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+
 
 const MOCK_SUBJECTS = [
   { id: 1, name: 'Математика', icon: <Calculator className="w-7 h-7 text-white" />, progress: 65, totalTests: 24, color: 'from-blue-500 to-cyan-400' },
@@ -20,79 +20,12 @@ const MOCK_LEADERBOARD = [
   { rank: 5, name: 'Лена', xp: 1650, avatar: 'L' },
 ];
 
-// Mock data for the chart
-const XP_DATA = [
-  { name: 'Пн', xp: 200 },
-  { name: 'Вт', xp: 350 },
-  { name: 'Ср', xp: 450 },
-  { name: 'Чт', xp: 600 },
-  { name: 'Пт', xp: 550 },
-  { name: 'Сб', xp: 850 },
-  { name: 'Вс', xp: 1250 },
-];
 
-// Custom tooltip for the chart
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-slate-800 text-white px-3 py-2 rounded-xl shadow-lg text-sm font-bold border border-slate-700">
-        <p className="mb-1 text-slate-300 font-medium">{label}</p>
-        <p className="text-violet-400">{payload[0].value} XP</p>
-      </div>
-    );
-  }
-  return null;
-};
-
-// Recharts component for XP History
-const XPGraph = () => {
-  return (
-    <div className="w-full h-[180px] mt-2">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          data={XP_DATA}
-          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-        >
-          <defs>
-            <linearGradient id="colorXp" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4}/>
-              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-          <XAxis 
-            dataKey="name" 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }}
-            dy={10}
-          />
-          <YAxis 
-            axisLine={false} 
-            tickLine={false} 
-            tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 700 }}
-            tickFormatter={(value) => `${value} XP`}
-            domain={[0, 'dataMax']}
-            tickCount={4}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#8b5cf6', strokeWidth: 1, strokeDasharray: '3 3' }} />
-          <Area 
-            type="monotone" 
-            dataKey="xp" 
-            stroke="#8b5cf6" 
-            strokeWidth={3}
-            fillOpacity={1} 
-            fill="url(#colorXp)" 
-            activeDot={{ r: 6, fill: '#fff', stroke: '#8b5cf6', strokeWidth: 3 }}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
 
 const Dashboard = () => {
   const [apiSubjects, setApiSubjects] = useState<Subject[]>([]);
+  const [reviewsCount, setReviewsCount] = useState(0);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
   useEffect(() => {
     catalogApi.getSubjects()
@@ -102,6 +35,16 @@ const Dashboard = () => {
         }
       })
       .catch(err => console.log('Failed to fetch catalog subjects', err));
+
+    import('../lib/api/progress').then(({ progressApi }) => {
+      progressApi.getTodayReviews()
+        .then(data => setReviewsCount(data.length))
+        .catch(err => console.log('Failed to fetch reviews', err));
+        
+      progressApi.getWeeklyLeaderboard()
+        .then(data => setLeaderboard(data.slice(0, 5)))
+        .catch(err => console.log('Failed to fetch leaderboard', err));
+    });
   }, []);
 
   const getSubjectIconAndColor = (name: string, index: number) => {
@@ -120,20 +63,19 @@ const Dashboard = () => {
   const displaySubjects = apiSubjects.length > 0 
     ? apiSubjects.map((s, i) => {
         const { icon, color } = getSubjectIconAndColor(s.name, i);
-        return { id: s.id, name: s.name, icon, color, progress: 0, totalTests: 0 };
+        return { id: s.id, name: s.name, icon, color, progress: 0, total_solved_tests: s.total_solved_tests || 0 };
       })
-    : MOCK_SUBJECTS;
+    : MOCK_SUBJECTS.map(s => ({ ...s, total_solved_tests: 0 }));
 
-  const { user } = useAuthStore();
+  const { user, streak, xpSummary } = useAuthStore();
   const firstName = user?.full_name?.split(' ')[0] || user?.name || 'Гость';
-  const xp = user?.xp_total || 0;
-  const streak = 5; // To be fetched from /progress/streak
+  const xp = xpSummary?.xp_total || user?.xp_total || 0;
 
   return (
-    <div className="bg-slate-50/95 dark:bg-dark-surface/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 dark:border-dark-border/60 min-h-[calc(100vh-2rem)] p-6 sm:p-8 flex flex-col gap-8 relative">
+    <div className="md:bg-slate-50/95 dark:md:bg-dark-surface/90 md:backdrop-blur-xl md:rounded-2xl md:shadow-2xl md:border md:border-white/60 dark:md:border-dark-border/60 min-h-[calc(100vh-2rem)] md:p-8 flex flex-col gap-6 md:gap-8 relative">
       
       {/* Decorative top-left glare inside the card */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent dark:from-white/5 rounded-t-2xl pointer-events-none"></div>
+      <div className="hidden md:block absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent dark:from-white/5 rounded-t-2xl pointer-events-none"></div>
 
       {/* Welcome Banner */}
       <section className="bg-gradient-to-r from-violet-600 to-purple-700 rounded-3xl p-8 sm:p-10 text-white flex flex-col md:flex-row items-center justify-between shadow-xl shadow-purple-500/20 relative overflow-hidden shrink-0 mt-2">
@@ -173,16 +115,22 @@ const Dashboard = () => {
           {/* Daily Tasks */}
           <section className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-5">
-              <div className="w-16 h-16 bg-rose-50 dark:bg-rose-950/20 text-rose-500 dark:text-rose-400 rounded-2xl flex items-center justify-center shrink-0">
+              <div className="hidden sm:flex w-16 h-16 bg-rose-50 dark:bg-rose-950/20 text-rose-500 dark:text-rose-400 rounded-2xl items-center justify-center shrink-0">
                 <Brain className="w-8 h-8" />
               </div>
               <div>
                 <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-1">Задачи на сегодня</h3>
-                <p className="text-slate-500 dark:text-dark-text-muted font-medium">Вас ждут <strong className="text-rose-500">10 карточек</strong> для интервального повторения.</p>
+                <p className="text-slate-500 dark:text-dark-text-muted font-medium">
+                  {reviewsCount > 0 ? (
+                    <>Вас ждут <strong className="text-rose-500">{reviewsCount} карточек</strong> для интервального повторения.</>
+                  ) : (
+                    <>На сегодня все карточки повторены! Вы отлично справляетесь.</>
+                  )}
+                </p>
               </div>
             </div>
-            <Link to="/history" className="w-full sm:w-auto px-6 py-3.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl transition-colors shrink-0 text-center shadow-md shadow-rose-500/20">
-              Начать повторение
+            <Link to="/progress" className="w-full sm:w-auto px-6 py-3.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl transition-colors shrink-0 text-center shadow-md shadow-rose-500/20">
+              {reviewsCount > 0 ? 'Начать повторение' : 'Перейти в Прогресс'}
             </Link>
           </section>
 
@@ -190,7 +138,7 @@ const Dashboard = () => {
           <section>
             <div className="flex items-center justify-between mb-5">
               <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">Доступные предметы</h3>
-              <Link to="/history" className="text-sm font-bold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors">Все предметы</Link>
+              <Link to="/tests/thematic" className="text-sm font-bold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors">Все предметы</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {displaySubjects.map((subject) => (
@@ -203,7 +151,9 @@ const Dashboard = () => {
                         </div>
                         <div>
                           <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">{subject.name}</h4>
-                          <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">{subject.totalTests} тестов</p>
+                          <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">
+                            Проверить знания
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -216,8 +166,8 @@ const Dashboard = () => {
                     <div className={`absolute -bottom-8 -right-8 w-28 h-28 rounded-full bg-gradient-to-br ${subject.color} opacity-10 transition-transform duration-500 group-hover:scale-[1.4] z-0`}></div>
                     
                     {/* Bottom Right Percent Circle (Half visible) */}
-                    <div className={`absolute -bottom-5 -right-5 w-[88px] h-[88px] rounded-full bg-gradient-to-br ${subject.color} flex items-start justify-start pt-[18px] pl-[18px] shadow-lg transform transition-transform duration-500 group-hover:scale-[1.15] z-10`}>
-                      <span className="text-white font-extrabold text-[17px]">{subject.progress}%</span>
+                    <div className={`absolute -bottom-5 -right-5 w-[88px] h-[88px] rounded-full bg-gradient-to-br ${subject.color} flex items-start justify-start pt-[20px] pl-[20px] shadow-lg transform transition-transform duration-500 group-hover:scale-[1.15] z-10`}>
+                      <Play className="w-6 h-6 text-white fill-current" />
                     </div>
                   </div>
                 </Link>
@@ -225,16 +175,7 @@ const Dashboard = () => {
             </div>
           </section>
 
-          {/* Mini Stats (XP Chart) */}
-          <section className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">Ваш прогресс за неделю</h3>
-              <div className="text-sm font-bold text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/40 px-3 py-1.5 rounded-lg border border-violet-100 dark:border-violet-950/40">
-                +350 XP
-              </div>
-            </div>
-            <XPGraph />
-          </section>
+
 
         </div>
 
@@ -249,9 +190,13 @@ const Dashboard = () => {
             </div>
             
             <div className="flex-1 space-y-3">
-              {MOCK_LEADERBOARD.map((usr, idx) => {
-                const isCurrentUser = usr.name === 'Behruz Eshquvatov';
+              {(leaderboard.length > 0 ? leaderboard : MOCK_LEADERBOARD).map((usr, idx) => {
+                const isCurrentUser = usr.is_current_user;
                 const isFirst = usr.rank === 1;
+                const name = usr.nickname || usr.name;
+                const xp = usr.xp_this_week ?? usr.xp;
+                const avatar = name?.charAt(0).toUpperCase() || '?';
+                
                 return (
                   <div key={idx} className={`flex items-center gap-3 p-3 rounded-2xl transition-all relative ${isCurrentUser ? 'bg-violet-50 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/30' : 'hover:bg-slate-50 dark:hover:bg-dark-bg border border-transparent'}`}>
                     
@@ -265,7 +210,11 @@ const Dashboard = () => {
                     </div>
                     
                     <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-white shrink-0 relative z-10 overflow-hidden ${isFirst ? 'bg-gradient-to-br from-yellow-400 to-orange-500 ring-2 ring-yellow-400/30' : usr.rank === 2 ? 'bg-slate-300 dark:bg-slate-700' : usr.rank === 3 ? 'bg-orange-300 dark:bg-orange-950/60' : 'bg-slate-200 dark:bg-slate-850'}`}>
-                      {usr.avatar}
+                      {usr.avatar_url ? (
+                        <img src={usr.avatar_url} alt={name} className="w-full h-full object-cover" />
+                      ) : (
+                        avatar
+                      )}
                       {/* Glass Shimmer Effect for Top 1 */}
                       {isFirst && (
                         <div className="absolute inset-0 z-20 pointer-events-none animate-shimmer">
@@ -276,10 +225,10 @@ const Dashboard = () => {
                     
                     <div className="flex-1 min-w-0 relative z-10">
                       <h4 className={`font-bold text-sm truncate ${isFirst ? 'text-yellow-900 dark:text-yellow-200' : isCurrentUser ? 'text-violet-700 dark:text-violet-400' : 'text-slate-800 dark:text-dark-text-main'}`}>
-                        {usr.name}
+                        {name}
                       </h4>
                       <p className={`text-xs font-bold mt-0.5 ${isFirst ? 'text-yellow-600' : isCurrentUser ? 'text-violet-500 dark:text-violet-400' : 'text-slate-500 dark:text-dark-text-muted'}`}>
-                        {usr.xp} XP
+                        {xp} XP
                       </p>
                     </div>
                   </div>

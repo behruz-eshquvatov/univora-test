@@ -1,16 +1,17 @@
 import { api } from '../api';
 
 export interface XPSummary {
-  total_xp: number;
-  level: number;
-  next_level_xp: number;
-  progress_percent: number;
+  xp_total: number;
+  xp_today: number;
+  xp_this_week: number;
 }
 
 export interface XPTransaction {
   id: number;
   amount: number;
-  reason: string;
+  source: string;
+  source_display: string;
+  description: string;
   created_at: string;
 }
 
@@ -25,8 +26,9 @@ export interface Streak {
 export interface LeaderboardEntry {
   rank: number;
   user_id: number;
-  full_name: string;
-  xp: number;
+  nickname: string;
+  avatar_url?: string;
+  xp_this_week: number;
   is_current_user: boolean;
 }
 
@@ -34,6 +36,8 @@ export interface ReviewCard {
   id: number;
   question_id: number;
   question_text: string;
+  options: Record<string, string>;
+  correct_option: string;
   next_review_date: string;
   interval_days: number;
   ease_factor: number;
@@ -47,7 +51,7 @@ export const progressApi = {
 
   getXpTransactions: async (): Promise<XPTransaction[]> => {
     const response = await api.get('/progress/xp/transactions/');
-    return response.data;
+    return response.data.results || response.data;
   },
 
   getStreak: async (): Promise<Streak> => {
@@ -67,16 +71,16 @@ export const progressApi = {
 
   getTodayReviews: async (): Promise<ReviewCard[]> => {
     const response = await api.get('/progress/reviews/today/');
-    return response.data;
+    return response.data.results || response.data; // fallback to response.data if it ever changes
   },
 
   getAllReviews: async (): Promise<ReviewCard[]> => {
     const response = await api.get('/progress/reviews/');
-    return response.data;
+    return response.data.results || response.data;
   },
 
-  submitReview: async (id: number, quality: number): Promise<ReviewCard> => {
-    const response = await api.post(`/progress/reviews/${id}/submit/`, { quality });
+  submitReview: async (id: number, is_correct: boolean, response_time: number): Promise<ReviewCard> => {
+    const response = await api.post(`/progress/reviews/${id}/submit/`, { is_correct, response_time });
     return response.data;
   }
 };

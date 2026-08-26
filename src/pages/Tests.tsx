@@ -1,12 +1,14 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
-import { Clock, Target, ArrowRight, FileText, GraduationCap, RefreshCw, Play, Loader2 } from 'lucide-react';
+import { Clock, Target, ArrowRight, FileText, GraduationCap, Play, Loader2, ArrowUpRight, BookOpen, Calculator, Atom, Terminal, Globe } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { testengineApi, type TestSession } from '../lib/api/testengine';
+import { catalogApi, type Subject } from '../lib/api/catalog';
 
 const Tests = () => {
   const [sessions, setSessions] = useState<TestSession[]>([]);
-  const [loadingNewTest, setLoadingNewTest] = useState(false);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loadingNewTest, setLoadingNewTest] = useState<number | null>(null);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const navigate = useNavigate();
 
@@ -20,28 +22,46 @@ const Tests = () => {
       })
       .catch(console.error)
       .finally(() => setLoadingSessions(false));
+
+    catalogApi.getSubjects()
+      .then(data => {
+        setSubjects(data || []);
+      })
+      .catch(console.error);
   }, []);
 
-  const handleStartTest = async () => {
+  const getSubjectIconAndColor = (name: string, index: number) => {
+    const defaultColors = ['from-blue-500 to-cyan-400', 'from-purple-500 to-indigo-500', 'from-emerald-500 to-teal-400', 'from-rose-500 to-pink-500', 'from-amber-400 to-orange-500'];
+    const color = defaultColors[index % defaultColors.length];
+    
+    let icon = <BookOpen className="w-7 h-7 text-white" />;
+    if (name.toLowerCase().includes('mat') || name.toLowerCase().includes('мат')) icon = <Calculator className="w-7 h-7 text-white" />;
+    if (name.toLowerCase().includes('phy') || name.toLowerCase().includes('физ')) icon = <Atom className="w-7 h-7 text-white" />;
+    if (name.toLowerCase().includes('inf') || name.toLowerCase().includes('ит') || name.toLowerCase().includes('it')) icon = <Terminal className="w-7 h-7 text-white" />;
+    if (name.toLowerCase().includes('eng') || name.toLowerCase().includes('анг') || name.toLowerCase().includes('яз')) icon = <Globe className="w-7 h-7 text-white" />;
+    
+    return { icon, color };
+  };
+
+  const handleStartTest = async (subjectId: number) => {
     try {
-      setLoadingNewTest(true);
-      // Hardcode subject 1 for now (could be dynamic later)
-      const session = await testengineApi.startSession(1);
+      setLoadingNewTest(subjectId);
+      const session = await testengineApi.startSession(subjectId);
       navigate(`/quiz/${session.id}`);
     } catch (error) {
       console.error(error);
     } finally {
-      setLoadingNewTest(false);
+      setLoadingNewTest(null);
     }
   };
 
-  const activeSession = sessions.find(s => s.status === 'in_progress');
-  const completedSessions = sessions.filter(s => s.status === 'completed');
+  const activeSession = sessions.find(s => !s.finished_at);
+  const completedSessions = sessions.filter(s => s.finished_at);
   return (
-    <div className="bg-slate-50/95 dark:bg-dark-surface/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 dark:border-dark-border/60 min-h-[calc(100vh-2rem)] p-6 sm:p-8 flex flex-col gap-8 relative overflow-hidden">
+    <div className="md:bg-slate-50/95 dark:md:bg-dark-surface/90 md:backdrop-blur-xl md:rounded-2xl md:shadow-2xl md:border md:border-white/60 dark:md:border-dark-border/60 min-h-[calc(100vh-2rem)] md:p-8 flex flex-col gap-6 md:gap-8 relative overflow-hidden">
       
       {/* Decorative top-left glare inside the card */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent dark:from-white/5 rounded-t-2xl pointer-events-none"></div>
+      <div className="hidden md:block absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent dark:from-white/5 rounded-t-2xl pointer-events-none"></div>
 
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
@@ -67,7 +87,7 @@ const Tests = () => {
               </div>
               <div>
                 <h3 className="font-extrabold text-xl mb-1 text-white">Тест в процессе</h3>
-                <p className="text-purple-100 font-medium">{activeSession.subject_name || 'Предмет'} ({activeSession.current_question_index}/{activeSession.total_questions} вопросов)</p>
+                <p className="text-purple-100 font-medium">{activeSession.subject?.name || 'Предмет'} ({activeSession.total_questions} вопросов)</p>
               </div>
             </div>
             
@@ -78,51 +98,70 @@ const Tests = () => {
           </section>
           )}
 
+          {/* Тематические тесты */}
+          {subjects.length > 0 && (
+            <section>
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-5">Тематические тесты</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {subjects.map((subject, index) => {
+                  const { icon, color } = getSubjectIconAndColor(subject.name, index);
+                  const isCurrentlyLoading = loadingNewTest === subject.id;
+                  return (
+                    <div
+                      key={subject.id}
+                      onClick={() => !isCurrentlyLoading && handleStartTest(subject.id)}
+                      className={`bg-white dark:bg-dark-surface rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-dark-border hover:shadow-lg hover:border-violet-100 dark:hover:border-violet-950 transition-all cursor-pointer relative overflow-hidden min-h-[160px] flex flex-col justify-between group ${isCurrentlyLoading ? 'opacity-70 pointer-events-none' : ''}`}
+                    >
+                      <div className="flex items-start justify-between relative z-10">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center text-2xl shadow-sm transform group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300`}>
+                            {isCurrentlyLoading ? <Loader2 className="w-7 h-7 text-white animate-spin" /> : icon}
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">{subject.name}</h4>
+                            <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">
+                              Проверить знания
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Top Right Hover Icon */}
+                      <div className="absolute top-6 right-6 text-slate-300 opacity-0 transform translate-x-2 -translate-y-2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:text-violet-500 transition-all duration-300 z-10">
+                        <ArrowUpRight className="w-7 h-7 stroke-[3]" />
+                      </div>
+
+                      {/* Bottom Right Circle Background */}
+                      <div className={`absolute -bottom-8 -right-8 w-28 h-28 rounded-full bg-gradient-to-br ${color} opacity-10 transition-transform duration-500 group-hover:scale-[1.4] z-0`}></div>
+                      
+                      {/* Bottom Right Percent Circle (Half visible) */}
+                      <div className={`absolute -bottom-5 -right-5 w-[88px] h-[88px] rounded-full bg-gradient-to-br ${color} flex items-start justify-start pt-[20px] pl-[20px] shadow-lg transform transition-transform duration-500 group-hover:scale-[1.15] z-10`}>
+                        <Play className="w-6 h-6 text-white fill-current" />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
           {/* Start New Test Categories */}
           <section>
             <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-5">Начать новый тест</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
-              {/* Card 1 */}
-              <div onClick={handleStartTest} className={`bg-white dark:bg-dark-surface rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-dark-border transition-all group relative overflow-hidden flex flex-col justify-between h-[200px] ${loadingNewTest ? 'opacity-70 pointer-events-none' : 'hover:shadow-lg hover:border-violet-100 dark:hover:border-violet-950 cursor-pointer'}`}>
-                <div className="relative z-10">
-                  <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/20 text-blue-500 dark:text-blue-400 flex items-center justify-center mb-4 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
-                    {loadingNewTest ? <Loader2 className="w-7 h-7 animate-spin" /> : <Target className="w-7 h-7" />}
-                  </div>
-                  <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">Тематический тест</h4>
-                  <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-2">Выбор предмета и конкретной темы для точечной тренировки.</p>
-                </div>
-                <div className="absolute bottom-4 right-4 text-slate-300 opacity-0 transform translate-x-2 translate-y-2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:text-blue-500 transition-all duration-300 z-10">
-                  <ArrowRight className="w-7 h-7 stroke-[3]" />
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-dark-border hover:shadow-lg hover:border-violet-100 dark:hover:border-violet-950 transition-all cursor-pointer group relative overflow-hidden flex flex-col justify-between h-[200px]">
-                <div className="relative z-10">
-                  <div className="w-14 h-14 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-950/20 text-fuchsia-500 dark:text-fuchsia-400 flex items-center justify-center mb-4 transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
-                    <GraduationCap className="w-7 h-7" />
-                  </div>
-                  <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">Пробный экзамен (ДТМ)</h4>
-                  <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-2">Полная симуляция экзамена из 5 предметов на время.</p>
-                </div>
-                <div className="absolute bottom-4 right-4 text-slate-300 opacity-0 transform translate-x-2 translate-y-2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:text-fuchsia-500 transition-all duration-300 z-10">
-                  <ArrowRight className="w-7 h-7 stroke-[3]" />
-                </div>
-              </div>
-
-              {/* Card 3 (Full width) */}
+              {/* DTM Exam Card */}
               <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-dark-border hover:shadow-lg hover:border-violet-100 dark:hover:border-violet-950 transition-all cursor-pointer group relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between md:col-span-2">
                 <div className="flex items-center gap-5 relative z-10">
-                  <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 text-emerald-500 dark:text-emerald-400 flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-180 transition-transform duration-500 shrink-0">
-                    <RefreshCw className="w-7 h-7" />
+                  <div className="w-14 h-14 rounded-2xl bg-fuchsia-50 dark:bg-fuchsia-950/20 text-fuchsia-500 dark:text-fuchsia-400 flex items-center justify-center transform group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300 shrink-0">
+                    <GraduationCap className="w-7 h-7" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">Работа над ошибками</h4>
-                    <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">Умный тест, собранный только из вопросов, в которых вы ошибались.</p>
+                    <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">Пробный экзамен (ДТМ)</h4>
+                    <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">Полная симуляция экзамена из 5 предметов на время.</p>
                   </div>
                 </div>
-                <div className="mt-4 md:mt-0 self-start md:self-auto text-slate-300 transform translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-500 transition-all duration-300">
+                <div className="mt-4 md:mt-0 self-start md:self-auto text-slate-300 transform translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-fuchsia-500 transition-all duration-300">
                   <ArrowRight className="w-7 h-7 stroke-[3]" />
                 </div>
               </div>
@@ -142,37 +181,26 @@ const Tests = () => {
               </button>
             </div>
             
-            <div className="flex-1 flex flex-col gap-4">
-              {completedSessions.map((test) => (
-                <div key={test.id} className="p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-dark-bg border border-transparent hover:border-slate-100 dark:hover:border-dark-border transition-all cursor-pointer group relative">
+            <div className="flex-1 flex flex-col gap-2 mt-2">
+              {completedSessions.slice(0, 5).map((test) => (
+                <div key={test.id} className="p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-dark-bg border border-transparent hover:border-slate-100 dark:hover:border-dark-border transition-all cursor-pointer group relative">
                   
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-violet-500 mb-1 block">
-                        Тест
-                      </span>
-                      <h4 className="font-bold text-slate-800 dark:text-dark-text-main leading-tight">
-                        {test.subject_name || `Предмет ID: ${test.subject_id}`}
-                      </h4>
-                    </div>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-sm">
+                      {test.subject?.name || `Предмет`}
+                    </h4>
                     
-                    <div className={`font-extrabold text-lg flex items-baseline gap-1 ${(test.score / test.total_questions) >= 0.5 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                      {test.score}
-                      <span className="text-xs text-slate-400 dark:text-dark-text-muted font-bold">/ {test.total_questions}</span>
+                    <div className="font-extrabold text-sm flex items-baseline gap-1 text-slate-500">
+                      {test.total_questions} воп.
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-4 text-xs font-bold text-slate-400 dark:text-dark-text-muted">
+                  <div className="flex items-center gap-3 text-[11px] font-bold text-slate-400 dark:text-dark-text-muted">
                     <div className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
+                      <Clock className="w-3 h-3" />
                       Завершен
                     </div>
-                    <div>{new Date(test.start_time).toLocaleDateString()}</div>
-                  </div>
-
-                  {/* Hover indicator */}
-                  <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all">
-                    <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-violet-500" />
+                    <div>{new Date(test.started_at).toLocaleDateString()}</div>
                   </div>
 
                 </div>
@@ -184,9 +212,9 @@ const Tests = () => {
               )}
             </div>
 
-            <button className="w-full mt-4 py-3.5 rounded-xl font-bold text-slate-600 dark:text-dark-text-main bg-slate-50 dark:bg-dark-bg hover:bg-slate-100 dark:hover:bg-dark-surface/60 transition-colors text-sm text-center">
+            <Link to="/history" className="block w-full mt-4 py-3.5 rounded-xl font-bold text-slate-600 dark:text-dark-text-main bg-slate-50 dark:bg-dark-bg hover:bg-slate-100 dark:hover:bg-dark-surface/60 transition-colors text-sm text-center">
               Смотреть всю историю
-            </button>
+            </Link>
           </section>
         </div>
 

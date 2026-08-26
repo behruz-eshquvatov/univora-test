@@ -45,7 +45,7 @@ export const billingApi = {
       if (response.data && response.data.has_active_subscription === false) {
         return null;
       }
-      return response.data;
+      return response.data.subscription || null;
     } catch (error: any) {
       if (error.response?.status === 404) {
         return null; // No active subscription

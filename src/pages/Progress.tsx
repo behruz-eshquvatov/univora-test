@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Target, Flame, Snowflake, Star, Zap, History, Clock, BookOpen } from 'lucide-react';
 import { progressApi, type XPSummary, type Streak, type XPTransaction, type ReviewCard } from '../lib/api/progress';
 
@@ -11,6 +11,9 @@ export default function Progress() {
   const [isFreezing, setIsFreezing] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const startTimeRef = useRef<number>(0);
 
   useEffect(() => {
     progressApi.getXpSummary().then(setXpSummary).catch(console.error);
@@ -18,6 +21,13 @@ export default function Progress() {
     progressApi.getXpTransactions().then(setTransactions).catch(console.error);
     progressApi.getTodayReviews().then(setReviews).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (isReviewing && reviews[currentReviewIndex]) {
+      startTimeRef.current = Date.now();
+      setSelectedOption(null);
+    }
+  }, [isReviewing, currentReviewIndex, reviews]);
 
   const handleFreeze = async () => {
     setIsFreezing(true);
@@ -32,27 +42,41 @@ export default function Progress() {
     }
   };
 
-  const handleReviewSubmit = async (quality: number) => {
+  const handleOptionClick = async (key: string) => {
+    if (selectedOption || isSubmitting) return; // Prevent double clicks
+    
+    setSelectedOption(key);
+    setIsSubmitting(true);
+
     const currentCard = reviews[currentReviewIndex];
     if (!currentCard) return;
 
-    try {
-      await progressApi.submitReview(currentCard.id, quality);
-      if (currentReviewIndex < reviews.length - 1) {
-        setCurrentReviewIndex(prev => prev + 1);
-      } else {
-        setIsReviewing(false);
-        // Refresh reviews
-        progressApi.getTodayReviews().then(setReviews).catch(console.error);
+    const isCorrect = key === currentCard.correct_option;
+    const responseTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+
+    // Give user 1.5 seconds to see correct/incorrect color
+    setTimeout(async () => {
+      try {
+        await progressApi.submitReview(currentCard.id, isCorrect, responseTime);
+        
+        if (currentReviewIndex < reviews.length - 1) {
+          setCurrentReviewIndex(prev => prev + 1);
+        } else {
+          setIsReviewing(false);
+          // Refresh reviews
+          progressApi.getTodayReviews().then(setReviews).catch(console.error);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Ошибка при отправке ответа');
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch (err) {
-      console.error(err);
-      alert('Ошибка при отправке ответа');
-    }
+    }, 1500);
   };
 
   return (
-    <div className="bg-slate-50/95 dark:bg-dark-surface/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/60 dark:border-dark-border/60 min-h-[calc(100vh-2rem)] p-6 sm:p-8 flex flex-col gap-8 relative overflow-hidden">
+    <div className="md:bg-slate-50/95 dark:md:bg-dark-surface/90 md:backdrop-blur-xl md:rounded-2xl md:shadow-2xl md:border md:border-white/60 dark:md:border-dark-border/60 min-h-[calc(100vh-2rem)] md:p-8 flex flex-col gap-6 md:gap-8 relative overflow-hidden">
       
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
@@ -73,20 +97,21 @@ export default function Progress() {
             <div className="flex justify-between items-start relative z-10">
               <div>
                 <p className="text-violet-100 font-bold mb-1">Опыт (XP)</p>
-                <h3 className="text-4xl font-extrabold">{xpSummary?.total_xp || 0}</h3>
+                <h3 className="text-4xl font-extrabold">{xpSummary?.xp_total || 0}</h3>
               </div>
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20">
                 <Target className="w-6 h-6 text-white" />
               </div>
             </div>
             {xpSummary && (
-              <div className="mt-6">
-                <div className="flex justify-between text-xs font-bold text-violet-100 mb-2">
-                  <span>Уровень {xpSummary.level}</span>
-                  <span>{xpSummary.next_level_xp} XP до след.</span>
+              <div className="mt-6 flex flex-col gap-2">
+                <div className="flex justify-between text-sm font-bold text-violet-100">
+                  <span>За сегодня:</span>
+                  <span>+{xpSummary.xp_today} XP</span>
                 </div>
-                <div className="w-full bg-white/20 rounded-full h-2">
-                  <div className="bg-white rounded-full h-2" style={{ width: `${xpSummary.progress_percent}%` }}></div>
+                <div className="flex justify-between text-sm font-bold text-violet-100">
+                  <span>За эту неделю:</span>
+                  <span>+{xpSummary.xp_this_week} XP</span>
                 </div>
               </div>
             )}
@@ -172,7 +197,7 @@ export default function Progress() {
                       <Zap className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-800 dark:text-dark-text-main text-sm">{tx.reason}</p>
+                      <p className="font-bold text-slate-800 dark:text-dark-text-main text-sm">{tx.source_display}</p>
                       <p className="text-xs text-slate-500 dark:text-dark-text-muted">{new Date(tx.created_at).toLocaleString()}</p>
                     </div>
                   </div>
@@ -221,25 +246,49 @@ export default function Progress() {
               </button>
             </div>
             
-            <div className="flex-1 flex items-center justify-center bg-slate-50 dark:bg-dark-bg rounded-2xl border border-slate-100 dark:border-dark-border p-6 mb-8 text-center">
-              <p className="text-lg font-medium text-slate-800 dark:text-dark-text-main">
+            <div className="flex-1 flex flex-col bg-slate-50 dark:bg-dark-bg rounded-2xl border border-slate-100 dark:border-dark-border p-6 mb-8">
+              <p className="text-lg font-medium text-slate-800 dark:text-dark-text-main text-center mb-6">
                 {reviews[currentReviewIndex].question_text || "Вопрос карточки"}
               </p>
-            </div>
 
-            <div className="mt-auto">
-              <p className="text-sm font-bold text-slate-500 dark:text-dark-text-muted text-center mb-3">Оцените качество вашего ответа (0-5)</p>
-              <div className="flex justify-between gap-2">
-                {[0, 1, 2, 3, 4, 5].map(q => (
-                  <button 
-                    key={q}
-                    onClick={() => handleReviewSubmit(q)}
-                    className="flex-1 py-3 bg-slate-100 dark:bg-dark-bg hover:bg-violet-100 dark:hover:bg-violet-950/20 hover:text-violet-700 dark:hover:text-violet-400 text-slate-600 dark:text-dark-text-main font-bold rounded-xl transition-colors border border-slate-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-900/30"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
+              {reviews[currentReviewIndex].options && (
+                <div className="grid grid-cols-1 gap-3 w-full">
+                  {Object.entries(reviews[currentReviewIndex].options).map(([key, text]) => {
+                    const isCorrect = key === reviews[currentReviewIndex].correct_option;
+                    const isSelected = key === selectedOption;
+                    const showFeedback = selectedOption !== null;
+                    
+                    let btnClass = 'bg-white dark:bg-dark-surface border-slate-200 dark:border-dark-border hover:border-violet-300 dark:hover:border-violet-900/40 text-slate-700 dark:text-dark-text-main hover:shadow-md';
+                    let letterClass = 'bg-slate-100 dark:bg-dark-bg text-slate-500';
+
+                    if (showFeedback) {
+                      if (isCorrect) {
+                        btnClass = 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-500 text-emerald-700 dark:text-emerald-400';
+                        letterClass = 'bg-emerald-500 text-white';
+                      } else if (isSelected) {
+                        btnClass = 'bg-rose-50 dark:bg-rose-950/20 border-rose-500 text-rose-700 dark:text-rose-400';
+                        letterClass = 'bg-rose-500 text-white';
+                      } else {
+                        btnClass = 'bg-slate-50 dark:bg-dark-bg border-slate-200 dark:border-dark-border text-slate-400 opacity-50 cursor-not-allowed';
+                      }
+                    }
+
+                    return (
+                      <button 
+                        key={key} 
+                        onClick={() => handleOptionClick(key)}
+                        disabled={showFeedback || isSubmitting}
+                        className={`p-4 rounded-xl border flex items-center gap-4 transition-all w-full text-left cursor-pointer ${btnClass}`}
+                      >
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-colors ${letterClass}`}>
+                          {key}
+                        </div>
+                        <span className="font-medium text-base flex-1">{String(text)}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>

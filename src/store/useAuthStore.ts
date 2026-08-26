@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { api } from '../lib/api';
+import { progressApi } from '../lib/api/progress';
 
 interface User {
   id: string | number;
@@ -15,6 +16,8 @@ interface User {
 
 interface AuthState {
   user: User | null;
+  streak: number;
+  xpSummary: { xp_total: number, xp_today: number, xp_this_week: number } | null;
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
@@ -24,12 +27,16 @@ interface AuthState {
   setTokens: (accessToken: string, refreshToken: string) => void;
   logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
+  fetchStreak: () => Promise<void>;
+  fetchXpSummary: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
+      streak: 0,
+      xpSummary: null,
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
@@ -48,13 +55,11 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         try {
-          // Attempt to notify backend of logout
           if (get().refreshToken) {
             await api.post('/api/logout/', { refresh: get().refreshToken }).catch(() => {});
           }
         } finally {
-          // Always clear local state regardless of backend response
-          set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+          set({ user: null, streak: 0, xpSummary: null, accessToken: null, refreshToken: null, isAuthenticated: false });
         }
       },
 
@@ -65,7 +70,26 @@ export const useAuthStore = create<AuthState>()(
           set({ user: response.data });
         } catch (error) {
           console.error("Failed to fetch user data", error);
-          // Don't auto-logout here, let the interceptor handle 401s if it's an auth issue
+        }
+      },
+
+      fetchStreak: async () => {
+        try {
+          if (!get().accessToken) return;
+          const streakData = await progressApi.getStreak();
+          set({ streak: streakData.current_streak });
+        } catch (error) {
+          console.error("Failed to fetch streak", error);
+        }
+      },
+
+      fetchXpSummary: async () => {
+        try {
+          if (!get().accessToken) return;
+          const summary = await progressApi.getXpSummary();
+          set({ xpSummary: summary });
+        } catch (error) {
+          console.error("Failed to fetch xp summary", error);
         }
       }
     }),

@@ -6,6 +6,7 @@ export interface Subject {
   description?: string;
   icon?: string;
   created_at?: string;
+  total_solved_tests?: number;
 }
 
 export interface Topic {
@@ -30,9 +31,9 @@ export interface Question {
 
 export const catalogApi = {
   // Subjects
-  getSubjects: async () => {
-    const response = await api.get<Subject[]>('/catalog/subjects/');
-    return response.data;
+  getSubjects: async (): Promise<Subject[]> => {
+    const res = await api.get('/catalog/subjects/');
+    return res.data.results || res.data;
   },
   getSubjectById: async (id: number | string) => {
     const response = await api.get<Subject>(`/catalog/subjects/${id}/`);

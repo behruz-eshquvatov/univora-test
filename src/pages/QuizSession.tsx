@@ -4,9 +4,9 @@ import { GoogleLogin } from '@react-oauth/google';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/useAuthStore';
 import { useProgressStore } from '../store/useProgressStore';
-import { X, Clock, ChevronRight, Loader2 } from 'lucide-react';
+import { X, Clock, ChevronRight, Loader2, Apple } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { testengineApi, type TestQuestion } from '../lib/api/testengine';
+import { testengineApi, type TestQuestion, type TestSession } from '../lib/api/testengine';
 
 export default function QuizSession() {
   const navigate = useNavigate();
@@ -22,12 +22,25 @@ export default function QuizSession() {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [questionNumber, setQuestionNumber] = useState(1);
+  const [quizResult, setQuizResult] = useState<any | null>(null);
+  const [sessionDetail, setSessionDetail] = useState<TestSession | null>(null);
 
   useEffect(() => {
     if (!sessionId) {
       navigate('/dashboard');
       return;
     }
+
+    const fetchSessionDetail = async () => {
+      try {
+        const detail = await testengineApi.getSessionDetail(sessionId);
+        setSessionDetail(detail);
+      } catch (error) {
+        console.error("Failed to fetch session detail:", error);
+      }
+    };
+    
+    fetchSessionDetail();
     
     // Fetch first question
     fetchNextQuestion();
@@ -67,12 +80,13 @@ export default function QuizSession() {
 
   const completeQuiz = async () => {
     try {
-      await testengineApi.finishSession(sessionId!);
+      const result = await testengineApi.finishSession(sessionId!);
+      setQuizResult(result);
     } catch (e) {
       console.error(e);
+      navigate('/dashboard');
     }
     decrementReviewsToday();
-    navigate('/dashboard');
   };
 
   const formatTime = (seconds: number) => {
@@ -102,44 +116,120 @@ export default function QuizSession() {
     }
   };
 
+  if (quizResult) {
+    const accuracy = quizResult.answers_count > 0 
+      ? Math.round((quizResult.correct_answers_count / quizResult.answers_count) * 100)
+      : 0;
+
+    return (
+      <div className="min-h-screen bg-transparent flex flex-col font-body p-4 sm:p-8 items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-lg bg-surface rounded-[2rem] shadow-2xl border border-white/10 p-8 text-center relative z-10"
+        >
+          <h2 className="text-3xl font-extrabold text-slate-800 mb-2 pt-4">Тест завершен!</h2>
+          <p className="text-slate-500 mb-8 font-medium">Отличная работа! Вот ваши результаты:</p>
+          
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-border">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Точность</span>
+              <span className="text-2xl font-extrabold text-slate-800">{accuracy}%</span>
+            </div>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-border">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Время</span>
+              <span className="text-2xl font-extrabold text-slate-800">{formatTime(quizResult.duration_seconds || 0)}</span>
+            </div>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-border">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Правильно</span>
+              <span className="text-2xl font-extrabold text-emerald-500">{quizResult.correct_answers_count}</span>
+            </div>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-border">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Всего вопросов</span>
+              <span className="text-2xl font-extrabold text-slate-800">{quizResult.answers_count}</span>
+            </div>
+          </div>
+          
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className="w-full py-4 bg-primary text-white rounded-2xl font-bold hover:brightness-110 shadow-lg shadow-primary/20 transition-all"
+          >
+            Вернуться на главную
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
   if (loadingQuestion && !question) return (
     <div className="min-h-screen bg-transparent flex flex-col font-body p-4 sm:p-8 items-center justify-center">
       <Loader2 className="w-12 h-12 text-primary animate-spin" />
     </div>
   );
 
-  if (!question && !loadingQuestion) return null;
-
   return (
     <div className="min-h-screen bg-transparent flex flex-col font-body p-4 sm:p-8 items-center justify-center">
       
-      <div className="w-full max-w-3xl bg-surface rounded-[2rem] shadow-2xl border border-white/10 flex flex-col overflow-hidden relative z-10">
-        
-        {/* Header */}
-        <header className="p-6 sm:px-8 border-b border-border flex items-center justify-between bg-surface">
-          <button onClick={() => setShowExitConfirm(true)} className="text-slate-400 hover:text-rose-500 transition-colors p-1">
-            <X className="w-6 h-6" />
-          </button>
+      {(!question && !quizResult && !showAuthModal) ? (
+        <div className="w-full max-w-3xl bg-surface rounded-[2rem] shadow-2xl border border-white/10 p-8 text-center relative z-10">
+           <h2 className="text-2xl font-bold text-slate-800 mb-4">Сессия недоступна</h2>
+           <p className="text-slate-500 mb-8">Возможно, тест уже завершен или не существует.</p>
+           <button onClick={() => navigate('/dashboard')} className="px-6 py-3 bg-primary text-white rounded-xl font-bold">
+             Вернуться в Дашборд
+           </button>
+        </div>
+      ) : (!question && !quizResult) ? null : (
+        <div className="w-full max-w-3xl bg-surface rounded-[2rem] shadow-2xl border border-white/10 flex flex-col overflow-hidden relative z-10">
           
-          <div className="flex-1"></div>
-
-          <div className="flex items-center gap-2 text-slate-500 font-bold">
-            <Clock className="w-5 h-5" />
-            <span className="w-12 text-center">{formatTime(timeLeft)}</span>
+          {/* Header */}
+          <header className="p-4 sm:p-6 sm:px-8 border-b border-border flex items-center justify-between bg-surface">
+            <button onClick={() => setShowExitConfirm(true)} className="text-slate-400 hover:text-rose-500 transition-colors p-1 shrink-0">
+              <X className="w-6 h-6" />
+            </button>
+          
+          <div className="flex items-center justify-end gap-4 text-slate-500 font-bold">
+            <div className="sm:hidden text-sm px-3 py-1 bg-slate-100 rounded-lg">
+              {questionNumber} / {sessionDetail?.total_questions || '?'}
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              <span className="w-12 text-center">{formatTime(timeLeft)}</span>
+            </div>
           </div>
         </header>
 
         {/* Question Container */}
         <main className="p-5 sm:p-8 bg-surface flex-1 flex flex-col">
-          {/* Pagination Circles */}
-          <div className="w-full flex items-center justify-center overflow-x-auto no-scrollbar pb-4 pt-2">
-            <div className="flex items-center gap-3 px-2">
-              <button
+          {/* Pagination Circles (Desktop only) */}
+          <div className="hidden sm:flex w-full flex-wrap items-center justify-center gap-3 pb-4 pt-2 px-2">
+            {sessionDetail?.total_questions ? (
+              Array.from({ length: sessionDetail.total_questions }).map((_, index) => {
+                const num = index + 1;
+                const isActive = num === questionNumber;
+                const isPast = num < questionNumber;
+                
+                return (
+                  <div
+                    key={num}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold transition-all shrink-0 ${
+                      isActive 
+                        ? 'bg-primary text-white ring-4 ring-primary/20' 
+                        : isPast
+                          ? 'bg-primary/10 text-primary border border-primary/20'
+                          : 'bg-slate-100 text-slate-400 border border-slate-200'
+                    }`}
+                  >
+                    {num}
+                  </div>
+                );
+              })
+            ) : (
+              <div
                 className="w-10 h-10 rounded-full flex items-center justify-center text-base font-bold transition-all shrink-0 bg-primary text-white ring-4 ring-primary/20" 
               >
                 {questionNumber}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
           <AnimatePresence mode="wait">
             <motion.div 
@@ -194,13 +284,24 @@ export default function QuizSession() {
           <button
             onClick={nextQuestion}
             disabled={!selectedOption || loadingQuestion}
-            className="flex items-center gap-2 px-8 py-2.5 bg-primary text-white rounded-xl font-bold hover:brightness-110 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`flex items-center gap-2 px-8 py-2.5 text-white rounded-xl font-bold hover:brightness-110 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+              sessionDetail?.total_questions && questionNumber === sessionDetail.total_questions 
+                ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20' 
+                : 'bg-primary shadow-primary/20'
+            }`}
           >
-            {loadingQuestion ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Вперед'}
-            {!loadingQuestion && <ChevronRight className="w-5 h-5" />}
+            {loadingQuestion ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : sessionDetail?.total_questions && questionNumber === sessionDetail.total_questions ? (
+              'Завершить'
+            ) : (
+              'Вперед'
+            )}
+            {!loadingQuestion && (!sessionDetail?.total_questions || questionNumber !== sessionDetail.total_questions) && <ChevronRight className="w-5 h-5" />}
           </button>
         </footer>
       </div>
+      )}
 
       {/* Auth Modal for Unauthenticated Users trying to finish */}
       <AnimatePresence>
@@ -232,26 +333,38 @@ export default function QuizSession() {
                 <p className="text-slate-500">Войдите, чтобы ваши результаты были сохранены в профиле.</p>
               </div>
 
-              <div className="flex justify-center">
-                <GoogleLogin
-                  onSuccess={async (credentialResponse) => {
-                    try {
-                      const response = await api.post('/api/auth/google/', { 
-                        id_token: credentialResponse.credential 
-                      });
-                      
-                      const { access, refresh, user } = response.data;
-                      login(user || { id: '1', name: 'Student', email: '', role: 'student' }, access, refresh);
-                      setShowAuthModal(false);
-                      completeQuiz();
-                    } catch (error) {
-                      console.error('Google Auth Failed', error);
-                    }
-                  }}
-                  onError={() => {
-                    console.error('Google Auth Failed');
-                  }}
-                />
+              <div className="flex flex-col gap-3 items-center w-full">
+                <div className="flex justify-center">
+                  <GoogleLogin
+                    width="280"
+                    onSuccess={async (credentialResponse) => {
+                      try {
+                        const response = await api.post('/api/auth/google/', { 
+                          id_token: credentialResponse.credential 
+                        });
+                        
+                        const { access, refresh, user } = response.data;
+                        login(user || { id: '1', name: 'Student', email: '', role: 'student' }, access, refresh);
+                        setShowAuthModal(false);
+                        completeQuiz();
+                      } catch (error) {
+                        console.error('Google Auth Failed', error);
+                      }
+                    }}
+                    onError={() => {
+                      console.error('Google Auth Failed');
+                    }}
+                  />
+                </div>
+                
+                <button
+                  onClick={() => alert('Вход через Apple в разработке')}
+                  className="flex items-center justify-center gap-2 bg-black text-white shadow-sm hover:bg-gray-900 transition-colors"
+                  style={{ width: '280px', height: '40px', borderRadius: '4px' }}
+                >
+                  <Apple className="w-5 h-5 mb-0.5" />
+                  <span className="text-sm font-medium font-roboto" style={{ fontFamily: 'Roboto, arial, sans-serif' }}>Sign in with Apple</span>
+                </button>
               </div>
 
             </motion.div>

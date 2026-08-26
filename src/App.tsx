@@ -11,11 +11,13 @@ import Onboarding from './pages/Onboarding';
 import ProtectedRoute from './components/ProtectedRoute';
 import Mentor from './pages/Mentor';
 import Leaderboard from './pages/Leaderboard';
+import ThematicTests from './pages/ThematicTests';
 import Tests from './pages/Tests';
 import Progress from './pages/Progress';
 import Plans from './pages/Plans';
 import DashboardLayout from './components/DashboardLayout';
 import Admin from './pages/Admin';
+import OnboardingQuiz from './pages/OnboardingQuiz';
 
 function App() {
   const { isAuthenticated, fetchUser, accessToken } = useAuthStore();
@@ -41,6 +43,7 @@ function App() {
           
           {/* Guest Flow Routes */}
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding-quiz" element={<OnboardingQuiz />} />
           <Route path="/quiz/:sessionId" element={<QuizSession />} />
 
           {/* Protected Routes */}
@@ -50,6 +53,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/mentor" element={<Mentor />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/tests/thematic" element={<ThematicTests />} />
               <Route path="/tests" element={<Tests />} />
               <Route path="/progress" element={<Progress />} />
               <Route path="/plans" element={<Plans />} />
@@ -65,3 +69,4 @@ function App() {
 }
 
 export default App;
+

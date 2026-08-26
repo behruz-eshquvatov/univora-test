@@ -2,19 +2,17 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuizStore } from '../store/useQuizStore';
 import { ChevronLeft, Plus, Check, AlertCircle, Clock, X, BookOpen } from 'lucide-react';
-import { catalogApi } from '../lib/api/catalog';
-import { testengineApi } from '../lib/api/testengine';
 
 const FACULTY_SUBJECTS: Record<string, string[]> = {
   'IT и Инженерия': ['Математика', 'Физика', 'Информатика', 'Английский', 'Логика'],
-  'Медицина': ['Биология', 'Химия', 'Русский язык', 'Математика', 'Анатомия'],
-  'Юриспруденция': ['Всемирная история', 'Основы права', 'Английский', 'Человек и общество', 'Математика'],
-  'Экономика': ['Математика', 'География', 'История', 'Английский', 'Логика'],
-  'Педагогика': ['История', 'География', 'Биология', 'Литература', 'Математика'],
-  'Международные отношения': ['Английский', 'Всемирная история', 'География', 'История', 'Литература'],
-  'Филология': ['Русский язык', 'Литература', 'Английский', 'История', 'География'],
-  'Архитектура': ['Математика', 'Физика', 'Черчение', 'История', 'География'],
-  'Бизнес управление': ['Математика', 'География', 'Английский', 'История', 'Основы права']
+  'Медицина': ['Биология', 'Химия', 'Русский язык', 'Математика', 'Физика'],
+  'Юриспруденция': ['История', 'Обществознание', 'Русский язык', 'Иностранный язык', 'Математика'],
+  'Экономика': ['Математика', 'Обществознание', 'Русский язык', 'Иностранный язык', 'Информатика'],
+  'Педагогика': ['Русский язык', 'Обществознание', 'Биология', 'Литература', 'Математика'],
+  'Международные отношения': ['Иностранный язык', 'История', 'Обществознание', 'Русский язык', 'География'],
+  'Филология': ['Русский язык', 'Литература', 'Иностранный язык', 'История', 'Обществознание'],
+  'Архитектура': ['Математика', 'Физика', 'Черчение', 'Русский язык', 'Обществознание'],
+  'Бизнес управление': ['Математика', 'Обществознание', 'Иностранный язык', 'Русский язык', 'История']
 };
 
 const DIRECTIONS = Object.keys(FACULTY_SUBJECTS);
@@ -24,7 +22,6 @@ export default function Onboarding() {
   const { direction, setDirection, selectedSubjects, toggleSubject } = useQuizStore();
   const [step, setStep] = useState(1);
   const [showReadyModal, setShowReadyModal] = useState(false);
-  const [isStarting, setIsStarting] = useState(false);
 
   const handleNext = () => {
     if (step === 1 && direction) {
@@ -42,30 +39,8 @@ export default function Onboarding() {
     }
   };
 
-  const handleStartTest = async () => {
-    setIsStarting(true);
-    const subjectsToUse = selectedSubjects.length > 0 ? selectedSubjects : ['Математика', 'Физика'];
-    const chosenSubjectName = subjectsToUse[0];
-
-    try {
-      const dbSubjects = await catalogApi.getSubjects();
-      const list = Array.isArray(dbSubjects) ? dbSubjects : (dbSubjects as any).results ?? [];
-      const match = list.find((s: any) => s.name.toLowerCase().trim() === chosenSubjectName.toLowerCase().trim());
-      const targetSubjectId = match ? match.id : (list[0]?.id || 1);
-      
-      const session = await testengineApi.startSession(targetSubjectId);
-      navigate(`/quiz/${session.id}`);
-    } catch (err) {
-      console.error('Failed to start real session, falling back to first available:', err);
-      try {
-        const session = await testengineApi.startSession(1);
-        navigate(`/quiz/${session.id}`);
-      } catch {
-        navigate('/dashboard');
-      }
-    } finally {
-      setIsStarting(false);
-    }
+  const handleStartTest = () => {
+    navigate('/onboarding-quiz');
   };
 
   const availableSubjects = direction ? FACULTY_SUBJECTS[direction] || [] : [];
@@ -94,22 +69,25 @@ export default function Onboarding() {
         {/* Step 1: Faculty */}
         {step === 1 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-8">Какое направление вы выбрали?</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-slate-800">Какое направление вы выбрали?</h2>
             
             <div className="flex flex-wrap gap-3 mb-12">
-              {DIRECTIONS.map(dir => (
-                <button 
-                  key={dir} 
-                  onClick={() => setDirection(dir)}
-                  className={`px-5 py-2.5 rounded-full border-2 transition-all font-medium ${
-                    direction === dir 
+              {DIRECTIONS.map(dir => {
+                const isSelected = direction === dir;
+                return (
+                  <button
+                    key={dir}
+                    onClick={() => setDirection(dir)}
+                    className={`px-5 py-2.5 rounded-full border-2 transition-all font-medium ${
+                      isSelected 
                       ? 'border-primary bg-primary/10 text-primary' 
                       : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  {dir}
-                </button>
-              ))}
+                    }`}
+                  >
+                    {dir}
+                  </button>
+                )
+              })}
             </div>
             
             <button 
@@ -129,25 +107,21 @@ export default function Onboarding() {
         {/* Step 2: Subjects */}
         {step === 2 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-2">Какие предметы вам даются сложнее?</h2>
-            <p className="text-slate-500 mb-8">Можно выбрать несколько (до 5)</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-2 text-slate-800">Какие предметы вы будете сдавать?</h2>
+            <p className="text-slate-500 mb-8">Выберите до 5 предметов</p>
 
             <div className="flex flex-wrap gap-3 mb-12">
-              {availableSubjects.map(subject => {
-                const isSelected = selectedSubjects.includes(subject);
-                const isDisabled = !isSelected && selectedSubjects.length >= 5;
+              {availableSubjects.map(sub => {
+                const isSelected = selectedSubjects.includes(sub);
                 
                 return (
                   <button 
-                    key={subject}
-                    disabled={isDisabled} 
-                    onClick={() => toggleSubject(subject)}
+                    key={sub}
+                    onClick={() => toggleSubject(sub)}
                     className={`px-5 py-2.5 rounded-full border-2 transition-all flex items-center gap-2 font-medium ${
                       isSelected
                         ? 'border-primary bg-primary/10 text-primary' 
-                        : isDisabled
-                          ? 'border-slate-100 bg-slate-50 text-slate-400 cursor-not-allowed'
-                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                     }`}
                   >
                     {isSelected ? (
@@ -155,7 +129,7 @@ export default function Onboarding() {
                     ) : (
                       <Plus className="w-4 h-4 text-slate-400" />
                     )}
-                    {subject}
+                    {sub}
                   </button>
                 )
               })}
@@ -170,7 +144,7 @@ export default function Onboarding() {
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               }`}
             >
-              Начать
+              Завершить
             </button>
           </div>
         )}
@@ -187,28 +161,34 @@ export default function Onboarding() {
               <X className="w-5 h-5" />
             </button>
 
-            <h3 className="text-2xl font-bold mb-4">Вы готовы?</h3>
+            <h3 className="text-2xl font-bold mb-4 text-slate-800">Вы готовы?</h3>
+            <p className="text-slate-500 mb-6 leading-relaxed">
+              Сейчас мы запустим вводный тест по выбранным вами предметам: 
+              <span className="font-bold text-slate-700 block mt-2">
+                {selectedSubjects.join(', ')}
+              </span>
+            </p>
             
             <div className="space-y-4 mb-8">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                 <p className="text-slate-600 text-sm">
-                  <strong className="text-slate-800 font-medium block mb-1">Без читерства</strong>
-                  Не списывайте и не используйте сторонние ресурсы. Тест покажет ваши реальные знания.
+                  <strong className="text-slate-800 font-medium block mb-1">Без регистрации</strong>
+                  Тест можно пройти бесплатно и без входа в систему.
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                 <p className="text-slate-600 text-sm">
                   <strong className="text-slate-800 font-medium block mb-1">Ограничение времени</strong>
-                  На прохождение теста будет выделено ограниченное время. Не отвлекайтесь.
+                  На прохождение теста дается 30 минут.
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <BookOpen className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                 <p className="text-slate-600 text-sm">
-                  <strong className="text-slate-800 font-medium block mb-1">Количество вопросов</strong>
-                  Вас ждет {Math.max(4, selectedSubjects.length * 2)} вопросов по выбранным предметам.
+                  <strong className="text-slate-800 font-medium block mb-1">Реальные вопросы</strong>
+                  Используются материалы формата ДТМ.
                 </p>
               </div>
             </div>
@@ -222,10 +202,9 @@ export default function Onboarding() {
               </button>
               <button 
                 onClick={handleStartTest}
-                disabled={isStarting}
-                className="flex-1 py-4 rounded-xl font-bold text-white bg-primary hover:bg-violet-600 disabled:opacity-50 transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)] flex items-center justify-center gap-2"
+                className="flex-1 py-4 rounded-xl font-bold text-white bg-primary hover:bg-violet-600 transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)] flex items-center justify-center gap-2"
               >
-                {isStarting ? <span className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span> : 'Я готов!'}
+                Я готов!
               </button>
             </div>
           </div>
