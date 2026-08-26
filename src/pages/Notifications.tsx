@@ -39,8 +39,7 @@ export default function Notifications() {
       {/* Header */}
       <div className="relative z-10 hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight flex items-center gap-3">
-            <Bell className="w-8 h-8 text-violet-600" />
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">
             Уведомления
           </h1>
           <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">
