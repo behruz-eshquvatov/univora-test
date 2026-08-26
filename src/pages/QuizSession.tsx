@@ -443,7 +443,7 @@ export default function QuizSession() {
             <button
               onClick={goPrev}
               disabled={currentOrder <= 1}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-5 h-5" />
               <span className="hidden sm:inline">Назад</span>
@@ -452,13 +452,15 @@ export default function QuizSession() {
             {/* Next / Finish button */}
             <button
               onClick={goNext}
-              className={`flex items-center gap-2 px-8 py-2.5 text-white rounded-xl font-bold hover:brightness-110 transition-all shadow-md ${
+              className={`flex items-center justify-center gap-1.5 py-2.5 text-white rounded-xl font-bold hover:brightness-110 transition-all shadow-md ${
                 currentOrder === totalQuestions
-                  ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
-                  : 'bg-primary shadow-primary/20'
+                  ? 'px-5 sm:px-8 bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
+                  : 'px-3 sm:px-8 bg-primary shadow-primary/20'
               }`}
             >
-              {currentOrder === totalQuestions ? 'Завершить' : 'Вперед'}
+              <span className={currentOrder === totalQuestions ? "" : "hidden sm:inline"}>
+                {currentOrder === totalQuestions ? 'Завершить' : 'Вперед'}
+              </span>
               {currentOrder !== totalQuestions && <ChevronRight className="w-5 h-5" />}
             </button>
           </div>
