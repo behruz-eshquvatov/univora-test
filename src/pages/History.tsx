@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Clock, BookOpen, Calculator, Atom, Terminal, Globe, BrainCircuit, Activity, CalendarDays } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Clock, BookOpen, Calculator, Atom, Terminal, Globe, CalendarDays } from 'lucide-react';
 import { testengineApi, type TestResult } from '../lib/api/testengine';
 import { progressApi, type ReviewCard } from '../lib/api/progress';
 
@@ -43,21 +43,71 @@ export default function History() {
     return { icon, color };
   };
 
-  return (
-    <div className="bg-white dark:bg-dark-surface min-h-[calc(100vh-2rem)] rounded-[2rem] p-6 sm:p-10 border border-slate-100 dark:border-dark-border overflow-y-auto">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 rounded-2xl flex items-center justify-center">
-            <Clock className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-dark-text-main">
-              История активности
-            </h1>
-            <p className="text-slate-500 dark:text-dark-text-muted mt-1">Ваши завершенные тесты и карточки повторения</p>
-          </div>
-        </div>
+  const groupedResults = useMemo(() => {
+    const grouped: Record<string, TestResult[]> = {};
+    results.forEach(result => {
+      const dateObj = new Date(result.created_at);
+      dateObj.setHours(0, 0, 0, 0);
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const diffTime = dateObj.getTime() - today.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      
+      let label = '';
+      if (diffDays === 0) label = 'Сегодня';
+      else if (diffDays === -1) label = 'Вчера';
+      else label = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+      
+      if (!grouped[label]) grouped[label] = [];
+      grouped[label].push(result);
+    });
+    return grouped;
+  }, [results]);
 
+  const groupedReviews = useMemo(() => {
+    const grouped: Record<string, ReviewCard[]> = {};
+    // Sort reviews by date first
+    const sorted = [...reviews].sort((a, b) => new Date(a.next_review_date).getTime() - new Date(b.next_review_date).getTime());
+    
+    sorted.forEach(card => {
+      const dateObj = new Date(card.next_review_date);
+      dateObj.setHours(0, 0, 0, 0);
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const diffTime = dateObj.getTime() - today.getTime();
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      
+      let label = '';
+      if (diffDays < 0) label = 'Просрочено (Нужно повторить)';
+      else if (diffDays === 0) label = 'Сегодня';
+      else if (diffDays === 1) label = 'Завтра';
+      else label = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+      
+      if (!grouped[label]) grouped[label] = [];
+      grouped[label].push(card);
+    });
+    return grouped;
+  }, [reviews]);
+
+  return (
+    <div className="md:bg-slate-50/95 dark:md:bg-dark-surface/90 md:backdrop-blur-xl md:rounded-2xl md:shadow-2xl md:border md:border-white/60 dark:md:border-dark-border/60 min-h-[calc(100vh-2rem)] md:p-8 flex flex-col gap-6 relative overflow-hidden">
+      
+      {/* Decorative top-left glare inside the card */}
+      <div className="hidden md:block absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent dark:from-white/5 rounded-t-2xl pointer-events-none"></div>
+
+      {/* Header */}
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2 mb-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">История активности</h1>
+          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">Ваши завершенные тесты и карточки повторения</p>
+        </div>
+      </div>
+
+      <div className="relative z-10">
         {/* Tabs */}
         <div className="flex bg-slate-100 dark:bg-dark-bg p-1.5 rounded-2xl mb-8 max-w-sm">
           <button 
@@ -68,7 +118,7 @@ export default function History() {
                 : 'text-slate-500 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-slate-300'
             }`}
           >
-            <Activity className="w-4 h-4" /> Тесты
+            Тесты
           </button>
           <button 
             onClick={() => setActiveTab('reviews')}
@@ -78,7 +128,7 @@ export default function History() {
                 : 'text-slate-500 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-slate-300'
             }`}
           >
-            <BrainCircuit className="w-4 h-4" /> Карточки
+            Карточки
           </button>
         </div>
 
@@ -87,40 +137,46 @@ export default function History() {
             <Clock className="w-6 h-6 animate-spin" />
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-8 max-w-4xl">
             {activeTab === 'tests' && (
               <>
-                {results.length > 0 ? results.map((result, idx) => {
-                  const { icon, color } = getSubjectIconAndColor(result.subject?.name || '', idx);
-                  return (
-                    <div key={result.id} className="bg-slate-50 dark:bg-dark-bg rounded-2xl p-5 border border-slate-100 dark:border-dark-border flex items-center gap-5 hover:border-violet-200 dark:hover:border-violet-900 transition-colors">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shrink-0 shadow-sm`}>
-                        {icon}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start mb-1">
-                          <h4 className="font-bold text-slate-800 dark:text-dark-text-main truncate">
-                            {result.subject?.name || 'Предмет'}
-                          </h4>
-                          <div className="font-extrabold text-emerald-500 shrink-0">
-                            {result.accuracy_percent}%
+                {Object.keys(groupedResults).length > 0 ? Object.entries(groupedResults).map(([dateLabel, dateResults]) => (
+                  <div key={dateLabel} className="space-y-4">
+                    <h3 className="text-sm font-bold text-slate-400 dark:text-dark-text-muted uppercase tracking-wider pl-1">
+                      {dateLabel}
+                    </h3>
+                    {dateResults.map((result, idx) => {
+                      const { icon, color } = getSubjectIconAndColor(result.subject?.name || '', idx);
+                      return (
+                        <div key={result.id} className="bg-white dark:bg-dark-bg rounded-2xl p-5 border border-slate-100 dark:border-dark-border flex items-center gap-5 hover:border-violet-200 dark:hover:border-violet-900 transition-colors shadow-sm">
+                          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shrink-0 shadow-sm`}>
+                            {icon}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start mb-1">
+                              <h4 className="font-bold text-slate-800 dark:text-dark-text-main truncate">
+                                {result.subject?.name || 'Предмет'}
+                              </h4>
+                              <div className="font-extrabold text-emerald-500 shrink-0">
+                                {result.accuracy_percent}%
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-4 text-xs font-bold text-slate-400 dark:text-dark-text-muted">
+                              <span>{result.correct_count} / {result.total_questions} верно</span>
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>{new Date(result.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        
-                        <div className="flex items-center gap-4 text-xs font-bold text-slate-400 dark:text-dark-text-muted">
-                          <span>{result.correct_count} / {result.total_questions} верно</span>
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5" />
-                            <span>{new Date(result.created_at).toLocaleDateString()} {new Date(result.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }) : (
-                  <div className="text-center py-16 text-slate-400 dark:text-dark-text-muted bg-slate-50 dark:bg-dark-bg rounded-3xl border-2 border-dashed border-slate-200 dark:border-dark-border">
-                    <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      );
+                    })}
+                  </div>
+                )) : (
+                  <div className="text-center py-16 text-slate-400 dark:text-dark-text-muted bg-white dark:bg-dark-bg rounded-3xl border border-slate-100 dark:border-dark-border shadow-sm">
                     <p className="font-medium">Вы еще не завершили ни одного теста.</p>
                   </div>
                 )}
@@ -129,30 +185,36 @@ export default function History() {
 
             {activeTab === 'reviews' && (
               <>
-                {reviews.length > 0 ? reviews.map(card => {
-                  const isToday = new Date(card.next_review_date).toDateString() === new Date().toDateString();
-                  const isPast = new Date(card.next_review_date) < new Date();
-                  const urgencyClass = isPast ? 'text-rose-500 bg-rose-50 dark:bg-rose-900/20' : isToday ? 'text-amber-600 bg-amber-50 dark:bg-amber-900/20' : 'text-slate-500 bg-slate-100 dark:bg-dark-surface';
+                {Object.keys(groupedReviews).length > 0 ? Object.entries(groupedReviews).map(([dateLabel, dateReviews]) => (
+                  <div key={dateLabel} className="space-y-4">
+                    <h3 className={`text-sm font-bold uppercase tracking-wider pl-1 ${dateLabel.includes('Просрочено') ? 'text-rose-500' : 'text-slate-400 dark:text-dark-text-muted'}`}>
+                      {dateLabel}
+                    </h3>
+                    {dateReviews.map(card => {
+                      const isToday = new Date(card.next_review_date).toDateString() === new Date().toDateString();
+                      const isPast = new Date(card.next_review_date) < new Date();
+                      const urgencyClass = isPast ? 'text-rose-500 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30' : isToday ? 'text-amber-600 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30' : 'text-slate-500 bg-slate-50 dark:bg-dark-surface border border-transparent';
 
-                  return (
-                    <div key={card.id} className="bg-slate-50 dark:bg-dark-bg rounded-2xl p-5 border border-slate-100 dark:border-dark-border hover:border-violet-200 dark:hover:border-violet-900 transition-colors">
-                      <p className="text-sm font-medium text-slate-800 dark:text-dark-text-main mb-4 line-clamp-2">
-                        {card.question_text}
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <div className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${urgencyClass}`}>
-                          <CalendarDays className="w-3.5 h-3.5" />
-                          {isPast || isToday ? 'Повторить сегодня' : `Повтор: ${new Date(card.next_review_date).toLocaleDateString()}`}
+                      return (
+                        <div key={card.id} className={`bg-white dark:bg-dark-bg rounded-2xl p-5 border border-slate-100 dark:border-dark-border hover:border-violet-200 dark:hover:border-violet-900 transition-colors shadow-sm`}>
+                          <p className="text-sm font-medium text-slate-800 dark:text-dark-text-main mb-4 line-clamp-2">
+                            {card.question_text}
+                          </p>
+                          <div className="flex items-center gap-3">
+                            <div className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${urgencyClass}`}>
+                              <CalendarDays className="w-3.5 h-3.5" />
+                              {isPast || isToday ? 'Повторить сегодня' : `Повтор: ${new Date(card.next_review_date).toLocaleDateString()}`}
+                            </div>
+                            <div className="text-xs font-bold text-slate-400">
+                              Интервал: {card.interval_days} дн.
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-xs font-bold text-slate-400">
-                          Интервал: {card.interval_days} дн.
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }) : (
-                  <div className="text-center py-16 text-slate-400 dark:text-dark-text-muted bg-slate-50 dark:bg-dark-bg rounded-3xl border-2 border-dashed border-slate-200 dark:border-dark-border">
-                    <BrainCircuit className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      );
+                    })}
+                  </div>
+                )) : (
+                  <div className="text-center py-16 text-slate-400 dark:text-dark-text-muted bg-white dark:bg-dark-bg rounded-3xl border border-slate-100 dark:border-dark-border shadow-sm">
                     <p className="font-medium">У вас пока нет карточек для повторения.</p>
                   </div>
                 )}
