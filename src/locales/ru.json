@@ -1,0 +1,12 @@
+{
+  "nav": {
+    "dashboard": "Главная",
+    "tests": "Тесты",
+    "mentor": "AI Наставник",
+    "progress": "Прогресс",
+    "notifications": "Уведомления"
+  },
+  "common": {
+    "language": "Язык"
+  }
+}

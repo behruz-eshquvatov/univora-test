@@ -4,6 +4,8 @@ import { Home, FileText, Bot, BarChart2, LogOut, Flame, GraduationCap, Globe, Be
 import { useAuthStore } from '../store/useAuthStore';
 import SettingsModal from './SettingsModal';
 import { notificationsApi } from '../lib/api/notifications';
+import { useTranslation } from 'react-i18next';
+import { useLanguageStore } from '../store/useLanguageStore';
 
 export default function Sidebar() {
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
@@ -15,6 +17,8 @@ export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+  const { i18n } = useTranslation();
+  const { language, setLanguage } = useLanguageStore();
 
   const [isDark, setIsDark] = useState(() => {
     return document.documentElement.classList.contains('dark') || localStorage.getItem('theme') === 'dark';
@@ -186,9 +190,19 @@ export default function Sidebar() {
                     <Globe className="w-4 h-4 text-slate-400 dark:text-dark-text-muted" />
                     Язык
                   </div>
-                  <select className="bg-transparent font-medium text-slate-500 dark:text-dark-text-muted outline-none cursor-pointer">
+                  <select 
+                    value={language}
+                    onChange={(e) => {
+                      const code = e.target.value as 'uz' | 'ru' | 'en';
+                      i18n.changeLanguage(code);
+                      setLanguage(code);
+                      window.location.reload();
+                    }}
+                    className="bg-transparent font-medium text-slate-500 dark:text-dark-text-muted outline-none cursor-pointer"
+                  >
                     <option value="ru">Русский</option>
                     <option value="uz">O'zbekcha</option>
+                    <option value="en">English</option>
                   </select>
                 </div>
 

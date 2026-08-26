@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
+import { useLanguageStore } from '../store/useLanguageStore';
 
 const baseURL = 'http://localhost:8000';
 
@@ -10,13 +11,17 @@ export const api = axios.create({
   },
 });
 
-// Request Interceptor: Attach token automatically
+// Request Interceptor: Attach token and language automatically
 api.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().accessToken;
+    const language = useLanguageStore.getState().language;
     
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (config.headers) {
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      config.headers['Accept-Language'] = language;
     }
     return config;
   },

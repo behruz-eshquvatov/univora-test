@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import SettingsModal from './SettingsModal';
 import NotificationBell from './NotificationBell';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function MobileHeader() {
   const { user, logout } = useAuthStore();
@@ -86,6 +87,7 @@ export default function MobileHeader() {
             <span>{useAuthStore((state) => state.streak)}</span>
           </div>
 
+          <LanguageSwitcher />
           <NotificationBell />
 
           <div className="relative cursor-pointer" onClick={() => setIsMenuOpen(!isMenuOpen)}>

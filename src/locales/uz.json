@@ -1,0 +1,12 @@
+{
+  "nav": {
+    "dashboard": "Asosiy",
+    "tests": "Testlar",
+    "mentor": "AI Ustoz",
+    "progress": "Progress",
+    "notifications": "Bildirishnomalar"
+  },
+  "common": {
+    "language": "Til"
+  }
+}
