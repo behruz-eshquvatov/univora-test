@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Clock, BookOpen, Calculator, Atom, Terminal, Globe, CalendarDays } from 'lucide-react';
 import { testengineApi, type TestResult } from '../lib/api/testengine';
 import { progressApi, type ReviewCard } from '../lib/api/progress';
@@ -148,7 +149,7 @@ export default function History() {
                     {dateResults.map((result, idx) => {
                       const { icon, color } = getSubjectIconAndColor(result.subject?.name || '', idx);
                       return (
-                        <div key={result.id} className="bg-white dark:bg-dark-bg rounded-2xl p-5 border border-slate-100 dark:border-dark-border flex items-center gap-5 hover:border-violet-200 dark:hover:border-violet-900 transition-colors shadow-sm">
+                        <Link to={`/history/${result.id}`} key={result.id} className="block bg-white dark:bg-dark-bg rounded-2xl p-5 border border-slate-100 dark:border-dark-border flex items-center gap-5 hover:border-violet-200 dark:hover:border-violet-900 transition-colors shadow-sm">
                           <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shrink-0 shadow-sm`}>
                             {icon}
                           </div>
@@ -171,7 +172,7 @@ export default function History() {
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </Link>
                       );
                     })}
                   </div>

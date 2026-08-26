@@ -165,7 +165,7 @@ export default function Plans() {
                       <button 
                         onClick={handleCancelSubscription}
                         disabled={cancelLoading}
-                        className="w-full py-2.5 rounded-xl font-bold text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors text-sm disabled:opacity-50"
+                        className="w-full py-3.5 rounded-2xl font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-100 dark:border-rose-900/50 transition-colors text-sm disabled:opacity-50"
                       >
                         {cancelLoading ? 'Отменяем...' : 'Отменить подписку'}
                       </button>

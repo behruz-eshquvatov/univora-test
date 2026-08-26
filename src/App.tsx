@@ -14,6 +14,7 @@ import Leaderboard from './pages/Leaderboard';
 import ThematicTests from './pages/ThematicTests';
 import Tests from './pages/Tests';
 import History from './pages/History';
+import ResultDetail from './pages/ResultDetail';
 import Progress from './pages/Progress';
 import Plans from './pages/Plans';
 import DashboardLayout from './components/DashboardLayout';
@@ -58,6 +59,7 @@ function App() {
               <Route path="/tests/thematic" element={<ThematicTests />} />
               <Route path="/tests" element={<Tests />} />
               <Route path="/history" element={<History />} />
+              <Route path="/history/:resultId" element={<ResultDetail />} />
               <Route path="/progress" element={<Progress />} />
               <Route path="/plans" element={<Plans />} />
               <Route path="/notifications" element={<Notifications />} />
