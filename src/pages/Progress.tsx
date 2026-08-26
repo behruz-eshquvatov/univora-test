@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Flame, Snowflake, Star, Zap, History, Clock, BookOpen } from 'lucide-react';
+import { X, Flame, Snowflake, Star, Zap, History, Clock, BookOpen, Target } from 'lucide-react';
 import { progressApi, type XPSummary, type Streak, type XPTransaction, type ReviewCard } from '../lib/api/progress';
 
 export default function Progress() {
