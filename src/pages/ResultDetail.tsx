@@ -19,7 +19,13 @@ export default function ResultDetail() {
         setResult(resData);
         if (resData.session) {
           const revData = await testengineApi.getSessionReview(resData.session);
-          setReview(revData);
+          let reviewArray = [];
+          if (Array.isArray(revData)) {
+            reviewArray = revData;
+          } else if (revData && typeof revData === 'object') {
+            reviewArray = (revData as any).results || (revData as any).questions || (revData as any).review || Object.values(revData).find(v => Array.isArray(v)) || [];
+          }
+          setReview(reviewArray);
         }
       } catch (err: any) {
         console.error(err);
