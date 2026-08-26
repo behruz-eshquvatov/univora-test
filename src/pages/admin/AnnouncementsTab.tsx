@@ -12,6 +12,15 @@ export default function AnnouncementsTab() {
     loadAnnouncements();
   }, []);
 
+  useEffect(() => {
+    // Poll every 3 seconds if there are any announcements that are still sending
+    const hasPending = announcements.some(a => !a.is_sent);
+    if (!hasPending) return;
+
+    const interval = setInterval(loadAnnouncements, 3000);
+    return () => clearInterval(interval);
+  }, [announcements]);
+
   const loadAnnouncements = async () => {
     try {
       const data = await notificationsApi.getAnnouncements();
