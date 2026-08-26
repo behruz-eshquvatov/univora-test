@@ -32,7 +32,7 @@ export default function Notifications() {
 
   return (
     <div className="max-w-5xl mx-auto w-full pb-20">
-      <div className="mb-6">
+      <div className="hidden md:block mb-6">
         <h1 className="text-2xl font-display font-bold text-slate-900 dark:text-dark-text-main flex items-center gap-3">
           <Bell className="w-6 h-6 text-violet-600" />
           Уведомления
@@ -42,7 +42,7 @@ export default function Notifications() {
         </p>
       </div>
 
-      <div className="bg-white dark:bg-dark-surface rounded-3xl border border-slate-200 dark:border-dark-border overflow-hidden">
+      <div className="bg-white dark:bg-dark-surface sm:rounded-3xl sm:border border-slate-200 dark:border-dark-border overflow-hidden -mx-4 sm:mx-0">
         {isLoading ? (
           <div className="p-12 text-center">
             <span className="w-8 h-8 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin inline-block" />
@@ -52,7 +52,7 @@ export default function Notifications() {
             {notifications.map(n => (
               <div 
                 key={n.id} 
-                className={`p-5 sm:p-6 flex gap-4 transition-colors ${
+                className={`p-4 sm:p-6 flex gap-3 sm:gap-4 transition-colors ${
                   !n.is_read ? 'bg-violet-50/50 dark:bg-violet-900/10' : 'hover:bg-slate-50 dark:hover:bg-dark-border/30'
                 }`}
               >
