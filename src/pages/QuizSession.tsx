@@ -334,10 +334,7 @@ export default function QuizSession() {
           </button>
 
           <div className="flex items-center justify-end gap-4 text-slate-500 font-bold">
-            <div className="sm:hidden text-sm px-3 py-1 bg-slate-100 rounded-lg">
-              {currentOrder} / {totalQuestions}
-            </div>
-            <div className="hidden sm:flex items-center gap-1.5 text-sm text-slate-500 font-medium">
+            <div className="flex sm:hidden items-center gap-1.5 text-sm text-slate-500 font-medium">
               <span className="text-emerald-500 font-bold">{answeredCount}</span>
               <span>/</span>
               <span>{totalQuestions}</span>
@@ -432,6 +429,16 @@ export default function QuizSession() {
         {/* Footer Navigation */}
         <footer className="p-4 sm:px-8 sm:py-5 border-t border-border flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2">
+            {/* Finish early */}
+            <button
+              onClick={() => setShowFinishConfirm(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-slate-500 hover:text-rose-500 hover:bg-rose-50 transition-colors text-sm"
+            >
+              Завершить досрочно
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
             {/* Prev button */}
             <button
               onClick={goPrev}
@@ -442,27 +449,19 @@ export default function QuizSession() {
               <span className="hidden sm:inline">Назад</span>
             </button>
 
-            {/* Finish early */}
+            {/* Next / Finish button */}
             <button
-              onClick={() => setShowFinishConfirm(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-slate-500 hover:text-rose-500 hover:bg-rose-50 transition-colors text-sm"
+              onClick={goNext}
+              className={`flex items-center gap-2 px-8 py-2.5 text-white rounded-xl font-bold hover:brightness-110 transition-all shadow-md ${
+                currentOrder === totalQuestions
+                  ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
+                  : 'bg-primary shadow-primary/20'
+              }`}
             >
-              Завершить досрочно
+              {currentOrder === totalQuestions ? 'Завершить' : 'Вперед'}
+              {currentOrder !== totalQuestions && <ChevronRight className="w-5 h-5" />}
             </button>
           </div>
-
-          {/* Next / Finish button */}
-          <button
-            onClick={goNext}
-            className={`flex items-center gap-2 px-8 py-2.5 text-white rounded-xl font-bold hover:brightness-110 transition-all shadow-md ${
-              currentOrder === totalQuestions
-                ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
-                : 'bg-primary shadow-primary/20'
-            }`}
-          >
-            {currentOrder === totalQuestions ? 'Завершить' : 'Вперед'}
-            {currentOrder !== totalQuestions && <ChevronRight className="w-5 h-5" />}
-          </button>
         </footer>
       </div>
 

@@ -5,7 +5,7 @@ import { api } from '../lib/api';
 import { useAuthStore } from '../store/useAuthStore';
 import { useQuizStore } from '../store/useQuizStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Brain, Loader2, X, ChevronRight, AlertTriangle, Apple } from 'lucide-react';
+import { Trophy, Brain, Loader2, X, ChevronRight, Apple } from 'lucide-react';
 
 const STATIC_QUESTIONS = [
   {
@@ -293,9 +293,7 @@ export default function OnboardingQuiz() {
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-surface w-full max-w-md p-8 rounded-3xl shadow-2xl relative text-slate-800 animate-in zoom-in-95 duration-300 text-center">
-            <div className="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <AlertTriangle className="w-8 h-8" />
-            </div>
+
             
             <h3 className="text-2xl font-bold mb-4 text-slate-900">Завершить тест?</h3>
             <p className="text-slate-500 mb-8 leading-relaxed">
