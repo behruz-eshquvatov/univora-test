@@ -18,6 +18,7 @@ import Plans from './pages/Plans';
 import DashboardLayout from './components/DashboardLayout';
 import Admin from './pages/Admin';
 import OnboardingQuiz from './pages/OnboardingQuiz';
+import Notifications from './pages/Notifications';
 
 function App() {
   const { isAuthenticated, fetchUser, accessToken } = useAuthStore();
@@ -57,6 +58,7 @@ function App() {
               <Route path="/tests" element={<Tests />} />
               <Route path="/progress" element={<Progress />} />
               <Route path="/plans" element={<Plans />} />
+              <Route path="/notifications" element={<Notifications />} />
             </Route>
 
             {/* Standalone Protected Routes (Admin) */}
