@@ -13,17 +13,52 @@ export interface Subscription {
   id: number;
   user: number;
   plan: Plan;
+  status: 'active' | 'expired' | 'cancelled';
+  status_display: string;
+  is_currently_active: boolean;
   starts_at: string;
   expires_at: string;
-  status: 'active' | 'expired' | 'cancelled';
+  days_left: number;
+  created_at: string;
 }
 
 export interface Payment {
   id: number;
   user: number;
+  user_email: string;
+  user_full_name: string;
+  plan: Plan;
+  subscription: number | null;
+  provider: string;
+  provider_transaction_id: string;
   amount: string;
+  amount_display: string;
   status: 'pending' | 'approved' | 'rejected';
+  status_display: string;
+  contact_phone: string;
+  contact_telegram: string;
+  note: string;
+  rejection_reason: string;
+  reviewed_at: string;
   created_at: string;
+}
+
+export interface CurrentSubscriptionResponse {
+  has_active_subscription: boolean;
+  subscription: Subscription | null;
+  pending_request: Payment | null;
+}
+
+export interface SubscriptionRequestResponse {
+  ariza: Payment;
+  subscription: Subscription | null;
+  auto_activated: boolean;
+  message: string;
+  admin_telegram: string;
+  contact: {
+    contact_phone: string;
+    contact_telegram: string;
+  };
 }
 
 export const billingApi = {
@@ -39,36 +74,16 @@ export const billingApi = {
   },
 
   // --- Student ---
-  getCurrentSubscription: async (): Promise<Subscription | null> => {
-    try {
-      const response = await api.get('/billing/subscriptions/current/');
-      if (response.data && response.data.has_active_subscription === false) {
-        return null;
-      }
-      return response.data.subscription || null;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        return null; // No active subscription
-      }
-      throw error;
-    }
+  getCurrentSubscription: async (): Promise<CurrentSubscriptionResponse> => {
+    const response = await api.get('/billing/subscriptions/current/');
+    return response.data;
   },
 
   cancelSubscription: async (id: number): Promise<void> => {
     await api.post(`/billing/subscriptions/${id}/cancel/`);
   },
 
-  selectPlan: async (planId: number): Promise<Subscription> => {
-    const response = await api.post('/billing/subscriptions/', { plan_id: planId });
-    return response.data;
-  },
-
-  getPayments: async (): Promise<Payment[]> => {
-    const response = await api.get('/billing/payments/');
-    return response.data;
-  },
-
-  createPayment: async (data: { plan_id: number; amount: number }): Promise<Payment> => {
+  createPayment: async (data: { plan_id: number; amount?: number; contact_phone?: string; contact_telegram?: string; note?: string }): Promise<SubscriptionRequestResponse> => {
     const response = await api.post('/billing/payments/', data);
     return response.data;
   },

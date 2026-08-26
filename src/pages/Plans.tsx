@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
-import { billingApi, type Plan, type Subscription } from '../lib/api/billing';
-import { Check, Sparkles, Zap, Shield, Crown, XCircle, CheckCircle2 } from 'lucide-react';
+import { billingApi, type Plan, type CurrentSubscriptionResponse, type SubscriptionRequestResponse } from '../lib/api/billing';
+import { Check, Sparkles, Zap, Shield, Crown, XCircle, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 
 export default function Plans() {
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [currentSub, setCurrentSub] = useState<Subscription | null>(null);
+  const [currentSubData, setCurrentSubData] = useState<CurrentSubscriptionResponse | null>(null);
   const [selectingPlanId, setSelectingPlanId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPlanModal, setShowPlanModal] = useState<Plan | null>(null);
-  const [requestSuccess, setRequestSuccess] = useState(false);
+  const [requestSuccess, setRequestSuccess] = useState<SubscriptionRequestResponse | null>(null);
 
   useEffect(() => {
     billingApi.getPlans().then(setPlans).catch(console.error);
-    billingApi.getCurrentSubscription().then(setCurrentSub).catch(console.error);
+    billingApi.getCurrentSubscription().then(setCurrentSubData).catch(console.error);
   }, []);
 
   const confirmSelectPlan = async () => {
@@ -20,12 +20,11 @@ export default function Plans() {
     setSelectingPlanId(showPlanModal.id);
     setError(null);
     try {
-      await billingApi.createPayment({
+      const resp = await billingApi.createPayment({
         plan_id: showPlanModal.id,
-        plan: showPlanModal.id, // For general serializer compatibility
         amount: Number(showPlanModal.price)
-      } as any);
-      setRequestSuccess(true);
+      });
+      setRequestSuccess(resp);
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Ошибка при оформлении заявки');
       setShowPlanModal(null);
@@ -67,10 +66,30 @@ export default function Plans() {
           </div>
         )}
 
+        {currentSubData?.pending_request && (
+          <div className="mb-8 px-4 py-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl flex items-start gap-4 max-w-2xl mx-auto">
+            <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="font-bold text-amber-800 dark:text-amber-500 mb-1">Ваша заявка находится на рассмотрении</h4>
+              <p className="text-sm text-amber-700/80 dark:text-amber-400/80 mb-2">
+                Вы запросили тариф <strong>{currentSubData.pending_request.plan.name}</strong>. Администратор рассмотрит заявку в ближайшее время.
+              </p>
+              {currentSubData.pending_request.rejection_reason && (
+                <div className="mt-2 text-sm text-rose-600 bg-rose-100 p-2 rounded-lg flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  Причина отклонения предыдущей заявки: {currentSubData.pending_request.rejection_reason}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
           {plans.map((plan, idx) => {
-            const isCurrent = currentSub?.plan.id === plan.id;
+            const isCurrent = currentSubData?.subscription?.plan.id === plan.id;
             const isRecommended = idx === 1; // Highlight the middle plan like in Gemini's design
 
             return (
@@ -202,7 +221,7 @@ export default function Plans() {
       {showPlanModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
           <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl relative border dark:border-dark-border animate-in zoom-in-95 duration-200">
-            <button onClick={() => { setShowPlanModal(null); setRequestSuccess(false); }} className="absolute top-4 right-4 text-slate-400 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text-main transition-colors">
+            <button onClick={() => { setShowPlanModal(null); setRequestSuccess(null); }} className="absolute top-4 right-4 text-slate-400 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text-main transition-colors">
               <XCircle className="w-6 h-6" />
             </button>
 
@@ -220,10 +239,13 @@ export default function Plans() {
                   <button onClick={() => setShowPlanModal(null)} className="flex-1 bg-slate-100 dark:bg-dark-bg hover:bg-slate-200 dark:hover:bg-dark-bg/60 text-slate-700 dark:text-dark-text-muted font-bold py-3 rounded-xl transition-colors text-sm">
                     Отмена
                   </button>
-                  <button onClick={confirmSelectPlan} disabled={selectingPlanId !== null} className="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2">
+                  <button onClick={confirmSelectPlan} disabled={selectingPlanId !== null || currentSubData?.pending_request !== null} className="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 rounded-xl transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                     {selectingPlanId ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span> : 'Отправить заявку'}
                   </button>
                 </div>
+                {currentSubData?.pending_request && (
+                  <p className="text-center text-xs text-amber-600 mt-4">У вас уже есть активная заявка на рассмотрении.</p>
+                )}
               </>
             ) : (
               <div className="text-center pt-2">
@@ -232,13 +254,15 @@ export default function Plans() {
                 </div>
                 <h3 className="text-2xl font-extrabold text-slate-800 dark:text-dark-text-main mb-2">Заявка отправлена!</h3>
                 <p className="text-slate-600 dark:text-dark-text-muted mb-6 leading-relaxed">
-                  Ваш запрос успешно сформирован. Для завершения оплаты и быстрой активации тарифа, пожалуйста, свяжитесь с нашим администратором:
+                  {requestSuccess.message || 'Ваш запрос успешно сформирован. Для завершения оплаты и быстрой активации тарифа, пожалуйста, свяжитесь с нашим администратором:'}
                 </p>
-                <a href="https://t.me/akobir_ETA" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center w-full bg-[#0088cc] hover:bg-[#0077b3] text-white font-bold py-3.5 rounded-xl transition-colors text-sm mb-3 gap-2">
-                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.896-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.892-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                  Написать в Telegram (@akobir_ETA)
-                </a>
-                <button onClick={() => { setShowPlanModal(null); setRequestSuccess(false); }} className="w-full bg-slate-100 dark:bg-dark-bg hover:bg-slate-200 dark:hover:bg-dark-bg/60 text-slate-700 dark:text-dark-text-muted font-bold py-3 rounded-xl transition-colors text-sm">
+                {!requestSuccess.auto_activated && (
+                  <a href={requestSuccess.admin_telegram || "https://t.me/akobir_ETA"} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center w-full bg-[#0088cc] hover:bg-[#0077b3] text-white font-bold py-3.5 rounded-xl transition-colors text-sm mb-3 gap-2">
+                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.896-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.892-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    Написать в Telegram
+                  </a>
+                )}
+                <button onClick={() => { setShowPlanModal(null); setRequestSuccess(null); }} className="w-full bg-slate-100 dark:bg-dark-bg hover:bg-slate-200 dark:hover:bg-dark-bg/60 text-slate-700 dark:text-dark-text-muted font-bold py-3 rounded-xl transition-colors text-sm">
                   Закрыть
                 </button>
               </div>
