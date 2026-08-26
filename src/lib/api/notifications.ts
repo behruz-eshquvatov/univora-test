@@ -1,4 +1,4 @@
-import { api } from './auth';
+import { api } from '../api';
 
 export interface NotificationLog {
   id: number;
