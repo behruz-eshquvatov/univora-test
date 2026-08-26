@@ -5,6 +5,9 @@ import type { Payment } from '../../lib/api/billing';
 
 export default function PaymentsTab() {
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [rejectModalId, setRejectModalId] = useState<number | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [isRejecting, setIsRejecting] = useState(false);
 
   useEffect(() => {
     billingApi.getPayments().then(setPayments).catch(console.error);
@@ -17,14 +20,24 @@ export default function PaymentsTab() {
     } catch (err) { console.error(err); }
   };
 
-  const handleReject = async (id: number) => {
-    const reason = window.prompt('Укажите причину отклонения (необязательно):');
-    if (reason === null) return; // User cancelled prompt
+  const handleRejectClick = (id: number) => {
+    setRejectModalId(id);
+    setRejectReason('');
+  };
+
+  const submitReject = async () => {
+    if (rejectModalId === null) return;
+    setIsRejecting(true);
     
     try {
-      await billingApi.rejectPayment(id, reason);
-      setPayments(cur => cur.map(p => p.id === id ? { ...p, status: 'rejected' } : p));
-    } catch (err) { console.error(err); }
+      await billingApi.rejectPayment(rejectModalId, rejectReason);
+      setPayments(cur => cur.map(p => p.id === rejectModalId ? { ...p, status: 'rejected' } : p));
+      setRejectModalId(null);
+    } catch (err) { 
+      console.error(err); 
+    } finally {
+      setIsRejecting(false);
+    }
   };
 
   return (
@@ -76,7 +89,7 @@ export default function PaymentsTab() {
                       <button onClick={() => handleApprove(p.id)} className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg">
                         <CheckCircle2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleReject(p.id)} className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg">
+                      <button onClick={() => handleRejectClick(p.id)} className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg">
                         <XCircle className="w-4 h-4" />
                       </button>
                     </div>
@@ -84,11 +97,50 @@ export default function PaymentsTab() {
                 </td>
               </tr>
             )) : (
-              <tr><td colSpan={6} className="p-8 text-center text-slate-400">Нет заявок</td></tr>
+              <tr><td colSpan={7} className="p-8 text-center text-slate-400">Нет заявок</td></tr>
             )}
           </tbody>
         </table>
       </div>
+
+      {/* Reject Modal */}
+      {rejectModalId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl relative border animate-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => setRejectModalId(null)} 
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 transition-colors"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Отклонить заявку</h3>
+            <p className="text-sm text-slate-500 mb-4">Укажите причину отклонения. Эта информация будет показана пользователю (необязательно).</p>
+            
+            <textarea
+              value={rejectReason}
+              onChange={e => setRejectReason(e.target.value)}
+              placeholder="Например: Некорректный чек, недостаточная сумма..."
+              className="w-full h-24 bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-700 placeholder-slate-400 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all resize-none mb-6"
+            />
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setRejectModalId(null)} 
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors text-sm"
+              >
+                Отмена
+              </button>
+              <button 
+                onClick={submitReject} 
+                disabled={isRejecting}
+                className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl transition-colors text-sm disabled:opacity-50 flex items-center justify-center"
+              >
+                {isRejecting ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span> : 'Отклонить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
