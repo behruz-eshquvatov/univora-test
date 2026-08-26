@@ -3,7 +3,11 @@ import { api } from '../api';
 export interface Plan {
   id: number;
   name: string;
+  name_ru?: string;
+  name_en?: string;
   description: string;
+  description_ru?: string;
+  description_en?: string;
   price: string;
   duration_days: number;
   features: string[]; // Mocked as array if backend sends string

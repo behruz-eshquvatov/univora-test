@@ -89,12 +89,18 @@ export const catalogApi = {
     await api.delete(`/catalog/topics/${id}/`);
   },
 
-  createQuestion: async (data: Partial<Question>) => {
-    const response = await api.post<Question>('/catalog/questions/', data);
+  createQuestion: async (data: Partial<Question> | FormData) => {
+    const isFormData = data instanceof FormData;
+    const response = await api.post<Question>('/catalog/questions/', data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
-  updateQuestion: async (id: number | string, data: Partial<Question>) => {
-    const response = await api.patch<Question>(`/catalog/questions/${id}/`, data);
+  updateQuestion: async (id: number | string, data: Partial<Question> | FormData) => {
+    const isFormData = data instanceof FormData;
+    const response = await api.patch<Question>(`/catalog/questions/${id}/`, data, {
+      headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
+    });
     return response.data;
   },
   deleteQuestion: async (id: number | string) => {

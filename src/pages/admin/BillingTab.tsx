@@ -7,7 +7,12 @@ import ConfirmDialog from './ConfirmDialog';
 export default function BillingTab() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', description: '', price: '', duration_days: 30 });
+  const [planLangTab, setPlanLangTab] = useState<'uz' | 'ru' | 'en'>('uz');
+  const [form, setForm] = useState({ 
+    name: '', name_ru: '', name_en: '', 
+    description: '', description_ru: '', description_en: '', 
+    price: '', duration_days: 30 
+  });
   const [editId, setEditId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -15,8 +20,21 @@ export default function BillingTab() {
     billingApi.getPlans().then(setPlans).catch(console.error);
   }, []);
 
-  const openCreate = () => { setForm({ name: '', description: '', price: '', duration_days: 30 }); setEditId(null); setIsModalOpen(true); };
-  const openEdit = (plan: Plan) => { setEditId(plan.id); setForm({ name: plan.name, description: plan.description, price: plan.price.toString(), duration_days: plan.duration_days }); setIsModalOpen(true); };
+  const openCreate = () => { 
+    setPlanLangTab('uz');
+    setForm({ name: '', name_ru: '', name_en: '', description: '', description_ru: '', description_en: '', price: '', duration_days: 30 }); 
+    setEditId(null); setIsModalOpen(true); 
+  };
+  const openEdit = (plan: Plan) => { 
+    setPlanLangTab('uz');
+    setEditId(plan.id); 
+    setForm({ 
+      name: plan.name, name_ru: plan.name_ru || '', name_en: plan.name_en || '', 
+      description: plan.description, description_ru: plan.description_ru || '', description_en: plan.description_en || '', 
+      price: plan.price.toString(), duration_days: plan.duration_days 
+    }); 
+    setIsModalOpen(true); 
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,10 +99,38 @@ export default function BillingTab() {
               <XCircle className="w-5 h-5" />
             </button>
             <h2 className="text-xl font-bold text-slate-900 mb-5">{editId ? 'Изменить тариф' : 'Новый тариф'}</h2>
+            
+            <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
+              <button 
+                type="button"
+                onClick={() => setPlanLangTab('uz')} 
+                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${planLangTab === 'uz' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+              >O'zbekcha</button>
+              <button 
+                type="button"
+                onClick={() => setPlanLangTab('ru')} 
+                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${planLangTab === 'ru' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+              >Русский</button>
+              <button 
+                type="button"
+                onClick={() => setPlanLangTab('en')} 
+                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${planLangTab === 'en' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+              >English</button>
+            </div>
+
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1">Название *</label>
-                <input type="text" required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className={INP} />
+                <label className="block text-sm font-bold text-slate-700 mb-1">
+                  Название ({planLangTab.toUpperCase()}) {planLangTab === 'uz' && '*'}
+                </label>
+                <input 
+                  type="text" 
+                  required={planLangTab === 'uz'} 
+                  value={planLangTab === 'uz' ? form.name : planLangTab === 'ru' ? form.name_ru : form.name_en} 
+                  onChange={e => setForm(p => ({ ...p, [planLangTab === 'uz' ? 'name' : `name_${planLangTab}`]: e.target.value }))} 
+                  className={INP} 
+                  placeholder={planLangTab === 'uz' ? "Masalan: Pro" : planLangTab === 'ru' ? "Например: Pro" : "Example: Pro"}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -97,8 +143,12 @@ export default function BillingTab() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1">Описание</label>
-                <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className={INP + ' h-20 resize-none'} />
+                <label className="block text-sm font-bold text-slate-700 mb-1">Описание ({planLangTab.toUpperCase()})</label>
+                <textarea 
+                  value={planLangTab === 'uz' ? form.description : planLangTab === 'ru' ? form.description_ru : form.description_en} 
+                  onChange={e => setForm(p => ({ ...p, [planLangTab === 'uz' ? 'description' : `description_${planLangTab}`]: e.target.value }))} 
+                  className={INP + ' h-20 resize-none'} 
+                />
               </div>
               <button type="submit" className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 rounded-xl text-sm">
                 {editId ? 'Сохранить' : 'Создать тариф'}

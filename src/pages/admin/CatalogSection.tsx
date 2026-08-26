@@ -43,6 +43,8 @@ interface QuestionFormData {
   options_en: { A: string; B: string; C: string; D: string };
   correct_option: string;
   explanation: string;
+  image: File | null;
+  image_caption: string;
 }
 
 export default function CatalogSection() {
@@ -79,6 +81,8 @@ export default function CatalogSection() {
     options_en: { A: '', B: '', C: '', D: '' },
     correct_option: 'A',
     explanation: '',
+    image: null,
+    image_caption: '',
   });
   const [editQuestionId, setEditQuestionId] = useState<number | null>(null);
   const [questionFormError, setQuestionFormError] = useState<string | null>(null);
@@ -176,7 +180,8 @@ export default function CatalogSection() {
       options: { A: '', B: '', C: '', D: '' }, 
       options_ru: { A: '', B: '', C: '', D: '' }, 
       options_en: { A: '', B: '', C: '', D: '' }, 
-      correct_option: 'A', explanation: '' 
+      correct_option: 'A', explanation: '',
+      image: null, image_caption: ''
     });
     setEditQuestionId(null); setQuestionFormError(null); setQuestionModal(true);
   };
@@ -191,6 +196,8 @@ export default function CatalogSection() {
       options_en: (q as any).options_en as any || { A: '', B: '', C: '', D: '' },
       correct_option: (q as any).correct_option || 'A',
       explanation: q.explanation || '',
+      image: null,
+      image_caption: (q as any).image_caption || '',
     });
     setEditQuestionId(q.id); setQuestionFormError(null); setQuestionModal(true);
   };
@@ -206,11 +213,27 @@ export default function CatalogSection() {
       options_en: Object.fromEntries(Object.entries(questionForm.options_en).filter(([, v]) => v.trim())),
       correct_option: questionForm.correct_option,
       explanation: questionForm.explanation,
+      image_caption: questionForm.image_caption,
       topic: selectedTopic.id,
     };
+
+    let dataToSend: any = payload;
+    if (questionForm.image) {
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value && typeof value === 'object') {
+          formData.append(key, JSON.stringify(value));
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, String(value));
+        }
+      });
+      formData.append('image', questionForm.image);
+      dataToSend = formData;
+    }
+
     try {
       if (editQuestionId) {
-        const updated = await catalogApi.updateQuestion(editQuestionId, payload);
+        const updated = await catalogApi.updateQuestion(editQuestionId, dataToSend);
         setQuestions(prev => prev.map(q => q.id === editQuestionId ? updated : q));
       } else {
         const created = await catalogApi.createQuestion(payload);
@@ -543,11 +566,34 @@ export default function CatalogSection() {
                     {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{'★'.repeat(n)} ({n})</option>)}
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Объяснение (опционально)</label>
+                  <textarea value={questionForm.explanation} onChange={e => setQuestionForm(p => ({ ...p, explanation: e.target.value }))} className={INPUT + ' h-10 resize-none'} placeholder="Объяснение правильного ответа..." />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1">Пояснение к решению</label>
-                <textarea value={questionForm.explanation} onChange={e => setQuestionForm(p => ({ ...p, explanation: e.target.value }))} className={INPUT + ' h-20 resize-none'} placeholder="Объяснение правильного ответа..." />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Изображение (опционально)</label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={e => setQuestionForm(p => ({ ...p, image: e.target.files?.[0] || null }))} 
+                    className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Подпись к фото (опционально)</label>
+                  <input 
+                    type="text" 
+                    value={questionForm.image_caption} 
+                    onChange={e => setQuestionForm(p => ({ ...p, image_caption: e.target.value }))} 
+                    className={INPUT} 
+                    placeholder="Например: График функции y = x^2" 
+                  />
+                </div>
               </div>
+
               {questionFormError && (
                 <div className="flex items-start gap-2 px-3 py-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">
                   <span className="mt-0.5 shrink-0">⚠</span>
