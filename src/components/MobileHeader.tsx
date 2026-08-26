@@ -3,6 +3,7 @@ import { GraduationCap, Flame, LogOut, Globe, Moon, Crown, History, User } from 
 import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import SettingsModal from './SettingsModal';
+import NotificationBell from './NotificationBell';
 
 export default function MobileHeader() {
   const { user, logout } = useAuthStore();
@@ -84,6 +85,8 @@ export default function MobileHeader() {
             <Flame className="w-6 h-6 text-orange-500 fill-orange-500" />
             <span>{useAuthStore((state) => state.streak)}</span>
           </div>
+
+          <NotificationBell />
 
           <div className="relative cursor-pointer" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {(user?.avatar || user?.avatar_url) ? (

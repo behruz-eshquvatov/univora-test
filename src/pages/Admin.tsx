@@ -4,14 +4,17 @@ import UsersTab from './admin/UsersTab';
 import CatalogSection from './admin/CatalogSection';
 import BillingTab from './admin/BillingTab';
 import PaymentsTab from './admin/PaymentsTab';
+import AnnouncementsTab from './admin/AnnouncementsTab';
+import { BellRing } from 'lucide-react';
 
-type Tab = 'users' | 'catalog' | 'billing' | 'payments';
+type Tab = 'users' | 'catalog' | 'billing' | 'payments' | 'announcements';
 
 const TABS: { key: Tab; label: string; icon: React.ElementType }[] = [
   { key: 'users', label: 'Пользователи', icon: Users },
   { key: 'catalog', label: 'Каталог', icon: Layers },
   { key: 'billing', label: 'Тарифы', icon: BookOpen },
   { key: 'payments', label: 'Платежи', icon: CreditCard },
+  { key: 'announcements', label: 'Анонсы', icon: BellRing },
 ];
 
 export default function Admin() {
@@ -48,6 +51,7 @@ export default function Admin() {
           {activeTab === 'catalog'  && <CatalogSection />}
           {activeTab === 'billing'  && <BillingTab />}
           {activeTab === 'payments' && <PaymentsTab />}
+          {activeTab === 'announcements' && <AnnouncementsTab />}
         </div>
       </div>
     </div>

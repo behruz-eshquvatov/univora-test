@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, FileText, Bot, BarChart2, LogOut, Flame, GraduationCap, Globe, Moon, Crown, History, User } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import SettingsModal from './SettingsModal';
+import NotificationBell from './NotificationBell';
 
 export default function Sidebar() {
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
@@ -126,6 +127,10 @@ export default function Sidebar() {
                 <Flame className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
                 <span>{useAuthStore((state) => state.streak)} дн.</span>
               </div>
+            </div>
+            
+            <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <NotificationBell />
             </div>
           </div>
 
