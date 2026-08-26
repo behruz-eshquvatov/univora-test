@@ -35,8 +35,12 @@ interface DeleteTarget {
 
 interface QuestionFormData {
   text: string;
+  text_ru: string;
+  text_en: string;
   difficulty: number;
   options: { A: string; B: string; C: string; D: string };
+  options_ru: { A: string; B: string; C: string; D: string };
+  options_en: { A: string; B: string; C: string; D: string };
   correct_option: string;
   explanation: string;
 }
@@ -67,9 +71,12 @@ export default function CatalogSection() {
 
   // Question form
   const [questionModal, setQuestionModal] = useState(false);
+  const [questionLangTab, setQuestionLangTab] = useState<'uz' | 'ru' | 'en'>('uz');
   const [questionForm, setQuestionForm] = useState<QuestionFormData>({
-    text: '', difficulty: 1,
+    text: '', text_ru: '', text_en: '', difficulty: 1,
     options: { A: '', B: '', C: '', D: '' },
+    options_ru: { A: '', B: '', C: '', D: '' },
+    options_en: { A: '', B: '', C: '', D: '' },
     correct_option: 'A',
     explanation: '',
   });
@@ -163,14 +170,25 @@ export default function CatalogSection() {
 
   // Question CRUD
   const openCreateQuestion = () => {
-    setQuestionForm({ text: '', difficulty: 1, options: { A: '', B: '', C: '', D: '' }, correct_option: 'A', explanation: '' });
+    setQuestionLangTab('uz');
+    setQuestionForm({ 
+      text: '', text_ru: '', text_en: '', difficulty: 1, 
+      options: { A: '', B: '', C: '', D: '' }, 
+      options_ru: { A: '', B: '', C: '', D: '' }, 
+      options_en: { A: '', B: '', C: '', D: '' }, 
+      correct_option: 'A', explanation: '' 
+    });
     setEditQuestionId(null); setQuestionFormError(null); setQuestionModal(true);
   };
   const openEditQuestion = (q: Question, e: React.MouseEvent) => {
     e.stopPropagation();
+    setQuestionLangTab('uz');
     setQuestionForm({
-      text: q.text, difficulty: q.difficulty || 1,
+      text: q.text, text_ru: (q as any).text_ru || '', text_en: (q as any).text_en || '',
+      difficulty: q.difficulty || 1,
       options: q.options as any || { A: '', B: '', C: '', D: '' },
+      options_ru: (q as any).options_ru as any || { A: '', B: '', C: '', D: '' },
+      options_en: (q as any).options_en as any || { A: '', B: '', C: '', D: '' },
       correct_option: (q as any).correct_option || 'A',
       explanation: q.explanation || '',
     });
@@ -181,8 +199,11 @@ export default function CatalogSection() {
     if (!selectedTopic) return;
     setQuestionFormError(null);
     const payload: any = {
-      text: questionForm.text, difficulty: questionForm.difficulty,
+      text: questionForm.text, text_ru: questionForm.text_ru, text_en: questionForm.text_en,
+      difficulty: questionForm.difficulty,
       options: Object.fromEntries(Object.entries(questionForm.options).filter(([, v]) => v.trim())),
+      options_ru: Object.fromEntries(Object.entries(questionForm.options_ru).filter(([, v]) => v.trim())),
+      options_en: Object.fromEntries(Object.entries(questionForm.options_en).filter(([, v]) => v.trim())),
       correct_option: questionForm.correct_option,
       explanation: questionForm.explanation,
       topic: selectedTopic.id,
@@ -451,32 +472,68 @@ export default function CatalogSection() {
           <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
             <button onClick={() => setQuestionModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700"><XCircle className="w-5 h-5" /></button>
             <h2 className="text-xl font-bold text-slate-900 mb-5">{editQuestionId ? 'Изменить вопрос' : 'Новый вопрос'}</h2>
+            
+            <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
+              <button 
+                type="button"
+                onClick={() => setQuestionLangTab('uz')} 
+                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${questionLangTab === 'uz' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+              >O'zbekcha</button>
+              <button 
+                type="button"
+                onClick={() => setQuestionLangTab('ru')} 
+                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${questionLangTab === 'ru' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+              >Русский</button>
+              <button 
+                type="button"
+                onClick={() => setQuestionLangTab('en')} 
+                className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${questionLangTab === 'en' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+              >English</button>
+            </div>
+
             <form onSubmit={saveQuestion} className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1">Текст вопроса *</label>
-                <textarea required value={questionForm.text} onChange={e => setQuestionForm(p => ({ ...p, text: e.target.value }))} className={INPUT + ' h-24 resize-none'} placeholder="Чему равно 2 + 2?" />
+                <label className="block text-sm font-bold text-slate-700 mb-1">
+                  Текст вопроса ({questionLangTab.toUpperCase()}) {questionLangTab === 'uz' && '*'}
+                </label>
+                <textarea 
+                  required={questionLangTab === 'uz'} 
+                  value={questionLangTab === 'uz' ? questionForm.text : questionLangTab === 'ru' ? questionForm.text_ru : questionForm.text_en} 
+                  onChange={e => setQuestionForm(p => ({ ...p, [questionLangTab === 'uz' ? 'text' : `text_${questionLangTab}`]: e.target.value }))} 
+                  className={INPUT + ' h-24 resize-none'} 
+                  placeholder={questionLangTab === 'uz' ? "2 + 2 nechiga teng?" : questionLangTab === 'ru' ? "Чему равно 2 + 2?" : "What is 2 + 2?"} 
+                />
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">Варианты ответов *</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Варианты ответов ({questionLangTab.toUpperCase()})</label>
                 <div className="space-y-2">
-                  {(['A', 'B', 'C', 'D'] as const).map(key => (
-                    <div key={key} className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setQuestionForm(p => ({ ...p, correct_option: key }))}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${
-                          questionForm.correct_option === key
-                            ? 'bg-emerald-500 text-white'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                        aria-pressed={questionForm.correct_option === key}
-                        aria-label={`Set correct answer to ${key}`}
-                      >
-                        {key}
-                      </button>
-                      <input type="text" value={questionForm.options[key]} onChange={e => setQuestionForm(p => ({ ...p, options: { ...p.options, [key]: e.target.value } }))} className={INPUT} placeholder={`Вариант ${key}`} />
-                    </div>
-                  ))}
+                  {(['A', 'B', 'C', 'D'] as const).map(key => {
+                    const optionField = questionLangTab === 'uz' ? 'options' : `options_${questionLangTab}` as 'options_ru' | 'options_en';
+                    return (
+                      <div key={key} className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setQuestionForm(p => ({ ...p, correct_option: key }))}
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${
+                            questionForm.correct_option === key
+                              ? 'bg-emerald-500 text-white'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                          aria-pressed={questionForm.correct_option === key}
+                          aria-label={`Set correct answer to ${key}`}
+                        >
+                          {key}
+                        </button>
+                        <input 
+                          type="text" 
+                          value={questionForm[optionField][key]} 
+                          onChange={e => setQuestionForm(p => ({ ...p, [optionField]: { ...p[optionField], [key]: e.target.value } }))} 
+                          className={INPUT} 
+                          placeholder={`Вариант ${key}`} 
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
