@@ -1,27 +1,28 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react';
-import { Clock, Target, ArrowRight, FileText, GraduationCap, Play, Loader2, ArrowUpRight, BookOpen, Calculator, Atom, Terminal, Globe } from 'lucide-react';
+import { Clock, ArrowRight, FileText, GraduationCap, Play, Loader2, ArrowUpRight, BookOpen, Calculator, Atom, Terminal, Globe } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { testengineApi, type TestSession } from '../lib/api/testengine';
+import { testengineApi, type TestSession, type TestResult } from '../lib/api/testengine';
 import { catalogApi, type Subject } from '../lib/api/catalog';
 
 const Tests = () => {
   const [sessions, setSessions] = useState<TestSession[]>([]);
+  const [myResults, setMyResults] = useState<TestResult[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loadingNewTest, setLoadingNewTest] = useState<number | null>(null);
-  const [loadingSessions, setLoadingSessions] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    setLoadingSessions(true);
     testengineApi.getSessions()
       .then(data => {
-        // Handle both paginated { results: [] } and plain array
         const list = Array.isArray(data) ? data : (data as any).results ?? [];
         setSessions(list);
       })
-      .catch(console.error)
-      .finally(() => setLoadingSessions(false));
+      .catch(console.error);
+
+    // Load completed results for the sidebar
+    testengineApi.getMyResults()
+      .then(setMyResults)
+      .catch(console.error);
 
     catalogApi.getSubjects()
       .then(data => {
@@ -55,8 +56,7 @@ const Tests = () => {
     }
   };
 
-  const activeSession = sessions.find(s => !s.finished_at);
-  const completedSessions = sessions.filter(s => s.finished_at);
+  const activeSession = sessions.find(s => !s.is_finished);
   return (
     <div className="md:bg-slate-50/95 dark:md:bg-dark-surface/90 md:backdrop-blur-xl md:rounded-2xl md:shadow-2xl md:border md:border-white/60 dark:md:border-dark-border/60 min-h-[calc(100vh-2rem)] md:p-8 flex flex-col gap-6 md:gap-8 relative overflow-hidden">
       
@@ -87,7 +87,7 @@ const Tests = () => {
               </div>
               <div>
                 <h3 className="font-extrabold text-xl mb-1 text-white">Тест в процессе</h3>
-                <p className="text-purple-100 font-medium">{activeSession.subject?.name || 'Предмет'} ({activeSession.total_questions} вопросов)</p>
+                <p className="text-purple-100 font-medium">{activeSession.subject?.name || 'Предмет'} ({activeSession.question_count} вопросов)</p>
               </div>
             </div>
             
@@ -182,30 +182,29 @@ const Tests = () => {
             </div>
             
             <div className="flex-1 flex flex-col gap-2 mt-2">
-              {completedSessions.slice(0, 5).map((test) => (
-                <div key={test.id} className="p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-dark-bg border border-transparent hover:border-slate-100 dark:hover:border-dark-border transition-all cursor-pointer group relative">
+              {myResults.slice(0, 5).map((result) => (
+                <div key={result.id} className="p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-dark-bg border border-transparent hover:border-slate-100 dark:hover:border-dark-border transition-all cursor-pointer group relative">
                   
                   <div className="flex justify-between items-center mb-1.5">
                     <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-sm">
-                      {test.subject?.name || `Предмет`}
+                      {result.subject?.name || 'Предмет'}
                     </h4>
-                    
-                    <div className="font-extrabold text-sm flex items-baseline gap-1 text-slate-500">
-                      {test.total_questions} воп.
+                    <div className="font-extrabold text-sm text-emerald-500">
+                      {result.accuracy_percent}%
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-3 text-[11px] font-bold text-slate-400 dark:text-dark-text-muted">
+                    <span>{result.correct_count}/{result.total_questions} верно</span>
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      Завершен
+                      <span>{new Date(result.created_at).toLocaleDateString()}</span>
                     </div>
-                    <div>{new Date(test.started_at).toLocaleDateString()}</div>
                   </div>
 
                 </div>
               ))}
-              {completedSessions.length === 0 && (
+              {myResults.length === 0 && (
                 <div className="text-center text-slate-400 dark:text-dark-text-muted text-sm py-4">
                   Вы еще не завершили ни одного теста.
                 </div>
