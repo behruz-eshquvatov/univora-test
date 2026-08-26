@@ -31,7 +31,7 @@ export default function Notifications() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto w-full pb-20">
+    <div className="max-w-5xl mx-auto w-full">
       <div className="hidden md:block mb-6">
         <h1 className="text-2xl font-display font-bold text-slate-900 dark:text-dark-text-main flex items-center gap-3">
           <Bell className="w-6 h-6 text-violet-600" />
@@ -48,7 +48,7 @@ export default function Notifications() {
             <span className="w-8 h-8 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin inline-block" />
           </div>
         ) : notifications.length > 0 ? (
-          <div className="divide-y divide-slate-100 dark:divide-dark-border">
+          <div className="divide-y divide-slate-200 dark:divide-dark-border">
             {notifications.map(n => (
               <div 
                 key={n.id} 
