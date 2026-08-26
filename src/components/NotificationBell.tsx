@@ -2,7 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Bell, CheckCircle2 } from 'lucide-react';
 import { notificationsApi, type NotificationLog } from '../lib/api/notifications';
 
-export default function NotificationBell() {
+interface NotificationBellProps {
+  direction?: 'up' | 'down';
+}
+
+export default function NotificationBell({ direction = 'down' }: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationLog[]>([]);
@@ -86,7 +90,11 @@ export default function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full mt-2 -right-4 sm:right-0 w-80 sm:w-96 bg-white dark:bg-dark-surface rounded-2xl shadow-xl border border-slate-200 dark:border-dark-border z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className={`absolute w-80 sm:w-96 bg-white dark:bg-dark-surface rounded-2xl shadow-xl border border-slate-200 dark:border-dark-border z-50 animate-in fade-in duration-200 ${
+          direction === 'up' 
+            ? 'bottom-[calc(100%+8px)] -right-4 sm:right-0 slide-in-from-bottom-2' 
+            : 'top-full mt-2 -right-4 sm:right-0 slide-in-from-top-2'
+        }`}>
           <div className="p-4 border-b border-slate-100 dark:border-dark-border flex items-center justify-between">
             <h3 className="font-bold text-slate-900 dark:text-dark-text-main">Уведомления</h3>
             {unreadCount > 0 && (
