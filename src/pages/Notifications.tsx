@@ -31,18 +31,25 @@ export default function Notifications() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto w-full">
-      <div className="hidden md:block mb-6">
-        <h1 className="text-2xl font-display font-bold text-slate-900 dark:text-dark-text-main flex items-center gap-3">
-          <Bell className="w-6 h-6 text-violet-600" />
-          Уведомления
-        </h1>
-        <p className="text-slate-500 dark:text-dark-text-muted mt-1">
-          Здесь хранятся все важные обновления и анонсы.
-        </p>
+    <div className="md:bg-slate-50/95 dark:md:bg-dark-surface/90 md:backdrop-blur-xl md:rounded-2xl md:shadow-2xl md:border md:border-white/60 dark:md:border-dark-border/60 min-h-[calc(100vh-2rem)] md:p-8 flex flex-col gap-6 md:gap-8 relative overflow-hidden w-full">
+      
+      {/* Decorative top-left glare inside the card */}
+      <div className="hidden md:block absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/80 to-transparent dark:from-white/5 rounded-t-2xl pointer-events-none"></div>
+
+      {/* Header */}
+      <div className="relative z-10 hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight flex items-center gap-3">
+            <Bell className="w-8 h-8 text-violet-600" />
+            Уведомления
+          </h1>
+          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">
+            Здесь хранятся все важные обновления и анонсы.
+          </p>
+        </div>
       </div>
 
-      <div className="bg-white dark:bg-dark-surface sm:rounded-3xl sm:border border-slate-200 dark:border-dark-border overflow-hidden -mx-4 sm:mx-0">
+      <div className="relative z-10 bg-white dark:bg-dark-surface sm:rounded-3xl sm:border border-slate-200 dark:border-dark-border overflow-hidden -mx-4 sm:mx-0">
         {isLoading ? (
           <div className="p-12 text-center">
             <span className="w-8 h-8 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin inline-block" />
