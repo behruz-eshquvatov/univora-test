@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Target, Flame, Snowflake, Star, Zap, History, Clock, BookOpen } from 'lucide-react';
+import { X, Flame, Snowflake, Star, Zap, History, Clock, BookOpen } from 'lucide-react';
 import { progressApi, type XPSummary, type Streak, type XPTransaction, type ReviewCard } from '../lib/api/progress';
 
 export default function Progress() {
@@ -241,8 +241,8 @@ export default function Progress() {
                 <BookOpen className="w-5 h-5 text-blue-500" />
                 Карточка {currentReviewIndex + 1} из {reviews.length}
               </h3>
-              <button onClick={() => setIsReviewing(false)} className="text-slate-400 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text-main">
-                <Target className="w-6 h-6" /> {/* close placeholder */}
+              <button onClick={() => setIsReviewing(false)} className="text-slate-400 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text-main p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-bg transition-colors">
+                <X className="w-6 h-6" />
               </button>
             </div>
             
