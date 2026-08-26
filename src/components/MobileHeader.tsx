@@ -12,6 +12,7 @@ export default function MobileHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<'profile' | 'payments'>('profile');
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
@@ -58,10 +59,10 @@ export default function MobileHeader() {
   }, []);
 
   const handleLogout = () => {
-    if (window.confirm('Вы уверены, что хотите выйти?')) {
-      logout();
-      navigate('/');
-    }
+    logout();
+    navigate('/');
+    setShowLogoutModal(false);
+    setIsMenuOpen(false);
   };
 
   const openSettings = (tab: 'profile' | 'payments') => {
@@ -164,7 +165,10 @@ export default function MobileHeader() {
 
                   <div className="h-px bg-slate-100 dark:bg-dark-border my-2 mx-4"></div>
 
-                  <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-rose-600 dark:text-rose-400 transition-colors font-medium text-sm">
+                  <button 
+                    onClick={() => setShowLogoutModal(true)} 
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-rose-600 dark:text-rose-400 transition-colors font-medium text-sm"
+                  >
                     <LogOut className="w-4 h-4" />
                     Выйти
                   </button>
@@ -180,6 +184,40 @@ export default function MobileHeader() {
         onClose={() => setIsSettingsModalOpen(false)} 
         initialTab={settingsTab}
       />
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowLogoutModal(false)}></div>
+          <div className="bg-white dark:bg-dark-surface w-full max-w-sm rounded-3xl p-6 relative z-10 shadow-2xl border border-slate-100 dark:border-dark-border">
+            <div className="flex justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+                <LogOut className="w-6 h-6 text-rose-500" />
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-dark-text-main text-center mb-2">
+              Выход из аккаунта
+            </h3>
+            <p className="text-slate-500 dark:text-dark-text-muted text-sm text-center mb-8">
+              Вы уверены, что хотите выйти из своего аккаунта?
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowLogoutModal(false)}
+                className="flex-1 py-3 rounded-2xl font-bold text-slate-600 dark:text-dark-text-muted bg-slate-100 dark:bg-dark-bg hover:bg-slate-200 dark:hover:bg-dark-bg/80 transition-colors text-sm"
+              >
+                Отмена
+              </button>
+              <button 
+                onClick={handleLogout}
+                className="flex-1 py-3 rounded-2xl font-bold text-white bg-rose-500 hover:bg-rose-600 transition-colors text-sm"
+              >
+                Выйти
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

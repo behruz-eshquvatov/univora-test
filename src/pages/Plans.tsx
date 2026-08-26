@@ -10,6 +10,7 @@ export default function Plans() {
   const [showPlanModal, setShowPlanModal] = useState<Plan | null>(null);
   const [requestSuccess, setRequestSuccess] = useState<SubscriptionRequestResponse | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     billingApi.getPlans().then(setPlans).catch(console.error);
@@ -36,13 +37,14 @@ export default function Plans() {
 
   const handleCancelSubscription = async () => {
     if (!currentSubData?.subscription) return;
-    if (!window.confirm('Вы уверены, что хотите отменить текущую подписку? Действие необратимо.')) return;
     
     setCancelLoading(true);
     try {
       await billingApi.cancelSubscription(currentSubData.subscription.id);
       // Refresh subscription status
       const updatedData = await billingApi.getCurrentSubscription();
+      setCurrentSubData(updatedData);
+      setShowCancelModal(false);
       setCurrentSubData(updatedData);
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Ошибка при отмене подписки');
@@ -163,7 +165,7 @@ export default function Plans() {
                   {isCurrent ? (
                     <div className="flex flex-col gap-3">
                       <button 
-                        onClick={handleCancelSubscription}
+                        onClick={() => setShowCancelModal(true)}
                         disabled={cancelLoading}
                         className="w-full py-3.5 rounded-2xl font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-100 dark:border-rose-900/50 transition-colors text-sm disabled:opacity-50"
                       >
@@ -294,6 +296,38 @@ export default function Plans() {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Subscription Confirmation Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowCancelModal(false)}></div>
+          <div className="bg-white dark:bg-dark-surface w-full max-w-sm rounded-3xl p-6 relative z-10 shadow-2xl border border-slate-100 dark:border-dark-border">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-dark-text-main mb-3">
+              Отмена подписки
+            </h3>
+            <p className="text-slate-500 dark:text-dark-text-muted text-sm mb-8">
+              Вы уверены, что хотите отменить текущую подписку? Действие необратимо.
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowCancelModal(false)}
+                disabled={cancelLoading}
+                className="flex-1 py-3 rounded-2xl font-bold text-slate-600 dark:text-dark-text-muted bg-slate-100 dark:bg-dark-bg hover:bg-slate-200 dark:hover:bg-dark-bg/80 transition-colors text-sm disabled:opacity-50"
+              >
+                Отмена
+              </button>
+              <button 
+                onClick={handleCancelSubscription}
+                disabled={cancelLoading}
+                className="flex-1 py-3 rounded-2xl font-bold text-white bg-rose-500 hover:bg-rose-600 transition-colors text-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {cancelLoading && <Clock className="w-4 h-4 animate-spin" />}
+                Да, отменить
+              </button>
+            </div>
           </div>
         </div>
       )}
