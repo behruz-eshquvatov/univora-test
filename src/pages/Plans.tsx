@@ -9,6 +9,7 @@ export default function Plans() {
   const [error, setError] = useState<string | null>(null);
   const [showPlanModal, setShowPlanModal] = useState<Plan | null>(null);
   const [requestSuccess, setRequestSuccess] = useState<SubscriptionRequestResponse | null>(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   useEffect(() => {
     billingApi.getPlans().then(setPlans).catch(console.error);
@@ -30,6 +31,23 @@ export default function Plans() {
       setShowPlanModal(null);
     } finally {
       setSelectingPlanId(null);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!currentSubData?.subscription) return;
+    if (!window.confirm('Вы уверены, что хотите отменить текущую подписку? Действие необратимо.')) return;
+    
+    setCancelLoading(true);
+    try {
+      await billingApi.cancelSubscription(currentSubData.subscription.id);
+      // Refresh subscription status
+      const updatedData = await billingApi.getCurrentSubscription();
+      setCurrentSubData(updatedData);
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || 'Ошибка при отмене подписки');
+    } finally {
+      setCancelLoading(false);
     }
   };
 
@@ -136,9 +154,18 @@ export default function Plans() {
                 {/* Action Button */}
                 <div className="mt-2 mb-8">
                   {isCurrent ? (
-                    <button disabled className="w-full py-3.5 rounded-2xl font-bold text-slate-400 dark:text-dark-text-muted bg-slate-100 dark:bg-dark-bg border border-slate-200 dark:border-dark-border text-sm cursor-default">
-                      Текущий тариф
-                    </button>
+                    <div className="flex flex-col gap-3">
+                      <button disabled className="w-full py-3.5 rounded-2xl font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/30 text-sm cursor-default flex justify-center items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4" /> Вы используете этот тариф
+                      </button>
+                      <button 
+                        onClick={handleCancelSubscription}
+                        disabled={cancelLoading}
+                        className="w-full py-2.5 rounded-xl font-bold text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors text-sm disabled:opacity-50"
+                      >
+                        {cancelLoading ? 'Отменяем...' : 'Отменить подписку'}
+                      </button>
+                    </div>
                   ) : (
                     <button
                       onClick={() => setShowPlanModal(plan)}
