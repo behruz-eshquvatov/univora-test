@@ -87,7 +87,7 @@ export default function Plans() {
         )}
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8 max-w-lg lg:max-w-none mx-auto relative z-10">
           {plans.map((plan, idx) => {
             const isCurrent = currentSubData?.subscription?.plan.id === plan.id;
             const isRecommended = idx === 1; // Highlight the middle plan like in Gemini's design
