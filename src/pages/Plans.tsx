@@ -119,12 +119,19 @@ export default function Plans() {
                     : 'border border-slate-200 dark:border-dark-border shadow-lg shadow-slate-200/50 dark:shadow-black/50 hover:shadow-xl dark:hover:shadow-black/70 dark:hover:border-violet-950'
                   }`}
               >
-                {/* Recommended Badge */}
-                {isRecommended && (
-                  <div className="absolute top-0 left-8 -translate-y-1/2 bg-white dark:bg-dark-surface px-2">
-                    <span className="text-xs font-black text-violet-600 dark:text-violet-400 tracking-widest uppercase">
-                      Recommended
-                    </span>
+                {/* Badges */}
+                {(isRecommended || isCurrent) && (
+                  <div className="absolute top-0 left-8 -translate-y-1/2 bg-white dark:bg-dark-surface px-2 flex gap-3">
+                    {isRecommended && (
+                      <span className="text-xs font-black text-violet-600 dark:text-violet-400 tracking-widest uppercase">
+                        Recommended
+                      </span>
+                    )}
+                    {isCurrent && (
+                      <span className="text-xs font-black text-emerald-500 dark:text-emerald-400 tracking-widest uppercase flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Текущий
+                      </span>
+                    )}
                   </div>
                 )}
 
@@ -155,9 +162,6 @@ export default function Plans() {
                 <div className="mt-2 mb-8">
                   {isCurrent ? (
                     <div className="flex flex-col gap-3">
-                      <button disabled className="w-full py-3.5 rounded-2xl font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/30 text-sm cursor-default flex justify-center items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4" /> Вы используете этот тариф
-                      </button>
                       <button 
                         onClick={handleCancelSubscription}
                         disabled={cancelLoading}
