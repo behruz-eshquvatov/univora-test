@@ -55,13 +55,13 @@ export default function CatalogSection() {
 
   // Subject form
   const [subjectModal, setSubjectModal] = useState(false);
-  const [subjectForm, setSubjectForm] = useState({ name: '', description: '' });
+  const [subjectForm, setSubjectForm] = useState({ name: '', name_ru: '', name_en: '', description: '' });
   const [editSubjectId, setEditSubjectId] = useState<number | null>(null);
   const [subjectFormError, setSubjectFormError] = useState<string | null>(null);
 
   // Topic form
   const [topicModal, setTopicModal] = useState(false);
-  const [topicForm, setTopicForm] = useState({ name: '' });
+  const [topicForm, setTopicForm] = useState({ name: '', name_ru: '', name_en: '' });
   const [editTopicId, setEditTopicId] = useState<number | null>(null);
   const [topicFormError, setTopicFormError] = useState<string | null>(null);
 
@@ -113,10 +113,10 @@ export default function CatalogSection() {
   };
 
   // Subject CRUD
-  const openCreateSubject = () => { setSubjectForm({ name: '', description: '' }); setEditSubjectId(null); setSubjectFormError(null); setSubjectModal(true); };
+  const openCreateSubject = () => { setSubjectForm({ name: '', name_ru: '', name_en: '', description: '' }); setEditSubjectId(null); setSubjectFormError(null); setSubjectModal(true); };
   const openEditSubject = (s: Subject, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSubjectForm({ name: s.name, description: (s as any).description || '' });
+    setSubjectForm({ name: s.name, name_ru: (s as any).name_ru || '', name_en: (s as any).name_en || '', description: (s as any).description || '' });
     setEditSubjectId(s.id); setSubjectFormError(null); setSubjectModal(true);
   };
   const saveSubject = async (e: React.FormEvent) => {
@@ -137,10 +137,10 @@ export default function CatalogSection() {
   };
 
   // Topic CRUD
-  const openCreateTopic = () => { setTopicForm({ name: '' }); setEditTopicId(null); setTopicFormError(null); setTopicModal(true); };
+  const openCreateTopic = () => { setTopicForm({ name: '', name_ru: '', name_en: '' }); setEditTopicId(null); setTopicFormError(null); setTopicModal(true); };
   const openEditTopic = (t: Topic, e: React.MouseEvent) => {
     e.stopPropagation();
-    setTopicForm({ name: (t as any).name || (t as any).title || '' });
+    setTopicForm({ name: (t as any).name || (t as any).title || '', name_ru: (t as any).name_ru || '', name_en: (t as any).name_en || '' });
     setEditTopicId(t.id); setTopicFormError(null); setTopicModal(true);
   };
   const saveTopic = async (e: React.FormEvent) => {
@@ -391,8 +391,16 @@ export default function CatalogSection() {
             <h2 className="text-xl font-bold text-slate-900 mb-5">{editSubjectId ? 'Изменить предмет' : 'Новый предмет'}</h2>
             <form onSubmit={saveSubject} className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1">Название *</label>
-                <input type="text" required value={subjectForm.name} onChange={e => setSubjectForm(p => ({ ...p, name: e.target.value }))} className={INPUT} placeholder="Математика" />
+                <label className="block text-sm font-bold text-slate-700 mb-1">Название (UZ) *</label>
+                <input type="text" required value={subjectForm.name} onChange={e => setSubjectForm(p => ({ ...p, name: e.target.value }))} className={INPUT} placeholder="Matematika" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Название (RU)</label>
+                <input type="text" value={subjectForm.name_ru} onChange={e => setSubjectForm(p => ({ ...p, name_ru: e.target.value }))} className={INPUT} placeholder="Математика" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Название (EN)</label>
+                <input type="text" value={subjectForm.name_en} onChange={e => setSubjectForm(p => ({ ...p, name_en: e.target.value }))} className={INPUT} placeholder="Mathematics" />
               </div>
               {subjectFormError && (
                 <div className="flex items-start gap-2 px-3 py-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">
@@ -414,8 +422,16 @@ export default function CatalogSection() {
             <h2 className="text-xl font-bold text-slate-900 mb-5">{editTopicId ? 'Изменить тему' : 'Новая тема'}</h2>
             <form onSubmit={saveTopic} className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1">Название темы *</label>
-                <input type="text" required value={topicForm.name} onChange={e => setTopicForm(p => ({ ...p, name: e.target.value }))} className={INPUT} placeholder="Алгебра" />
+                <label className="block text-sm font-bold text-slate-700 mb-1">Название темы (UZ) *</label>
+                <input type="text" required value={topicForm.name} onChange={e => setTopicForm(p => ({ ...p, name: e.target.value }))} className={INPUT} placeholder="Algebra" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Название темы (RU)</label>
+                <input type="text" value={topicForm.name_ru} onChange={e => setTopicForm(p => ({ ...p, name_ru: e.target.value }))} className={INPUT} placeholder="Алгебра" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Название темы (EN)</label>
+                <input type="text" value={topicForm.name_en} onChange={e => setTopicForm(p => ({ ...p, name_en: e.target.value }))} className={INPUT} placeholder="Algebra" />
               </div>
               {topicFormError && (
                 <div className="flex items-start gap-2 px-3 py-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">
