@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { Trophy, Flame, Calculator, Atom, Terminal, Globe, Brain, ArrowUpRight, BookOpen, Play } from 'lucide-react';
 import { catalogApi, type Subject } from '../lib/api/catalog';
 import { Link } from 'react-router-dom';
+import { useTranslation, Trans } from 'react-i18next';
 
 
 const MOCK_SUBJECTS = [
@@ -23,6 +24,7 @@ const MOCK_LEADERBOARD = [
 
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const [apiSubjects, setApiSubjects] = useState<Subject[]>([]);
   const [reviewsCount, setReviewsCount] = useState(0);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
@@ -85,10 +87,10 @@ const Dashboard = () => {
         
         <div className="relative z-10 flex-1 mb-6 md:mb-0 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight text-white">
-            С возвращением, {firstName}! 🚀
+            {t('dashboard.welcome', { name: firstName })}
           </h1>
           <p className="text-purple-100 text-base md:text-lg max-w-lg leading-relaxed">
-            Вы отлично справляетесь. Продолжайте тренировки, чтобы побить свой личный рекорд!
+            {t('dashboard.welcome_desc')}
           </p>
         </div>
         
@@ -96,12 +98,12 @@ const Dashboard = () => {
           <div className="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex flex-col items-center justify-center min-w-[110px] shadow-sm">
             <Flame className="w-8 h-8 text-orange-400 mb-1" />
             <span className="font-bold text-2xl text-white">{streak}</span>
-            <span className="text-[10px] text-purple-100 uppercase tracking-wider font-bold mt-1">Дней подряд</span>
+            <span className="text-[10px] text-purple-100 uppercase tracking-wider font-bold mt-1">{t('dashboard.streak_days')}</span>
           </div>
           <div className="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex flex-col items-center justify-center min-w-[110px] shadow-sm">
             <Trophy className="w-8 h-8 text-yellow-400 mb-1" />
             <span className="font-bold text-2xl text-white">{xp}</span>
-            <span className="text-[10px] text-purple-100 uppercase tracking-wider font-bold mt-1">Всего XP</span>
+            <span className="text-[10px] text-purple-100 uppercase tracking-wider font-bold mt-1">{t('dashboard.total_xp')}</span>
           </div>
         </div>
       </section>
@@ -119,26 +121,28 @@ const Dashboard = () => {
                 <Brain className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-1">Задачи на сегодня</h3>
+                <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-1">{t('dashboard.daily_tasks')}</h3>
                 <p className="text-slate-500 dark:text-dark-text-muted font-medium">
                   {reviewsCount > 0 ? (
-                    <>Вас ждут <strong className="text-rose-500">{reviewsCount} карточек</strong> для интервального повторения.</>
+                    <Trans i18nKey="dashboard.reviews_waiting" count={reviewsCount}>
+                      Вас ждут <strong className="text-rose-500">{{count: reviewsCount}} карточек</strong> для интервального повторения.
+                    </Trans>
                   ) : (
-                    <>На сегодня все карточки повторены! Вы отлично справляетесь.</>
+                    <>{t('dashboard.reviews_done')}</>
                   )}
                 </p>
               </div>
             </div>
             <Link to="/progress" className="w-full sm:w-auto px-6 py-3.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl transition-colors shrink-0 text-center shadow-md shadow-rose-500/20">
-              {reviewsCount > 0 ? 'Начать повторение' : 'Перейти в Прогресс'}
+              {reviewsCount > 0 ? t('dashboard.start_review') : t('dashboard.go_to_progress')}
             </Link>
           </section>
 
           {/* Available Subjects */}
           <section>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">Доступные предметы</h3>
-              <Link to="/tests/thematic" className="text-sm font-bold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors">Все предметы</Link>
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">{t('dashboard.available_subjects')}</h3>
+              <Link to="/tests/thematic" className="text-sm font-bold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors">{t('dashboard.all_subjects')}</Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {displaySubjects.map((subject) => (
@@ -152,7 +156,7 @@ const Dashboard = () => {
                         <div>
                           <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">{subject.name}</h4>
                           <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">
-                            Проверить знания
+                            {t('dashboard.check_knowledge')}
                           </p>
                         </div>
                       </div>
@@ -183,7 +187,7 @@ const Dashboard = () => {
         <div className="xl:col-span-1">
           <section className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border h-fit sticky top-0 flex flex-col">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">Топ недели</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">{t('dashboard.weekly_top')}</h3>
               <div className="w-10 h-10 rounded-full bg-yellow-50 dark:bg-yellow-950/20 flex items-center justify-center">
                 <Trophy className="w-5 h-5 text-yellow-500" />
               </div>
@@ -237,7 +241,7 @@ const Dashboard = () => {
             </div>
 
             <button className="w-full mt-6 py-3.5 rounded-xl font-bold text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/20 hover:bg-violet-100 dark:hover:bg-violet-950/40 transition-colors text-sm text-center">
-              Смотреть весь рейтинг
+              {t('dashboard.view_full_rating')}
             </button>
           </section>
         </div>

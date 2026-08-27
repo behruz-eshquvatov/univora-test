@@ -6,6 +6,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useProgressStore } from '../store/useProgressStore';
 import { X, Clock, ChevronRight, ChevronLeft, Loader2, Apple } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation, Trans } from 'react-i18next';
 import {
   testengineApi,
   type SessionQuestion,
@@ -15,6 +16,7 @@ import {
 } from '../lib/api/testengine';
 
 export default function QuizSession() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { sessionId } = useParams<{ sessionId: string }>();
   const { isAuthenticated, login } = useAuthStore();
@@ -245,24 +247,24 @@ export default function QuizSession() {
           animate={{ opacity: 1, scale: 1 }}
           className="w-full max-w-lg bg-surface rounded-[2rem] shadow-2xl border border-white/10 p-8 text-center relative z-10"
         >
-          <h2 className="text-3xl font-extrabold text-slate-800 mb-2 pt-4">Тест завершен!</h2>
-          <p className="text-slate-500 mb-8 font-medium">Отличная работа! Вот ваши результаты:</p>
+          <h2 className="text-3xl font-extrabold text-slate-800 mb-2 pt-4">{t('quiz.finished_title')}</h2>
+          <p className="text-slate-500 mb-8 font-medium">{t('quiz.finished_desc')}</p>
 
           <div className="grid grid-cols-2 gap-4 mb-8">
             <div className="bg-slate-50 p-4 rounded-2xl border border-border">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Точность</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">{t('quiz.accuracy')}</span>
               <span className="text-2xl font-extrabold text-slate-800">{accuracy}%</span>
             </div>
             <div className="bg-slate-50 p-4 rounded-2xl border border-border">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Время</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">{t('quiz.time')}</span>
               <span className="text-2xl font-extrabold text-slate-800">{formatTime(result.duration_seconds || 0)}</span>
             </div>
             <div className="bg-slate-50 p-4 rounded-2xl border border-border">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Правильно</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">{t('quiz.correct')}</span>
               <span className="text-2xl font-extrabold text-emerald-500">{result.correct_count}</span>
             </div>
             <div className="bg-slate-50 p-4 rounded-2xl border border-border">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Всего вопросов</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">{t('quiz.total_questions')}</span>
               <span className="text-2xl font-extrabold text-slate-800">{result.total_questions}</span>
             </div>
           </div>
@@ -270,15 +272,15 @@ export default function QuizSession() {
           {/* Review section */}
           {review && review.length > 0 && (
             <div className="text-left mb-8 max-h-72 overflow-y-auto space-y-3 pr-1">
-              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Разбор ошибок</h3>
+              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">{t('quiz.review_mistakes')}</h3>
               {(review as SessionQuestionReview[]).filter(r => !r.is_correct).map(r => (
                 <div key={r.order} className="bg-rose-50 rounded-xl p-3 border border-rose-100">
                   <p className="text-sm font-medium text-slate-700 mb-2">
                     {r.order}. {r.question.text.substring(0, 80)}{r.question.text.length > 80 ? '...' : ''}
                   </p>
                   <div className="flex gap-3 text-xs font-bold">
-                    <span className="text-rose-500">Ваш: {r.selected_option || '—'}</span>
-                    <span className="text-emerald-600">Верно: {r.correct_option}</span>
+                    <span className="text-rose-500">{t('quiz.your_answer', { answer: r.selected_option || '—' })}</span>
+                    <span className="text-emerald-600">{t('quiz.correct_answer', { answer: r.correct_option })}</span>
                   </div>
                 </div>
               ))}
@@ -289,7 +291,7 @@ export default function QuizSession() {
             onClick={() => navigate('/dashboard')}
             className="w-full py-4 bg-primary text-white rounded-2xl font-bold hover:brightness-110 shadow-lg shadow-primary/20 transition-all"
           >
-            Вернуться на главную
+            {t('quiz.back_to_home')}
           </button>
         </motion.div>
       </div>
@@ -310,10 +312,10 @@ export default function QuizSession() {
     return (
       <div className="min-h-screen bg-transparent flex flex-col font-body p-4 sm:p-8 items-center justify-center">
         <div className="w-full max-w-3xl bg-surface rounded-[2rem] shadow-2xl border border-white/10 p-8 text-center relative z-10">
-          <h2 className="text-2xl font-bold text-slate-800 mb-4">Сессия недоступна</h2>
-          <p className="text-slate-500 mb-8">Возможно, тест уже завершен или не существует.</p>
+          <h2 className="text-2xl font-bold text-slate-800 mb-4">{t('quiz.session_unavailable')}</h2>
+          <p className="text-slate-500 mb-8">{t('quiz.session_unavailable_desc')}</p>
           <button onClick={() => navigate('/dashboard')} className="px-6 py-3 bg-primary text-white rounded-xl font-bold">
-            Вернуться в Дашборд
+            {t('quiz.back_to_dashboard')}
           </button>
         </div>
       </div>
@@ -338,7 +340,7 @@ export default function QuizSession() {
               <span className="text-emerald-500 font-bold">{answeredCount}</span>
               <span>/</span>
               <span>{totalQuestions}</span>
-              <span className="ml-1">отвечено</span>
+              <span className="ml-1">{t('quiz.answered')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5" />
@@ -434,7 +436,7 @@ export default function QuizSession() {
               onClick={() => setShowFinishConfirm(true)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-slate-500 hover:text-rose-500 hover:bg-rose-50 transition-colors text-sm"
             >
-              Завершить досрочно
+              {t('quiz.finish_early')}
             </button>
           </div>
 
@@ -446,7 +448,7 @@ export default function QuizSession() {
               className="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-5 h-5" />
-              <span className="hidden sm:inline">Назад</span>
+              <span className="hidden sm:inline">{t('quiz.back')}</span>
             </button>
 
             {/* Next / Finish button */}
@@ -459,7 +461,7 @@ export default function QuizSession() {
               }`}
             >
               <span className={currentOrder === totalQuestions ? "" : "hidden sm:inline"}>
-                {currentOrder === totalQuestions ? 'Завершить' : 'Вперед'}
+                {currentOrder === totalQuestions ? t('quiz.finish') : t('quiz.forward')}
               </span>
               {currentOrder !== totalQuestions && <ChevronRight className="w-5 h-5" />}
             </button>
@@ -493,8 +495,8 @@ export default function QuizSession() {
                 <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-4xl">🔐</span>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-2">Сохранить прогресс?</h3>
-                <p className="text-slate-500">Войдите, чтобы ваши результаты были сохранены в профиле.</p>
+                <h3 className="text-2xl font-bold text-slate-800 mb-2">{t('quiz.save_progress')}</h3>
+                <p className="text-slate-500">{t('quiz.save_progress_desc')}</p>
               </div>
 
               <div className="flex flex-col gap-3 items-center w-full">
@@ -519,7 +521,7 @@ export default function QuizSession() {
                 </div>
 
                 <button
-                  onClick={() => alert('Вход через Apple в разработке')}
+                  onClick={() => alert(t('quiz.apple_dev'))}
                   className="flex items-center justify-center gap-2 bg-black text-white shadow-sm hover:bg-gray-900 transition-colors"
                   style={{ width: '280px', height: '40px', borderRadius: '4px' }}
                 >
@@ -547,21 +549,21 @@ export default function QuizSession() {
               exit={{ scale: 0.9, y: 20 }}
               className="bg-surface rounded-3xl p-8 max-w-sm w-full border border-border shadow-2xl relative text-center"
             >
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">Вы уверены?</h3>
-              <p className="text-slate-500 mb-8">Если вы выйдете, ваш текущий прогресс будет потерян.</p>
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">{t('quiz.exit_confirm_title')}</h3>
+              <p className="text-slate-500 mb-8">{t('quiz.exit_confirm_desc')}</p>
 
               <div className="flex gap-4">
                 <button
                   onClick={() => setShowExitConfirm(false)}
                   className="flex-1 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
                 >
-                  Отмена
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={() => navigate('/dashboard')}
                   className="flex-1 py-3 rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-600 shadow-md transition-colors"
                 >
-                  Выйти
+                  {t('quiz.exit')}
                 </button>
               </div>
             </motion.div>
@@ -584,14 +586,16 @@ export default function QuizSession() {
               exit={{ scale: 0.9, y: 20 }}
               className="bg-surface rounded-3xl p-8 max-w-sm w-full border border-border shadow-2xl relative text-center"
             >
-              <h3 className="text-2xl font-bold text-slate-800 mb-2">Завершить тест?</h3>
+              <h3 className="text-2xl font-bold text-slate-800 mb-2">{t('quiz.finish_confirm_title')}</h3>
               <p className="text-slate-500 mb-2">
-                Отвечено: <span className="font-bold text-slate-700">{answeredCount}</span> из{' '}
-                <span className="font-bold text-slate-700">{totalQuestions}</span>
+                <Trans i18nKey="quiz.answered_count" values={{ answered: answeredCount, total: totalQuestions }}>
+                  Отвечено: <span className="font-bold text-slate-700">{{answered: answeredCount}}</span> из{' '}
+                  <span className="font-bold text-slate-700">{{total: totalQuestions}}</span>
+                </Trans>
               </p>
               {answeredCount < totalQuestions && (
                 <p className="text-amber-600 text-sm font-medium mb-6">
-                  Есть {totalQuestions - answeredCount} неотвеченных вопросов.
+                  {t('quiz.unanswered_count', { count: totalQuestions - answeredCount })}
                 </p>
               )}
               {answeredCount >= totalQuestions && <div className="mb-6" />}
@@ -601,7 +605,7 @@ export default function QuizSession() {
                   onClick={() => setShowFinishConfirm(false)}
                   className="flex-1 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
                 >
-                  Отмена
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={() => {
@@ -610,7 +614,7 @@ export default function QuizSession() {
                   }}
                   className="flex-1 py-3 rounded-xl font-bold text-white bg-primary hover:brightness-110 shadow-md transition-colors"
                 >
-                  Завершить
+                  {t('quiz.finish')}
                 </button>
               </div>
             </motion.div>

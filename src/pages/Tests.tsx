@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Clock, ArrowRight, FileText, GraduationCap, Play, Loader2, ArrowUpRight, BookOpen, Calculator, Atom, Terminal, Globe } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { testengineApi, type TestSession, type TestResult } from '../lib/api/testengine';
 import { catalogApi, type Subject } from '../lib/api/catalog';
 
 const Tests = () => {
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<TestSession[]>([]);
   const [myResults, setMyResults] = useState<TestResult[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -66,8 +68,8 @@ const Tests = () => {
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">Центр тестирования</h1>
-          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">Выбирайте формат подготовки и бейте собственные рекорды</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">{t('tests.title')}</h1>
+          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">{t('tests.subtitle')}</p>
         </div>
       </div>
 
@@ -86,14 +88,14 @@ const Tests = () => {
                 <Clock className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h3 className="font-extrabold text-xl mb-1 text-white">Тест в процессе</h3>
-                <p className="text-purple-100 font-medium">{activeSession.subject?.name || 'Предмет'} ({activeSession.question_count} вопросов)</p>
+                <h3 className="font-extrabold text-xl mb-1 text-white">{t('tests.active_test')}</h3>
+                <p className="text-purple-100 font-medium">{t('tests.subject_questions', { subject: activeSession.subject?.name || t('tests.default_subject'), count: activeSession.question_count })}</p>
               </div>
             </div>
             
             <Link to={`/quiz/${activeSession.id}`} className="relative z-10 w-full md:w-auto px-6 py-3.5 bg-white text-purple-700 hover:bg-slate-50 hover:scale-[1.02] active:scale-95 font-bold rounded-xl transition-all text-center shadow-lg flex items-center justify-center gap-2">
               <Play className="w-5 h-5 fill-current" />
-              Продолжить
+              {t('tests.continue')}
             </Link>
           </section>
           )}
@@ -101,7 +103,7 @@ const Tests = () => {
           {/* Тематические тесты */}
           {subjects.length > 0 && (
             <section>
-              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-5">Тематические тесты</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-5">{t('tests.thematic_tests')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {subjects.map((subject, index) => {
                   const { icon, color } = getSubjectIconAndColor(subject.name, index);
@@ -120,7 +122,7 @@ const Tests = () => {
                           <div>
                             <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">{subject.name}</h4>
                             <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">
-                              Проверить знания
+                              {t('tests.check_knowledge')}
                             </p>
                           </div>
                         </div>
@@ -147,7 +149,7 @@ const Tests = () => {
 
           {/* Start New Test Categories */}
           <section>
-            <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-5">Начать новый тест</h3>
+            <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-5">{t('tests.start_new')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
               {/* DTM Exam Card */}
@@ -157,8 +159,8 @@ const Tests = () => {
                     <GraduationCap className="w-7 h-7" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">Пробный экзамен (ДТМ)</h4>
-                    <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">Полная симуляция экзамена из 5 предметов на время.</p>
+                    <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-lg leading-tight">{t('tests.dtm_exam')}</h4>
+                    <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">{t('tests.dtm_desc')}</p>
                   </div>
                 </div>
                 <div className="mt-4 md:mt-0 self-start md:self-auto text-slate-300 transform translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-fuchsia-500 transition-all duration-300">
@@ -175,7 +177,7 @@ const Tests = () => {
         <div className="xl:col-span-1">
           <section className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border h-fit sticky top-0 flex flex-col">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">Последние тесты</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">{t('tests.recent_results')}</h3>
               <button className="w-10 h-10 rounded-full bg-white dark:bg-dark-surface border-2 border-slate-100 dark:border-dark-border hover:border-violet-200 dark:hover:border-violet-900 hover:bg-violet-50 dark:hover:bg-violet-950/20 transition-colors flex items-center justify-center group cursor-pointer shadow-sm">
                 <FileText className="w-5 h-5 text-slate-400 dark:text-dark-text-muted group-hover:text-violet-500 transition-colors" />
               </button>
@@ -187,7 +189,7 @@ const Tests = () => {
                   
                   <div className="flex justify-between items-center mb-1.5">
                     <h4 className="font-bold text-slate-800 dark:text-dark-text-main text-sm">
-                      {result.subject?.name || 'Предмет'}
+                      {result.subject?.name || t('tests.default_subject')}
                     </h4>
                     <div className="font-extrabold text-sm text-emerald-500">
                       {result.accuracy_percent}%
@@ -195,7 +197,7 @@ const Tests = () => {
                   </div>
                   
                   <div className="flex items-center gap-3 text-[11px] font-bold text-slate-400 dark:text-dark-text-muted">
-                    <span>{result.correct_count}/{result.total_questions} верно</span>
+                    <span>{t('tests.correct_answers', { correct: result.correct_count, total: result.total_questions })}</span>
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       <span>{new Date(result.created_at).toLocaleDateString()}</span>
@@ -206,13 +208,13 @@ const Tests = () => {
               ))}
               {myResults.length === 0 && (
                 <div className="text-center text-slate-400 dark:text-dark-text-muted text-sm py-4">
-                  Вы еще не завершили ни одного теста.
+                  {t('tests.no_tests_yet')}
                 </div>
               )}
             </div>
 
             <Link to="/history" className="block w-full mt-4 py-3.5 rounded-xl font-bold text-slate-600 dark:text-dark-text-main bg-slate-50 dark:bg-dark-bg hover:bg-slate-100 dark:hover:bg-dark-surface/60 transition-colors text-sm text-center">
-              Смотреть всю историю
+              {t('tests.view_full_history')}
             </Link>
           </section>
         </div>
