@@ -163,5 +163,37 @@
     "correct_of": "{{correct}} из {{total}} верно",
     "questions_review": "Разбор вопросов",
     "question_image": "Изображение вопроса"
+  },
+  "progress": {
+    "title": "Прогресс",
+    "subtitle": "Аналитика, достижения и повторение",
+    "xp_title": "Опыт (XP)",
+    "xp_today": "За сегодня:",
+    "xp_week": "За эту неделю:",
+    "streak_title": "Ударный режим",
+    "streak_days": "дн.",
+    "streak_max": "Максимум: {{count}} дн.",
+    "freeze_available": "{{count}} шт.",
+    "freeze_action": "Заморозить стрик",
+    "reviews_today": "Карточки на сегодня",
+    "start_review": "Начать повторение",
+    "all_reviewed": "Всё повторено",
+    "xp_history": "История опыта",
+    "no_recent_xp": "Нет недавних начислений XP",
+    "development_areas": "Направления развития",
+    "development_desc": "Выполняйте тесты, повторяйте карточки и поддерживайте ударный режим, чтобы зарабатывать опыт и подниматься в рейтинге.",
+    "ready_compete": "Готовы соревноваться?",
+    "open_leaderboard": "Открыть таблицу лидеров",
+    "review_card_title": "Карточка {{current}} из {{total}}",
+    "review_question_fallback": "Вопрос карточки",
+    "freeze_activated": "Заморозка активирована!",
+    "freeze_failed": "Не удалось заморозить стрик.",
+    "submit_error": "Ошибка при отправке ответа"
+  },
+  "notifications": {
+    "title": "Уведомления",
+    "subtitle": "Здесь хранятся все важные обновления и анонсы.",
+    "empty_title": "Нет новых уведомлений",
+    "empty_desc": "У вас пока нет истории уведомлений."
   }
 }

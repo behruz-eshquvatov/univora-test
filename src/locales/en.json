@@ -163,5 +163,37 @@
     "correct_of": "{{correct}} of {{total}} correct",
     "questions_review": "Questions review",
     "question_image": "Question image"
+  },
+  "progress": {
+    "title": "Progress",
+    "subtitle": "Analytics, achievements, and review",
+    "xp_title": "Experience (XP)",
+    "xp_today": "Today:",
+    "xp_week": "This week:",
+    "streak_title": "Streak mode",
+    "streak_days": "d.",
+    "streak_max": "Max: {{count}} d.",
+    "freeze_available": "{{count}} pcs.",
+    "freeze_action": "Freeze streak",
+    "reviews_today": "Cards for today",
+    "start_review": "Start reviewing",
+    "all_reviewed": "All reviewed",
+    "xp_history": "XP History",
+    "no_recent_xp": "No recent XP accruals",
+    "development_areas": "Development areas",
+    "development_desc": "Complete tests, review cards, and maintain your streak to earn experience and climb the leaderboard.",
+    "ready_compete": "Ready to compete?",
+    "open_leaderboard": "Open leaderboard",
+    "review_card_title": "Card {{current}} of {{total}}",
+    "review_question_fallback": "Card question",
+    "freeze_activated": "Freeze activated!",
+    "freeze_failed": "Failed to freeze streak.",
+    "submit_error": "Error submitting answer"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "All important updates and announcements are stored here.",
+    "empty_title": "No new notifications",
+    "empty_desc": "You have no notification history yet."
   }
 }

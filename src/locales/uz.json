@@ -163,5 +163,37 @@
     "correct_of": "{{total}} tadan {{correct}} tasi to'g'ri",
     "questions_review": "Savollarni ko'rib chiqish",
     "question_image": "Savol rasmi"
+  },
+  "progress": {
+    "title": "Progress",
+    "subtitle": "Tahlil, yutuqlar va takrorlash",
+    "xp_title": "Tajriba (XP)",
+    "xp_today": "Bugun uchun:",
+    "xp_week": "Bu hafta uchun:",
+    "streak_title": "Zarbali rejim",
+    "streak_days": "kun",
+    "streak_max": "Maksimum: {{count}} kun",
+    "freeze_available": "{{count}} dona",
+    "freeze_action": "Strikni muzlatish",
+    "reviews_today": "Bugungi kartochkalar",
+    "start_review": "Takrorlashni boshlash",
+    "all_reviewed": "Barchasi takrorlandi",
+    "xp_history": "Tajriba tarixi",
+    "no_recent_xp": "Yaqinda berilgan XP yo'q",
+    "development_areas": "Rivojlanish yo'nalishlari",
+    "development_desc": "Tajriba orttirish va reytingda ko'tarilish uchun testlarni bajaring, kartochkalarni takrorlang va zarbali rejimni saqlang.",
+    "ready_compete": "Musobaqalashishga tayyormisiz?",
+    "open_leaderboard": "Liderlar doskasini ochish",
+    "review_card_title": "{{total}} tadan {{current}}-kartochka",
+    "review_question_fallback": "Kartochka savoli",
+    "freeze_activated": "Muzlatish faollashtirildi!",
+    "freeze_failed": "Strikni muzlatish amalga oshmadi.",
+    "submit_error": "Javobni yuborishda xatolik"
+  },
+  "notifications": {
+    "title": "Bildirishnomalar",
+    "subtitle": "Barcha muhim yangilanishlar va e'lonlar shu yerda saqlanadi.",
+    "empty_title": "Yangi bildirishnomalar yo'q",
+    "empty_desc": "Sizda hozircha bildirishnomalar tarixi yo'q."
   }
 }

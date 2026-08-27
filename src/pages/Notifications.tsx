@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { notificationsApi, type NotificationLog } from '../lib/api/notifications';
 
 export default function Notifications() {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState<NotificationLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -40,10 +42,10 @@ export default function Notifications() {
       <div className="relative z-10 hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">
-            Уведомления
+            {t('notifications.title')}
           </h1>
           <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">
-            Здесь хранятся все важные обновления и анонсы.
+            {t('notifications.subtitle')}
           </p>
         </div>
       </div>
@@ -86,10 +88,10 @@ export default function Notifications() {
               <CheckCircle2 className="w-8 h-8 text-slate-400" />
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-dark-text-main mb-1">
-              Нет новых уведомлений
+              {t('notifications.empty_title')}
             </h3>
             <p className="text-slate-500 dark:text-dark-text-muted">
-              У вас пока нет истории уведомлений.
+              {t('notifications.empty_desc')}
             </p>
           </div>
         )}

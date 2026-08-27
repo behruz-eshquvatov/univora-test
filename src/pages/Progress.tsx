@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Flame, Snowflake, Star, Zap, History, Clock, BookOpen, Target } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { progressApi, type XPSummary, type Streak, type XPTransaction, type ReviewCard } from '../lib/api/progress';
 
 export default function Progress() {
+  const { t } = useTranslation();
   const [xpSummary, setXpSummary] = useState<XPSummary | null>(null);
   const [streak, setStreak] = useState<Streak | null>(null);
   const [transactions, setTransactions] = useState<XPTransaction[]>([]);
@@ -34,9 +36,9 @@ export default function Progress() {
     try {
       const updatedStreak = await progressApi.freezeStreak();
       setStreak(updatedStreak);
-      alert('Заморозка активирована!');
+      alert(t('progress.freeze_activated'));
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Не удалось заморозить стрик.');
+      alert(err.response?.data?.detail || t('progress.freeze_failed'));
     } finally {
       setIsFreezing(false);
     }
@@ -68,7 +70,7 @@ export default function Progress() {
         }
       } catch (err) {
         console.error(err);
-        alert('Ошибка при отправке ответа');
+        alert(t('progress.submit_error'));
       } finally {
         setIsSubmitting(false);
       }
@@ -81,8 +83,8 @@ export default function Progress() {
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">Прогресс</h1>
-          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">Аналитика, достижения и повторение</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">{t('progress.title')}</h1>
+          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">{t('progress.subtitle')}</p>
         </div>
       </div>
 
@@ -96,7 +98,7 @@ export default function Progress() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3 group-hover:scale-150 transition-transform duration-700"></div>
             <div className="flex justify-between items-start relative z-10">
               <div>
-                <p className="text-violet-100 font-bold mb-1">Опыт (XP)</p>
+                <p className="text-violet-100 font-bold mb-1">{t('progress.xp_title')}</p>
                 <h3 className="text-4xl font-extrabold">{xpSummary?.xp_total || 0}</h3>
               </div>
               <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20">
@@ -106,11 +108,11 @@ export default function Progress() {
             {xpSummary && (
               <div className="mt-6 flex flex-col gap-2">
                 <div className="flex justify-between text-sm font-bold text-violet-100">
-                  <span>За сегодня:</span>
+                  <span>{t('progress.xp_today')}</span>
                   <span>+{xpSummary.xp_today} XP</span>
                 </div>
                 <div className="flex justify-between text-sm font-bold text-violet-100">
-                  <span>За эту неделю:</span>
+                  <span>{t('progress.xp_week')}</span>
                   <span>+{xpSummary.xp_this_week} XP</span>
                 </div>
               </div>
@@ -121,10 +123,10 @@ export default function Progress() {
           <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-dark-border group hover:shadow-lg hover:border-orange-100 dark:hover:border-orange-950 transition-all flex flex-col justify-between">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-slate-500 dark:text-dark-text-muted font-bold mb-1">Ударный режим</p>
+                <p className="text-slate-500 dark:text-dark-text-muted font-bold mb-1">{t('progress.streak_title')}</p>
                 <h3 className="text-4xl font-extrabold text-slate-800 dark:text-dark-text-main flex items-baseline gap-2">
                   {streak?.current_streak || 0} 
-                  <span className="text-xl text-slate-400 dark:text-dark-text-muted font-semibold">дн.</span>
+                  <span className="text-xl text-slate-400 dark:text-dark-text-muted font-semibold">{t('progress.streak_days')}</span>
                 </h3>
               </div>
               <div className="w-12 h-12 bg-orange-50 dark:bg-orange-950/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -133,8 +135,8 @@ export default function Progress() {
             </div>
             <div className="mt-6 flex flex-col gap-3">
               <div className="flex items-center justify-between text-sm font-bold text-slate-500 dark:text-dark-text-muted">
-                <span>Максимум: {streak?.longest_streak || 0} дн.</span>
-                <span className="flex items-center gap-1"><Snowflake className="w-4 h-4 text-cyan-500" /> {streak?.freezes_available || 0} шт.</span>
+                <span>{t('progress.streak_max', { count: streak?.longest_streak || 0 })}</span>
+                <span className="flex items-center gap-1"><Snowflake className="w-4 h-4 text-cyan-500" /> {t('progress.freeze_available', { count: streak?.freezes_available || 0 })}</span>
               </div>
               <button 
                 onClick={handleFreeze}
@@ -142,7 +144,7 @@ export default function Progress() {
                 className="w-full py-2.5 bg-cyan-50 dark:bg-cyan-950/20 hover:bg-cyan-100 dark:hover:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 font-bold rounded-xl transition-colors text-sm disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-dark-bg flex items-center justify-center gap-2"
               >
                 <Snowflake className="w-4 h-4" />
-                Заморозить стрик
+                {t('progress.freeze_action')}
               </button>
             </div>
           </div>
@@ -151,7 +153,7 @@ export default function Progress() {
           <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-dark-border group hover:shadow-lg hover:border-blue-100 dark:hover:border-blue-950 transition-all flex flex-col justify-between">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-slate-500 dark:text-dark-text-muted font-bold mb-1">Карточки на сегодня</p>
+                <p className="text-slate-500 dark:text-dark-text-muted font-bold mb-1">{t('progress.reviews_today')}</p>
                 <h3 className="text-4xl font-extrabold text-slate-800 dark:text-dark-text-main">{reviews.length}</h3>
               </div>
               <div className="w-12 h-12 bg-blue-50 dark:bg-blue-950/20 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform">
@@ -170,7 +172,7 @@ export default function Progress() {
                 className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors text-sm disabled:opacity-50 disabled:bg-slate-300 dark:disabled:bg-dark-bg dark:disabled:text-dark-text-muted flex items-center justify-center gap-2"
               >
                 <Clock className="w-4 h-4" />
-                {reviews.length > 0 ? 'Начать повторение' : 'Всё повторено'}
+                {reviews.length > 0 ? t('progress.start_review') : t('progress.all_reviewed')}
               </button>
             </div>
           </div>
@@ -183,7 +185,7 @@ export default function Progress() {
           {/* XP Transactions List */}
           <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border flex flex-col">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">История опыта</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">{t('progress.xp_history')}</h3>
               <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-dark-bg flex items-center justify-center">
                 <History className="w-5 h-5 text-slate-400 dark:text-dark-text-muted" />
               </div>
@@ -204,7 +206,7 @@ export default function Progress() {
                   <span className="font-extrabold text-emerald-500">+{tx.amount} XP</span>
                 </div>
               )) : (
-                <div className="p-8 text-center text-slate-500 dark:text-dark-text-muted font-medium">Нет недавних начислений XP</div>
+                <div className="p-8 text-center text-slate-500 dark:text-dark-text-muted font-medium">{t('progress.no_recent_xp')}</div>
               )}
             </div>
           </div>
@@ -212,18 +214,18 @@ export default function Progress() {
           {/* Leaderboard Preview */}
           <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border flex flex-col">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">Направления развития</h3>
+              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">{t('progress.development_areas')}</h3>
               <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-dark-bg flex items-center justify-center">
                 <Star className="w-5 h-5 text-slate-400 dark:text-dark-text-muted" />
               </div>
             </div>
             <p className="text-slate-600 dark:text-dark-text-muted mb-4 leading-relaxed">
-              Выполняйте тесты, повторяйте карточки и поддерживайте ударный режим, чтобы зарабатывать опыт и подниматься в рейтинге.
+              {t('progress.development_desc')}
             </p>
             <div className="mt-auto bg-violet-50 dark:bg-violet-950/20 rounded-2xl p-5 border border-violet-100 dark:border-violet-900/30 text-center">
-              <p className="text-sm font-bold text-violet-800 dark:text-violet-400 mb-2">Готовы соревноваться?</p>
+              <p className="text-sm font-bold text-violet-800 dark:text-violet-400 mb-2">{t('progress.ready_compete')}</p>
               <a href="/leaderboard" className="inline-block bg-violet-600 hover:bg-violet-700 text-white font-bold py-2.5 px-6 rounded-xl transition-colors text-sm">
-                Открыть таблицу лидеров
+                {t('progress.open_leaderboard')}
               </a>
             </div>
           </div>
@@ -239,7 +241,7 @@ export default function Progress() {
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-extrabold text-slate-800 dark:text-dark-text-main flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-blue-500" />
-                Карточка {currentReviewIndex + 1} из {reviews.length}
+                {t('progress.review_card_title', { current: currentReviewIndex + 1, total: reviews.length })}
               </h3>
               <button onClick={() => setIsReviewing(false)} className="text-slate-400 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text-main p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-bg transition-colors">
                 <X className="w-6 h-6" />
@@ -248,7 +250,7 @@ export default function Progress() {
             
             <div className="flex-1 flex flex-col bg-slate-50 dark:bg-dark-bg rounded-2xl border border-slate-100 dark:border-dark-border p-6 mb-8">
               <p className="text-lg font-medium text-slate-800 dark:text-dark-text-main text-center mb-6">
-                {reviews[currentReviewIndex].question_text || "Вопрос карточки"}
+                {reviews[currentReviewIndex].question_text || t('progress.review_question_fallback')}
               </p>
 
               {reviews[currentReviewIndex].options && (
