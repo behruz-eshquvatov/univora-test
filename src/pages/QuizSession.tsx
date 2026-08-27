@@ -589,8 +589,8 @@ export default function QuizSession() {
               <h3 className="text-2xl font-bold text-slate-800 mb-2">{t('quiz.finish_confirm_title')}</h3>
               <p className="text-slate-500 mb-2">
                 <Trans i18nKey="quiz.answered_count" values={{ answered: answeredCount, total: totalQuestions }}>
-                  Отвечено: <span className="font-bold text-slate-700">{{answered: answeredCount}}</span> из{' '}
-                  <span className="font-bold text-slate-700">{{total: totalQuestions}}</span>
+                  Отвечено: <span className="font-bold text-slate-700">{answeredCount}</span> из{' '}
+                  <span className="font-bold text-slate-700">{totalQuestions}</span>
                 </Trans>
               </p>
               {answeredCount < totalQuestions && (

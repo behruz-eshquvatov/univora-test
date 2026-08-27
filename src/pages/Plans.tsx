@@ -99,7 +99,7 @@ export default function Plans() {
               <h4 className="font-bold text-amber-800 dark:text-amber-500 mb-1">{t('plans.pending_title')}</h4>
               <p className="text-sm text-amber-700/80 dark:text-amber-400/80 mb-2">
                 <Trans i18nKey="plans.pending_desc" values={{ name: currentSubData.pending_request.plan.name }}>
-                  Вы запросили тариф <strong>{{name: currentSubData.pending_request.plan.name}}</strong>. Администратор рассмотрит заявку в ближайшее время.
+                  Вы запросили тариф <strong>{currentSubData.pending_request.plan.name}</strong>. Администратор рассмотрит заявку в ближайшее время.
                 </Trans>
               </p>
               {currentSubData.pending_request.rejection_reason && (
@@ -268,7 +268,7 @@ export default function Plans() {
                 <h3 className="text-2xl font-extrabold text-slate-800 dark:text-dark-text-main mb-2">{t('plans.change_plan_title')}</h3>
                 <p className="text-slate-600 dark:text-dark-text-muted mb-6 leading-relaxed">
                   <Trans i18nKey="plans.change_plan_desc" values={{ name: showPlanModal.name, price: showPlanModal.price, days: showPlanModal.duration_days }}>
-                    Вы выбрали тариф <strong>{{name: showPlanModal.name}}</strong> ({{price: showPlanModal.price}} UZS / {{days: showPlanModal.duration_days}} дней). Отправить заявку администратору для выставления счета и активации?
+                    Вы выбрали тариф <strong>{showPlanModal.name}</strong> ({showPlanModal.price} UZS / {showPlanModal.duration_days} дней). Отправить заявку администратору для выставления счета и активации?
                   </Trans>
                 </p>
                 <div className="flex gap-3">

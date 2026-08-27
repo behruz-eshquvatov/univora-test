@@ -17,7 +17,7 @@
   "sidebar": {
     "profile": "Profile",
     "my_profile": "My Profile",
-    "plans_and_subscription": "Plans and Subscription",
+    "plans_and_subscription": "Subscription",
     "payment_history": "Payment History",
     "system": "System",
     "logout_title": "Log out",
@@ -195,5 +195,108 @@
     "subtitle": "All important updates and announcements are stored here.",
     "empty_title": "No new notifications",
     "empty_desc": "You have no notification history yet."
+  },
+  "leaderboard": {
+    "title": "Weekly Leaderboard",
+    "anonymous": "Anonymous",
+    "you": "(You)",
+    "no_data": "No data to display yet"
+  },
+  "mentor": {
+    "title": "AI Mentor",
+    "subtitle": "Ask questions and get help 24/7",
+    "placeholder": "Ask your question...",
+    "warning": "AI can make mistakes. Verify important information.",
+    "prompts_title": "Quick Prompts",
+    "prompt_1": "Create a weekly study plan",
+    "prompt_2": "Generate a test on weak topics",
+    "prompt_3": "Explain a complex topic in simple words",
+    "insights_title": "AI Insights",
+    "insights_desc": "Your average score in <1>Math</1> dropped by 12% last week. I recommend focusing on \"Trigonometry\".",
+    "insights_btn": "Review Trigonometry",
+    "mock_msg_1": "Hi! I am your personal AI Mentor. How can I help you today?",
+    "mock_msg_2": "I have trouble solving dynamics problems in physics. Can you explain Newton's second law?",
+    "mock_msg_3": "Of course! Newton's second law states that the acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. Formula: **F = m * a**. Let's break down the pulley example from your last test..."
+  },
+  "thematic_tests": {
+    "title": "Available Subjects",
+    "subtitle": "All subjects for thematic tests",
+    "check_knowledge": "Check knowledge",
+    "math": "Mathematics",
+    "physics": "Physics",
+    "informatics": "Informatics",
+    "english": "English"
+  },
+  "onboarding": {
+    "step1_title": "Which direction have you chosen?",
+    "btn_continue": "Continue",
+    "step2_title": "Which subjects will you take?",
+    "step2_subtitle": "Select up to 5 subjects",
+    "btn_finish": "Finish",
+    "modal_title": "Are you ready?",
+    "modal_desc": "We will now launch an introductory test on the subjects you selected:",
+    "modal_no_reg_title": "No registration required",
+    "modal_no_reg_desc": "You can take the test for free and without logging in.",
+    "modal_time_title": "Time limit",
+    "modal_time_desc": "You have 30 minutes to complete the test.",
+    "modal_real_title": "Real questions",
+    "modal_real_desc": "DTM format materials are used.",
+    "btn_cancel": "Cancel",
+    "btn_ready": "I'm ready!"
+  },
+  "onboarding_quiz": {
+    "title": "Introductory test",
+    "finish_early": "Finish early",
+    "btn_forward": "Forward",
+    "btn_finish": "Finish",
+    "auth_title": "Test completed!",
+    "auth_desc": "To see your results and start preparing for {{type}}, please log in.",
+    "auth_type_subjects": "selected subjects",
+    "auth_type_direction": "your direction",
+    "auth_loading": "Authenticating...",
+    "auth_apple": "Apple sign-in is under development",
+    "auth_footer": "We use Google and Apple for secure registration.",
+    "results_title": "Awesome!",
+    "results_desc": "You have successfully passed the introductory test.",
+    "results_correct": "correct answers",
+    "btn_dashboard": "Go to Dashboard",
+    "confirm_title": "Finish test?",
+    "confirm_desc": "Are you sure you want to finish the test? Authorization will be required to view the results.",
+    "btn_cancel": "Cancel"
+  },
+  "landing": {
+    "loading": "loading...",
+    "btn_start": "Start test",
+    "math": "Mathematics",
+    "informatics": "Informatics",
+    "history": "History",
+    "biology": "Biology"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "Platform and content management",
+    "tab_users": "Users",
+    "tab_catalog": "Catalog",
+    "tab_billing": "Plans",
+    "tab_payments": "Payments",
+    "tab_announcements": "Announcements"
+  },
+  "login": {
+    "title": "Welcome",
+    "subtitle": "Log in to continue",
+    "apple_auth": "Apple sign-in is under development",
+    "apple_btn": "Sign in with Apple"
+  },
+  "register": {
+    "title": "Create an Account",
+    "subtitle": "Join Univora and start preparing.",
+    "name_placeholder": "Full Name",
+    "email_placeholder": "Email address",
+    "password_placeholder": "Password",
+    "btn_submit": "Register",
+    "or": "Or",
+    "btn_google": "Sign up with Google",
+    "login_prompt": "Already have an account?",
+    "login_link": "Log in"
   }
 }

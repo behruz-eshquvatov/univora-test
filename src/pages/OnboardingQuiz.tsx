@@ -6,6 +6,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useQuizStore } from '../store/useQuizStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Brain, Loader2, X, ChevronRight, Apple } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const STATIC_QUESTIONS = [
   {
@@ -35,6 +36,7 @@ const STATIC_QUESTIONS = [
 ];
 
 export default function OnboardingQuiz() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { login } = useAuthStore();
   const { selectedSubjects } = useQuizStore();
@@ -91,7 +93,7 @@ export default function OnboardingQuiz() {
               <div className="flex items-center justify-end gap-4 text-slate-500 font-bold">
                 <div className="flex items-center gap-2">
                   <Brain className="w-5 h-5" />
-                  <span className="text-sm">Вводный тест</span>
+                  <span className="text-sm">{t('onboarding_quiz.title')}</span>
                 </div>
               </div>
             </header>
@@ -169,7 +171,7 @@ export default function OnboardingQuiz() {
                 onClick={() => setShowConfirmModal(true)}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-slate-500 hover:text-rose-500 hover:bg-rose-50 transition-colors"
               >
-                Завершить досрочно
+                {t('onboarding_quiz.finish_early')}
               </button>
               
               <button
@@ -181,7 +183,7 @@ export default function OnboardingQuiz() {
                     : 'bg-primary shadow-primary/20'
                 }`}
               >
-                {currentIdx === STATIC_QUESTIONS.length - 1 ? 'Завершить' : 'Вперед'}
+                {currentIdx === STATIC_QUESTIONS.length - 1 ? t('onboarding_quiz.btn_finish') : t('onboarding_quiz.btn_forward')}
                 {currentIdx !== STATIC_QUESTIONS.length - 1 && <ChevronRight className="w-5 h-5" />}
               </button>
             </footer>
@@ -197,16 +199,16 @@ export default function OnboardingQuiz() {
             className="w-full max-w-md bg-surface rounded-[2rem] shadow-xl border border-slate-100 p-8 text-center"
           >
             <h2 className="text-3xl font-extrabold text-slate-800 mb-3">
-              Тест завершен!
+              {t('onboarding_quiz.auth_title')}
             </h2>
             <p className="text-slate-500 mb-8 leading-relaxed">
-              Чтобы увидеть свои результаты и начать подготовку по {selectedSubjects.length > 0 ? 'выбранным предметам' : 'вашему направлению'}, пожалуйста, войдите в систему.
+              {t('onboarding_quiz.auth_desc', { type: selectedSubjects.length > 0 ? t('onboarding_quiz.auth_type_subjects') : t('onboarding_quiz.auth_type_direction') })}
             </p>
 
             {isAuthenticating ? (
               <div className="flex flex-col items-center py-6">
                 <Loader2 className="w-8 h-8 text-violet-600 animate-spin mb-4" />
-                <p className="text-slate-500 font-medium">Авторизация...</p>
+                <p className="text-slate-500 font-medium">{t('onboarding_quiz.auth_loading')}</p>
               </div>
             ) : (
               <div className="flex flex-col gap-3 items-center w-full px-4 mb-4">
@@ -236,7 +238,7 @@ export default function OnboardingQuiz() {
                 </div>
                 
                 <button
-                  onClick={() => alert('Вход через Apple в разработке')}
+                  onClick={() => alert(t('onboarding_quiz.auth_apple'))}
                   className="flex items-center justify-center gap-2 bg-black text-white shadow-sm hover:bg-gray-900 transition-colors"
                   style={{ width: '280px', height: '40px', borderRadius: '4px' }}
                 >
@@ -246,7 +248,7 @@ export default function OnboardingQuiz() {
               </div>
             )}
             <p className="text-xs text-slate-400 mt-6">
-              Мы используем Google и Apple для безопасной регистрации.
+              {t('onboarding_quiz.auth_footer')}
             </p>
           </motion.div>
         )}
@@ -263,10 +265,10 @@ export default function OnboardingQuiz() {
             </div>
             
             <h2 className="text-3xl font-extrabold text-slate-800 mb-2">
-              Потрясающе!
+              {t('onboarding_quiz.results_title')}
             </h2>
             <p className="text-slate-500 mb-8">
-              Вы успешно прошли вводный тест.
+              {t('onboarding_quiz.results_desc')}
             </p>
 
             <div className="bg-slate-50 rounded-2xl p-6 mb-8">
@@ -274,7 +276,7 @@ export default function OnboardingQuiz() {
                 {calculateScore()} / {STATIC_QUESTIONS.length}
               </div>
               <p className="font-medium text-slate-600">
-                правильных ответов
+                {t('onboarding_quiz.results_correct')}
               </p>
             </div>
 
@@ -282,7 +284,7 @@ export default function OnboardingQuiz() {
               onClick={() => navigate('/dashboard')}
               className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition-colors shadow-lg shadow-violet-500/30"
             >
-              Перейти в Дашборд
+              {t('onboarding_quiz.btn_dashboard')}
             </button>
           </motion.div>
         )}
@@ -295,9 +297,9 @@ export default function OnboardingQuiz() {
           <div className="bg-surface w-full max-w-md p-8 rounded-3xl shadow-2xl relative text-slate-800 animate-in zoom-in-95 duration-300 text-center">
 
             
-            <h3 className="text-2xl font-bold mb-4 text-slate-900">Завершить тест?</h3>
+            <h3 className="text-2xl font-bold mb-4 text-slate-900">{t('onboarding_quiz.confirm_title')}</h3>
             <p className="text-slate-500 mb-8 leading-relaxed">
-              Вы уверены, что хотите завершить тест? Для просмотра результатов потребуется авторизация.
+              {t('onboarding_quiz.confirm_desc')}
             </p>
 
             <div className="flex gap-3">
@@ -305,7 +307,7 @@ export default function OnboardingQuiz() {
                 onClick={() => setShowConfirmModal(false)}
                 className="flex-1 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
               >
-                Отмена
+                {t('onboarding_quiz.btn_cancel')}
               </button>
               <button 
                 onClick={() => {
@@ -314,7 +316,7 @@ export default function OnboardingQuiz() {
                 }}
                 className="flex-1 py-4 rounded-xl font-bold text-white bg-primary hover:bg-violet-600 transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)]"
               >
-                Завершить
+                {t('onboarding_quiz.btn_finish')}
               </button>
             </div>
           </div>

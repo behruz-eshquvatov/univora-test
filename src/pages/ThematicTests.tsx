@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { catalogApi, type Subject } from '../lib/api/catalog';
 import { Link } from 'react-router-dom';
 import { Calculator, Atom, Terminal, Globe, BookOpen, Play, ArrowUpRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-const MOCK_SUBJECTS = [
-  { id: 1, name: 'Математика', icon: <Calculator className="w-7 h-7 text-white" />, color: 'from-blue-500 to-cyan-400' },
-  { id: 2, name: 'Физика', icon: <Atom className="w-7 h-7 text-white" />, color: 'from-purple-500 to-indigo-500' },
-  { id: 3, name: 'Информатика', icon: <Terminal className="w-7 h-7 text-white" />, color: 'from-emerald-500 to-teal-400' },
-  { id: 4, name: 'Английский', icon: <Globe className="w-7 h-7 text-white" />, color: 'from-rose-500 to-pink-500' },
+const MOCK_SUBJECTS_FN = (t: any) => [
+  { id: 1, name: t('thematic_tests.math'), icon: <Calculator className="w-7 h-7 text-white" />, color: 'from-blue-500 to-cyan-400' },
+  { id: 2, name: t('thematic_tests.physics'), icon: <Atom className="w-7 h-7 text-white" />, color: 'from-purple-500 to-indigo-500' },
+  { id: 3, name: t('thematic_tests.informatics'), icon: <Terminal className="w-7 h-7 text-white" />, color: 'from-emerald-500 to-teal-400' },
+  { id: 4, name: t('thematic_tests.english'), icon: <Globe className="w-7 h-7 text-white" />, color: 'from-rose-500 to-pink-500' },
 ];
 
 export default function ThematicTests() {
+  const { t } = useTranslation();
   const [apiSubjects, setApiSubjects] = useState<Subject[]>([]);
 
   useEffect(() => {
@@ -41,15 +43,15 @@ export default function ThematicTests() {
         const { icon, color } = getSubjectIconAndColor(s.name, i);
         return { id: s.id, name: s.name, icon, color };
       })
-    : MOCK_SUBJECTS;
+    : MOCK_SUBJECTS_FN(t);
 
   return (
     <div className="md:bg-slate-50/95 dark:bg-dark-surface/90 md:backdrop-blur-xl md:rounded-2xl md:shadow-2xl md:border md:border-white/60 dark:md:border-dark-border/60 min-h-[calc(100vh-2rem)] md:p-8 flex flex-col gap-6 md:gap-8 relative overflow-hidden">
       
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2 mb-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">Доступные предметы</h1>
-          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">Все предметы для тематических тестов</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">{t('thematic_tests.title')}</h1>
+          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">{t('thematic_tests.subtitle')}</p>
         </div>
       </div>
 
@@ -65,7 +67,7 @@ export default function ThematicTests() {
                   <div>
                     <h4 className="font-extrabold text-slate-800 dark:text-dark-text-main text-lg sm:text-xl leading-tight">{subject.name}</h4>
                     <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mt-1">
-                      Проверить знания
+                      {t('thematic_tests.check_knowledge')}
                     </p>
                   </div>
                 </div>

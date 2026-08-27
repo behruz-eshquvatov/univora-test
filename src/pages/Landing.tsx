@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import SplitType from 'split-type';
+import { useTranslation } from 'react-i18next';
 
 export default function Landing() {
+  const { t } = useTranslation();
   const preloaderEl = useRef<HTMLDivElement>(null);
   const preloaderBottomWrapper = useRef<HTMLDivElement>(null);
   const preloaderLineEl = useRef<HTMLDivElement>(null);
@@ -237,7 +239,7 @@ export default function Landing() {
             <div ref={preloaderLineEl} className="h-full bg-white w-0"></div>
           </div>
           <div className="flex items-center justify-center gap-2 w-full text-white/80 text-sm md:text-base uppercase tracking-[0.1em] font-medium select-none">
-            <span>загружаем...</span>
+            <span>{t('landing.loading')}</span>
             <span className="w-10 text-right">{counterText}</span>
           </div>
         </div>
@@ -272,20 +274,20 @@ export default function Landing() {
               to="/onboarding"
               className="bg-primary hover:bg-violet-600 text-white font-bold py-4 px-12 rounded-full text-lg shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all transform hover:scale-105 mb-16"
             >
-              Начать тест
+              {t('landing.btn_start')}
             </Link>
           </div>
         </div>
 
         {/* Minimalist Bottom Metadata Row */}
         <div className="absolute bottom-16 md:bottom-20 left-0 w-full z-20 flex justify-between items-center px-8 md:px-16 text-white text-xs md:text-sm font-medium tracking-widest uppercase">
-          <span>Математика</span>
+          <span>{t('landing.math')}</span>
           <div className="w-8 h-[2px] bg-white/50 rounded-full hidden md:block"></div>
-          <span>Информатика</span>
+          <span>{t('landing.informatics')}</span>
           <div className="w-2 h-2 bg-white/50 rounded-full hidden md:block"></div>
-          <span>История</span>
+          <span>{t('landing.history')}</span>
           <div className="w-8 h-[2px] bg-white/50 rounded-full hidden md:block"></div>
-          <span>Биология</span>
+          <span>{t('landing.biology')}</span>
         </div>
       </section>
     </div>

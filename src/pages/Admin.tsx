@@ -6,19 +6,21 @@ import BillingTab from './admin/BillingTab';
 import PaymentsTab from './admin/PaymentsTab';
 import AnnouncementsTab from './admin/AnnouncementsTab';
 import { BellRing } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 type Tab = 'users' | 'catalog' | 'billing' | 'payments' | 'announcements';
 
-const TABS: { key: Tab; label: string; icon: React.ElementType }[] = [
-  { key: 'users', label: 'Пользователи', icon: Users },
-  { key: 'catalog', label: 'Каталог', icon: Layers },
-  { key: 'billing', label: 'Тарифы', icon: BookOpen },
-  { key: 'payments', label: 'Платежи', icon: CreditCard },
-  { key: 'announcements', label: 'Анонсы', icon: BellRing },
-];
-
 export default function Admin() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<Tab>('users');
+  
+  const TABS: { key: Tab; label: string; icon: React.ElementType }[] = [
+    { key: 'users', label: t('admin.tab_users'), icon: Users },
+    { key: 'catalog', label: t('admin.tab_catalog'), icon: Layers },
+    { key: 'billing', label: t('admin.tab_billing'), icon: BookOpen },
+    { key: 'payments', label: t('admin.tab_payments'), icon: CreditCard },
+    { key: 'announcements', label: t('admin.tab_announcements'), icon: BellRing },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-4 sm:p-8 font-body relative overflow-hidden">
@@ -26,8 +28,8 @@ export default function Admin() {
 
       <div className="max-w-7xl mx-auto space-y-6">
         <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Панель Администратора</h1>
-          <p className="text-slate-500 mt-1 font-medium">Управление платформой и контентом</p>
+          <h1 className="text-3xl font-display font-bold text-slate-900 tracking-tight">{t('admin.title')}</h1>
+          <p className="text-slate-500 mt-1 font-medium">{t('admin.subtitle')}</p>
         </div>
 
         {/* Tab Nav */}

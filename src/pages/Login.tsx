@@ -4,8 +4,10 @@ import { useAuthStore } from '../store/useAuthStore';
 import { api } from '../lib/api';
 import { useState } from 'react';
 import { Apple } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function Login() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { login } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -15,8 +17,8 @@ export default function Login() {
       <div className="bg-surface p-10 rounded-3xl shadow-2xl border border-white/20 w-full max-w-sm text-center relative z-10">
         
         <div className="mb-8">
-          <h2 className="text-2xl font-display font-bold text-slate-800">Добро пожаловать</h2>
-          <p className="text-slate-500 mt-2 text-sm">Войдите в систему для продолжения</p>
+          <h2 className="text-2xl font-display font-bold text-slate-800">{t('login.title')}</h2>
+          <p className="text-slate-500 mt-2 text-sm">{t('login.subtitle')}</p>
         </div>
 
         {isLoading ? (
@@ -53,12 +55,12 @@ export default function Login() {
             </div>
             
             <button
-              onClick={() => alert('Вход через Apple в разработке')}
+              onClick={() => alert(t('login.apple_auth'))}
               className="flex items-center justify-center gap-2 bg-black text-white shadow-sm hover:bg-gray-900 transition-colors"
               style={{ width: '280px', height: '40px', borderRadius: '4px' }}
             >
               <Apple className="w-5 h-5 mb-0.5" />
-              <span className="text-sm font-medium font-roboto" style={{ fontFamily: 'Roboto, arial, sans-serif' }}>Sign in with Apple</span>
+              <span className="text-sm font-medium font-roboto" style={{ fontFamily: 'Roboto, arial, sans-serif' }}>{t('login.apple_btn')}</span>
             </button>
           </div>
         )}

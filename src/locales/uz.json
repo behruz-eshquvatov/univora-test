@@ -195,5 +195,108 @@
     "subtitle": "Barcha muhim yangilanishlar va e'lonlar shu yerda saqlanadi.",
     "empty_title": "Yangi bildirishnomalar yo'q",
     "empty_desc": "Sizda hozircha bildirishnomalar tarixi yo'q."
+  },
+  "leaderboard": {
+    "title": "Haftalik reyting",
+    "anonymous": "Anonim",
+    "you": "(Siz)",
+    "no_data": "Hozircha ko'rsatish uchun ma'lumot yo'q"
+  },
+  "mentor": {
+    "title": "AI Ustoz",
+    "subtitle": "Savollar bering va 24/7 yordam oling",
+    "placeholder": "Savolingizni bering...",
+    "warning": "AI xato qilishi mumkin. Muhim ma'lumotlarni tekshiring.",
+    "prompts_title": "Tezkor so'rovlar",
+    "prompt_1": "Haftalik o'quv rejasini tuzing",
+    "prompt_2": "Zaif mavzular bo'yicha test yarating",
+    "prompt_3": "Murakkab mavzuni oddiy so'zlar bilan tushuntiring",
+    "insights_title": "AIdan tahlillar",
+    "insights_desc": "<1>Matematika</1> bo'yicha o'rtacha ballingiz o'tgan haftada 12% ga tushdi. Men \"Trigonometriya\" bo'limiga e'tibor berishni maslahat beraman.",
+    "insights_btn": "Trigonometriyaning takrorlash",
+    "mock_msg_1": "Salom! Men sizning shaxsiy AI Ustozingizman. Bugun sizga qanday yordam bera olaman?",
+    "mock_msg_2": "Menda fizikadan dinamika bo'yicha masalalarni yechishda muammolar bor. Nyutonning ikkinchi qonunini tushuntirib bera olasizmi?",
+    "mock_msg_3": "Albatta! Nyutonning ikkinchi qonuni shunday o'qiydi: jismning tezlanishi unga ta'sir etuvchi barcha kuchlarning teng ta'sir etuvchisiga to'g'ri proportsional va uning massasiga teskari proportsional. Formula: **F = m * a**. Keling, oxirgi testingizdagi bloklar misolini ko'rib chiqaylik..."
+  },
+  "thematic_tests": {
+    "title": "Mavjud fanlar",
+    "subtitle": "Mavzulashtirilgan testlar uchun barcha fanlar",
+    "check_knowledge": "Bilimni tekshirish",
+    "math": "Matematika",
+    "physics": "Fizika",
+    "informatics": "Informatika",
+    "english": "Ingliz tili"
+  },
+  "onboarding": {
+    "step1_title": "Qaysi yo'nalishni tanladingiz?",
+    "btn_continue": "Davom etish",
+    "step2_title": "Qaysi fanlardan imtihon topshirasiz?",
+    "step2_subtitle": "5 tagacha fan tanlang",
+    "btn_finish": "Tugatish",
+    "modal_title": "Tayyormisiz?",
+    "modal_desc": "Endi biz siz tanlagan fanlar bo'yicha kirish testini boshlaymiz:",
+    "modal_no_reg_title": "Ro'yxatdan o'tmasdan",
+    "modal_no_reg_desc": "Testni bepul va tizimga kirmasdan topshirishingiz mumkin.",
+    "modal_time_title": "Vaqt chegarasi",
+    "modal_time_desc": "Testni yakunlash uchun sizga 30 daqiqa vaqt beriladi.",
+    "modal_real_title": "Haqiqiy savollar",
+    "modal_real_desc": "DTM formatidagi materiallardan foydalaniladi.",
+    "btn_cancel": "Bekor qilish",
+    "btn_ready": "Men tayyorman!"
+  },
+  "onboarding_quiz": {
+    "title": "Kirish testi",
+    "finish_early": "Muddatidan oldin tugatish",
+    "btn_forward": "Oldinga",
+    "btn_finish": "Tugatish",
+    "auth_title": "Test yakunlandi!",
+    "auth_desc": "Natijalarni ko'rish va {{type}} bo'yicha tayyorgarlikni boshlash uchun tizimga kiring.",
+    "auth_type_subjects": "tanlangan fanlar",
+    "auth_type_direction": "sizning yo'nalishingiz",
+    "auth_loading": "Avtorizatsiya...",
+    "auth_apple": "Apple orqali kirish ishlab chiqilmoqda",
+    "auth_footer": "Xavfsiz ro'yxatdan o'tish uchun Google va Apple'dan foydalanamiz.",
+    "results_title": "Ajoyib!",
+    "results_desc": "Siz kirish testidan muvaffaqiyatli o'tdingiz.",
+    "results_correct": "to'g'ri javoblar",
+    "btn_dashboard": "Boshqaruv paneliga o'tish",
+    "confirm_title": "Testni yakunlaysizmi?",
+    "confirm_desc": "Testni yakunlashga ishonchingiz komilmi? Natijalarni ko'rish uchun avtorizatsiya talab qilinadi.",
+    "btn_cancel": "Bekor qilish"
+  },
+  "landing": {
+    "loading": "yuklanmoqda...",
+    "btn_start": "Testni boshlash",
+    "math": "Matematika",
+    "informatics": "Informatika",
+    "history": "Tarix",
+    "biology": "Biologiya"
+  },
+  "admin": {
+    "title": "Administrator Paneli",
+    "subtitle": "Platforma va kontentni boshqarish",
+    "tab_users": "Foydalanuvchilar",
+    "tab_catalog": "Katalog",
+    "tab_billing": "Tariflar",
+    "tab_payments": "To'lovlar",
+    "tab_announcements": "E'lonlar"
+  },
+  "login": {
+    "title": "Xush kelibsiz",
+    "subtitle": "Davom etish uchun tizimga kiring",
+    "apple_auth": "Apple orqali kirish ishlab chiqilmoqda",
+    "apple_btn": "Apple orqali kirish"
+  },
+  "register": {
+    "title": "Hisob yaratish",
+    "subtitle": "Univoraga qo'shiling va tayyorgarlikni boshlang.",
+    "name_placeholder": "To'liq ism",
+    "email_placeholder": "Elektron pochta",
+    "password_placeholder": "Parol",
+    "btn_submit": "Ro'yxatdan o'tish",
+    "or": "Yoki",
+    "btn_google": "Google orqali ro'yxatdan o'tish",
+    "login_prompt": "Hisobingiz bormi?",
+    "login_link": "Kirish"
   }
 }

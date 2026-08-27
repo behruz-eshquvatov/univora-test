@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuizStore } from '../store/useQuizStore';
 import { ChevronLeft, Plus, Check, AlertCircle, Clock, X, BookOpen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const FACULTY_SUBJECTS: Record<string, string[]> = {
   'IT и Инженерия': ['Математика', 'Физика', 'Информатика', 'Английский', 'Логика'],
@@ -18,6 +19,7 @@ const FACULTY_SUBJECTS: Record<string, string[]> = {
 const DIRECTIONS = Object.keys(FACULTY_SUBJECTS);
 
 export default function Onboarding() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { direction, setDirection, selectedSubjects, toggleSubject } = useQuizStore();
   const [step, setStep] = useState(1);
@@ -69,7 +71,7 @@ export default function Onboarding() {
         {/* Step 1: Faculty */}
         {step === 1 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-slate-800">Какое направление вы выбрали?</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-slate-800">{t('onboarding.step1_title')}</h2>
             
             <div className="flex flex-wrap gap-3 mb-12">
               {DIRECTIONS.map(dir => {
@@ -99,7 +101,7 @@ export default function Onboarding() {
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               }`}
             >
-              Продолжить
+              {t('onboarding.btn_continue')}
             </button>
           </div>
         )}
@@ -107,8 +109,8 @@ export default function Onboarding() {
         {/* Step 2: Subjects */}
         {step === 2 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-2 text-slate-800">Какие предметы вы будете сдавать?</h2>
-            <p className="text-slate-500 mb-8">Выберите до 5 предметов</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-2 text-slate-800">{t('onboarding.step2_title')}</h2>
+            <p className="text-slate-500 mb-8">{t('onboarding.step2_subtitle')}</p>
 
             <div className="flex flex-wrap gap-3 mb-12">
               {availableSubjects.map(sub => {
@@ -144,7 +146,7 @@ export default function Onboarding() {
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               }`}
             >
-              Завершить
+              {t('onboarding.btn_finish')}
             </button>
           </div>
         )}
@@ -161,9 +163,9 @@ export default function Onboarding() {
               <X className="w-5 h-5" />
             </button>
 
-            <h3 className="text-2xl font-bold mb-4 text-slate-800">Вы готовы?</h3>
+            <h3 className="text-2xl font-bold mb-4 text-slate-800">{t('onboarding.modal_title')}</h3>
             <p className="text-slate-500 mb-6 leading-relaxed">
-              Сейчас мы запустим вводный тест по выбранным вами предметам: 
+              {t('onboarding.modal_desc')}
               <span className="font-bold text-slate-700 block mt-2">
                 {selectedSubjects.join(', ')}
               </span>
@@ -173,22 +175,22 @@ export default function Onboarding() {
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                 <p className="text-slate-600 text-sm">
-                  <strong className="text-slate-800 font-medium block mb-1">Без регистрации</strong>
-                  Тест можно пройти бесплатно и без входа в систему.
+                  <strong className="text-slate-800 font-medium block mb-1">{t('onboarding.modal_no_reg_title')}</strong>
+                  {t('onboarding.modal_no_reg_desc')}
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                 <p className="text-slate-600 text-sm">
-                  <strong className="text-slate-800 font-medium block mb-1">Ограничение времени</strong>
-                  На прохождение теста дается 30 минут.
+                  <strong className="text-slate-800 font-medium block mb-1">{t('onboarding.modal_time_title')}</strong>
+                  {t('onboarding.modal_time_desc')}
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <BookOpen className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                 <p className="text-slate-600 text-sm">
-                  <strong className="text-slate-800 font-medium block mb-1">Реальные вопросы</strong>
-                  Используются материалы формата ДТМ.
+                  <strong className="text-slate-800 font-medium block mb-1">{t('onboarding.modal_real_title')}</strong>
+                  {t('onboarding.modal_real_desc')}
                 </p>
               </div>
             </div>
@@ -198,13 +200,13 @@ export default function Onboarding() {
                 onClick={() => setShowReadyModal(false)}
                 className="flex-1 py-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
               >
-                Отмена
+                {t('onboarding.btn_cancel')}
               </button>
               <button 
                 onClick={handleStartTest}
                 className="flex-1 py-4 rounded-xl font-bold text-white bg-primary hover:bg-violet-600 transition-colors shadow-[0_0_20px_rgba(139,92,246,0.3)] flex items-center justify-center gap-2"
               >
-                Я готов!
+                {t('onboarding.btn_ready')}
               </button>
             </div>
           </div>

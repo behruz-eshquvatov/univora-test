@@ -124,8 +124,8 @@ const Dashboard = () => {
                 <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl mb-1">{t('dashboard.daily_tasks')}</h3>
                 <p className="text-slate-500 dark:text-dark-text-muted font-medium">
                   {reviewsCount > 0 ? (
-                    <Trans i18nKey="dashboard.reviews_waiting" count={reviewsCount}>
-                      Вас ждут <strong className="text-rose-500">{{count: reviewsCount}} карточек</strong> для интервального повторения.
+                    <Trans i18nKey="dashboard.reviews_waiting" values={{ count: reviewsCount }}>
+                      Вас ждут <strong className="text-rose-500">{reviewsCount} карточек</strong> для интервального повторения.
                     </Trans>
                   ) : (
                     <>{t('dashboard.reviews_done')}</>

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Trophy } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { progressApi, type LeaderboardEntry } from '../lib/api/progress';
 
 export default function Leaderboard() {
+  const { t } = useTranslation();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export default function Leaderboard() {
             <div className="w-10 h-10 rounded-full bg-yellow-50 dark:bg-yellow-950/20 flex items-center justify-center">
               <Trophy className="w-5 h-5 text-yellow-500" />
             </div>
-            Weekly Leaderboard
+            {t('leaderboard.title')}
           </h1>
         </header>
 
@@ -31,7 +33,7 @@ export default function Leaderboard() {
           {leaderboard.map((usr) => {
             const isCurrentUser = usr.is_current_user;
             const isFirst = usr.rank === 1;
-            const name = usr.nickname || 'Аноним';
+            const name = usr.nickname || t('leaderboard.anonymous');
             const xp = usr.xp_this_week;
             const avatar = name?.charAt(0).toUpperCase() || '?';
 
@@ -64,7 +66,7 @@ export default function Leaderboard() {
 
                 <div className="flex-1 min-w-0">
                   <h4 className={`font-bold text-base truncate ${isFirst ? 'text-yellow-900 dark:text-yellow-200' : isCurrentUser ? 'text-violet-700 dark:text-violet-400' : 'text-slate-800 dark:text-dark-text-main'}`}>
-                    {name} {isCurrentUser && '(Вы)'}
+                    {name} {isCurrentUser && t('leaderboard.you')}
                   </h4>
                 </div>
 
@@ -77,7 +79,7 @@ export default function Leaderboard() {
           
           {leaderboard.length === 0 && (
             <div className="p-8 text-center text-slate-500 dark:text-dark-text-muted font-medium">
-              Пока нет данных для отображения
+              {t('leaderboard.no_data')}
             </div>
           )}
         </div>
