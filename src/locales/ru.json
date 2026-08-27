@@ -138,5 +138,30 @@
     "finish_confirm_title": "Завершить тест?",
     "answered_count": "Отвечено: <1>{{answered}}</1> из <3>{{total}}</3>",
     "unanswered_count": "Есть {{count}} неотвеченных вопросов."
+  },
+  "history": {
+    "title": "История активности",
+    "subtitle": "Ваши завершенные тесты и карточки повторения",
+    "tab_tests": "Тесты",
+    "tab_reviews": "Карточки",
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "overdue": "Просрочено (Нужно повторить)",
+    "tomorrow": "Завтра",
+    "correct_answers": "{{correct}} / {{total}} верно",
+    "no_tests": "Вы еще не завершили ни одного теста.",
+    "review_today": "Повторить сегодня",
+    "review_date": "Повтор: {{date}}",
+    "interval_days": "Интервал: {{days}} дн.",
+    "no_reviews": "У вас пока нет карточек для повторения.",
+    "default_subject": "Предмет",
+    "failed_to_load": "Не удалось загрузить результаты теста",
+    "result_not_found": "Результат не найден",
+    "back_to_history": "Вернуться в историю",
+    "back_to_history_short": "Назад в историю",
+    "duration": "{{min}} мин {{sec}} сек",
+    "correct_of": "{{correct}} из {{total}} верно",
+    "questions_review": "Разбор вопросов",
+    "question_image": "Изображение вопроса"
   }
 }

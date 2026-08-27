@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
 import { Clock, BookOpen, Calculator, Atom, Terminal, Globe, ChevronLeft, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { testengineApi, type TestResult, type SessionQuestionReview } from '../lib/api/testengine';
+import { useParams, Link } from 'react-router-dom';
 
 export default function ResultDetail() {
+  const { t, i18n } = useTranslation();
   const { resultId } = useParams();
   const [result, setResult] = useState<TestResult | null>(null);
   const [review, setReview] = useState<SessionQuestionReview[]>([]);
@@ -29,7 +31,7 @@ export default function ResultDetail() {
         }
       } catch (err: any) {
         console.error(err);
-        setError('Не удалось загрузить результаты теста');
+        setError(t('history.failed_to_load'));
       } finally {
         setLoading(false);
       }
@@ -64,9 +66,9 @@ export default function ResultDetail() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-2rem)]">
         <AlertCircle className="w-12 h-12 text-rose-500 mb-4" />
-        <h2 className="text-xl font-bold text-slate-800 dark:text-dark-text-main mb-4">{error || 'Результат не найден'}</h2>
+        <h2 className="text-xl font-bold text-slate-800 dark:text-dark-text-main mb-4">{error || t('history.result_not_found')}</h2>
         <Link to="/history" className="px-6 py-2.5 bg-violet-600 text-white font-bold rounded-xl hover:bg-violet-700 transition-colors">
-          Вернуться в историю
+          {t('history.back_to_history')}
         </Link>
       </div>
     );
@@ -78,7 +80,7 @@ export default function ResultDetail() {
     <div className="bg-white dark:bg-dark-surface min-h-[calc(100vh-2rem)] rounded-[2rem] p-6 sm:p-10 border border-slate-100 dark:border-dark-border overflow-y-auto">
       <div className="max-w-4xl mx-auto">
         <Link to="/history" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-dark-text-muted dark:hover:text-dark-text-main mb-8 transition-colors">
-          <ChevronLeft className="w-4 h-4" /> Назад в историю
+          <ChevronLeft className="w-4 h-4" /> {t('history.back_to_history_short')}
         </Link>
 
         {/* Summary Card */}
@@ -91,12 +93,12 @@ export default function ResultDetail() {
           
           <div className="flex-1 text-center md:text-left z-10">
             <h1 className="text-3xl font-extrabold text-slate-900 dark:text-dark-text-main mb-2">
-              {result.subject?.name || 'Предмет'}
+              {result.subject?.name || t('history.default_subject')}
             </h1>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm font-bold text-slate-500 dark:text-dark-text-muted">
               <span className="px-3 py-1 rounded-lg bg-white dark:bg-dark-surface shadow-sm">{result.mode_display}</span>
-              <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {Math.floor(result.duration_seconds / 60)} мин {result.duration_seconds % 60} сек</span>
-              <span>{new Date(result.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+              <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {t('history.duration', { min: Math.floor(result.duration_seconds / 60), sec: result.duration_seconds % 60 })}</span>
+              <span>{new Date(result.created_at).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : i18n.language === 'uz' ? 'uz-UZ' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           </div>
           
@@ -105,14 +107,14 @@ export default function ResultDetail() {
               {result.accuracy_percent}%
             </div>
             <div className="text-sm font-bold text-slate-400">
-              {result.correct_count} из {result.total_questions} верно
+              {t('history.correct_of', { correct: result.correct_count, total: result.total_questions })}
             </div>
           </div>
         </div>
 
         {/* Detailed Review */}
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 dark:text-dark-text-main mb-6">Разбор вопросов</h2>
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-dark-text-main mb-6">{t('history.questions_review')}</h2>
           <div className="space-y-6">
             {review.map((q, idx) => (
               <div key={q.order} className="bg-white dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-2xl p-6 shadow-sm overflow-hidden">
@@ -124,7 +126,7 @@ export default function ResultDetail() {
                     <div className="whitespace-pre-wrap text-base">{q.question.text}</div>
                     {q.question.image && (
                       <div className="mt-4 rounded-xl overflow-hidden max-w-lg border border-slate-200 dark:border-dark-border">
-                        <img src={q.question.image} alt={q.question.image_caption || 'Question image'} className="w-full h-auto object-cover" />
+                        <img src={q.question.image} alt={q.question.image_caption || t('history.question_image')} className="w-full h-auto object-cover" />
                         {q.question.image_caption && (
                           <div className="bg-slate-50 dark:bg-dark-surface p-2 text-xs text-center text-slate-500 dark:text-dark-text-muted">
                             {q.question.image_caption}

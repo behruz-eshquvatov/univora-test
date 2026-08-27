@@ -138,5 +138,30 @@
     "finish_confirm_title": "Testni yakunlashmi?",
     "answered_count": "Javob berilgan: <3>{{total}}</3> tadan <1>{{answered}}</1> ta",
     "unanswered_count": "{{count}} ta javobsiz savol qoldi."
+  },
+  "history": {
+    "title": "Faollik tarixi",
+    "subtitle": "Sizning yakunlangan testlaringiz va takrorlash kartochkalaringiz",
+    "tab_tests": "Testlar",
+    "tab_reviews": "Kartochkalar",
+    "today": "Bugun",
+    "yesterday": "Kecha",
+    "overdue": "Muddati o'tgan (Takrorlash kerak)",
+    "tomorrow": "Ertaga",
+    "correct_answers": "{{correct}} / {{total}} to'g'ri",
+    "no_tests": "Siz hali birorta ham testni yakunlamadingiz.",
+    "review_today": "Bugun takrorlash",
+    "review_date": "Takrorlash: {{date}}",
+    "interval_days": "Interval: {{days}} kun",
+    "no_reviews": "Sizda hozircha takrorlash uchun kartochkalar yo'q.",
+    "default_subject": "Fan",
+    "failed_to_load": "Test natijalarini yuklashda xatolik yuz berdi",
+    "result_not_found": "Natija topilmadi",
+    "back_to_history": "Tarixga qaytish",
+    "back_to_history_short": "Tarixga qaytish",
+    "duration": "{{min}} daq {{sec}} son",
+    "correct_of": "{{total}} tadan {{correct}} tasi to'g'ri",
+    "questions_review": "Savollarni ko'rib chiqish",
+    "question_image": "Savol rasmi"
   }
 }

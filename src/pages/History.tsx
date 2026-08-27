@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, BookOpen, Calculator, Atom, Terminal, Globe, CalendarDays } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { testengineApi, type TestResult } from '../lib/api/testengine';
 import { progressApi, type ReviewCard } from '../lib/api/progress';
 
 export default function History() {
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState<'tests' | 'reviews'>('tests');
   const [results, setResults] = useState<TestResult[]>([]);
   const [reviews, setReviews] = useState<ReviewCard[]>([]);
@@ -57,9 +59,9 @@ export default function History() {
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
       
       let label = '';
-      if (diffDays === 0) label = 'Сегодня';
-      else if (diffDays === -1) label = 'Вчера';
-      else label = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+      if (diffDays === 0) label = t('history.today');
+      else if (diffDays === -1) label = t('history.yesterday');
+      else label = dateObj.toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : i18n.language === 'uz' ? 'uz-UZ' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
       
       if (!grouped[label]) grouped[label] = [];
       grouped[label].push(result);
@@ -83,10 +85,10 @@ export default function History() {
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
       
       let label = '';
-      if (diffDays < 0) label = 'Просрочено (Нужно повторить)';
-      else if (diffDays === 0) label = 'Сегодня';
-      else if (diffDays === 1) label = 'Завтра';
-      else label = dateObj.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+      if (diffDays < 0) label = t('history.overdue');
+      else if (diffDays === 0) label = t('history.today');
+      else if (diffDays === 1) label = t('history.tomorrow');
+      else label = dateObj.toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : i18n.language === 'uz' ? 'uz-UZ' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
       
       if (!grouped[label]) grouped[label] = [];
       grouped[label].push(card);
@@ -103,8 +105,8 @@ export default function History() {
       {/* Header */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2 mb-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">История активности</h1>
-          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">Ваши завершенные тесты и карточки повторения</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">{t('history.title')}</h1>
+          <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">{t('history.subtitle')}</p>
         </div>
       </div>
 
@@ -119,7 +121,7 @@ export default function History() {
                 : 'text-slate-500 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-slate-300'
             }`}
           >
-            Тесты
+            {t('history.tab_tests')}
           </button>
           <button 
             onClick={() => setActiveTab('reviews')}
@@ -129,7 +131,7 @@ export default function History() {
                 : 'text-slate-500 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-slate-300'
             }`}
           >
-            Карточки
+            {t('history.tab_reviews')}
           </button>
         </div>
 
@@ -157,7 +159,7 @@ export default function History() {
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start mb-1">
                               <h4 className="font-bold text-slate-800 dark:text-dark-text-main truncate">
-                                {result.subject?.name || 'Предмет'}
+                                {result.subject?.name || t('history.default_subject')}
                               </h4>
                               <div className="font-extrabold text-emerald-500 shrink-0">
                                 {result.accuracy_percent}%
@@ -165,7 +167,7 @@ export default function History() {
                             </div>
                             
                             <div className="flex items-center gap-4 text-xs font-bold text-slate-400 dark:text-dark-text-muted">
-                              <span>{result.correct_count} / {result.total_questions} верно</span>
+                              <span>{t('history.correct_answers', { correct: result.correct_count, total: result.total_questions })}</span>
                               <div className="flex items-center gap-1">
                                 <Clock className="w-3.5 h-3.5" />
                                 <span>{new Date(result.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -178,7 +180,7 @@ export default function History() {
                   </div>
                 )) : (
                   <div className="text-center py-16 text-slate-400 dark:text-dark-text-muted bg-white dark:bg-dark-bg rounded-3xl border border-slate-100 dark:border-dark-border shadow-sm">
-                    <p className="font-medium">Вы еще не завершили ни одного теста.</p>
+                    <p className="font-medium">{t('history.no_tests')}</p>
                   </div>
                 )}
               </>
@@ -188,7 +190,7 @@ export default function History() {
               <>
                 {Object.keys(groupedReviews).length > 0 ? Object.entries(groupedReviews).map(([dateLabel, dateReviews]) => (
                   <div key={dateLabel} className="space-y-4">
-                    <h3 className={`text-sm font-bold uppercase tracking-wider pl-1 ${dateLabel.includes('Просрочено') ? 'text-rose-500' : 'text-slate-400 dark:text-dark-text-muted'}`}>
+                    <h3 className={`text-sm font-bold uppercase tracking-wider pl-1 ${dateLabel.includes(t('history.overdue')) ? 'text-rose-500' : 'text-slate-400 dark:text-dark-text-muted'}`}>
                       {dateLabel}
                     </h3>
                     {dateReviews.map(card => {
@@ -204,10 +206,10 @@ export default function History() {
                           <div className="flex items-center gap-3">
                             <div className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 ${urgencyClass}`}>
                               <CalendarDays className="w-3.5 h-3.5" />
-                              {isPast || isToday ? 'Повторить сегодня' : `Повтор: ${new Date(card.next_review_date).toLocaleDateString()}`}
+                              {isPast || isToday ? t('history.review_today') : t('history.review_date', { date: new Date(card.next_review_date).toLocaleDateString() })}
                             </div>
                             <div className="text-xs font-bold text-slate-400">
-                              Интервал: {card.interval_days} дн.
+                              {t('history.interval_days', { days: card.interval_days })}
                             </div>
                           </div>
                         </div>
@@ -216,7 +218,7 @@ export default function History() {
                   </div>
                 )) : (
                   <div className="text-center py-16 text-slate-400 dark:text-dark-text-muted bg-white dark:bg-dark-bg rounded-3xl border border-slate-100 dark:border-dark-border shadow-sm">
-                    <p className="font-medium">У вас пока нет карточек для повторения.</p>
+                    <p className="font-medium">{t('history.no_reviews')}</p>
                   </div>
                 )}
               </>

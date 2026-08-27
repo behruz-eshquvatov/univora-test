@@ -138,5 +138,30 @@
     "finish_confirm_title": "Finish test?",
     "answered_count": "Answered: <1>{{answered}}</1> of <3>{{total}}</3>",
     "unanswered_count": "There are {{count}} unanswered questions."
+  },
+  "history": {
+    "title": "Activity History",
+    "subtitle": "Your completed tests and review cards",
+    "tab_tests": "Tests",
+    "tab_reviews": "Cards",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "overdue": "Overdue (Needs review)",
+    "tomorrow": "Tomorrow",
+    "correct_answers": "{{correct}} / {{total}} correct",
+    "no_tests": "You haven't completed any tests yet.",
+    "review_today": "Review today",
+    "review_date": "Review: {{date}}",
+    "interval_days": "Interval: {{days}} d.",
+    "no_reviews": "You don't have any review cards yet.",
+    "default_subject": "Subject",
+    "failed_to_load": "Failed to load test results",
+    "result_not_found": "Result not found",
+    "back_to_history": "Back to history",
+    "back_to_history_short": "Back to history",
+    "duration": "{{min}} min {{sec}} sec",
+    "correct_of": "{{correct}} of {{total}} correct",
+    "questions_review": "Questions review",
+    "question_image": "Question image"
   }
 }
