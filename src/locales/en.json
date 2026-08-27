@@ -1,0 +1,26 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "tests": "Tests",
+    "mentor": "AI Mentor",
+    "progress": "Progress",
+    "notifications": "Notifications",
+    "plans": "Plans"
+  },
+  "common": {
+    "language": "Language",
+    "dark_mode": "Dark mode",
+    "settings": "Settings",
+    "logout": "Log out",
+    "cancel": "Cancel"
+  },
+  "sidebar": {
+    "profile": "Profile",
+    "my_profile": "My Profile",
+    "plans_and_subscription": "Plans and Subscription",
+    "payment_history": "Payment History",
+    "system": "System",
+    "logout_title": "Log out",
+    "logout_confirm": "Are you sure you want to log out of your account?"
+  }
+}

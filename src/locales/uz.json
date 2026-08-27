@@ -4,9 +4,23 @@
     "tests": "Testlar",
     "mentor": "AI Ustoz",
     "progress": "Progress",
-    "notifications": "Bildirishnomalar"
+    "notifications": "Bildirishnomalar",
+    "plans": "Tariflar"
   },
   "common": {
-    "language": "Til"
+    "language": "Til",
+    "dark_mode": "Tungi rejim",
+    "settings": "Sozlamalar",
+    "logout": "Chiqish",
+    "cancel": "Bekor qilish"
+  },
+  "sidebar": {
+    "profile": "Profil",
+    "my_profile": "Mening profilim",
+    "plans_and_subscription": "Tariflar va obuna",
+    "payment_history": "To'lovlar tarixi",
+    "system": "Tizim",
+    "logout_title": "Hisobdan chiqish",
+    "logout_confirm": "Hisobingizdan chiqishni xohlaysizmi?"
   }
 }

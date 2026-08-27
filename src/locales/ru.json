@@ -4,9 +4,23 @@
     "tests": "Тесты",
     "mentor": "AI Наставник",
     "progress": "Прогресс",
-    "notifications": "Уведомления"
+    "notifications": "Уведомления",
+    "plans": "Тарифы"
   },
   "common": {
-    "language": "Язык"
+    "language": "Язык",
+    "dark_mode": "Темная тема",
+    "settings": "Настройки",
+    "logout": "Выйти",
+    "cancel": "Отмена"
+  },
+  "sidebar": {
+    "profile": "Профиль",
+    "my_profile": "Мой профиль",
+    "plans_and_subscription": "Тарифы и подписка",
+    "payment_history": "История платежей",
+    "system": "Система",
+    "logout_title": "Выход из аккаунта",
+    "logout_confirm": "Вы уверены, что хотите выйти из своего аккаунта?"
   }
 }

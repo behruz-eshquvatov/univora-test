@@ -18,7 +18,7 @@ export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { language, setLanguage } = useLanguageStore();
 
   const [isDark, setIsDark] = useState(() => {
@@ -56,11 +56,11 @@ export default function Sidebar() {
   };
 
   const navLinks = [
-    { name: 'Главная', path: '/dashboard', icon: Home },
-    { name: 'Тесты', path: '/tests', icon: FileText },
-    { name: 'AI Наставник', path: '/mentor', icon: Bot },
-    { name: 'Прогресс', path: '/progress', icon: BarChart2 },
-    { name: 'Уведомления', path: '/notifications', icon: Bell },
+    { name: t('nav.dashboard'), path: '/dashboard', icon: Home },
+    { name: t('nav.tests'), path: '/tests', icon: FileText },
+    { name: t('nav.mentor'), path: '/mentor', icon: Bot },
+    { name: t('nav.progress'), path: '/progress', icon: BarChart2 },
+    { name: t('nav.notifications'), path: '/notifications', icon: Bell },
   ];
 
   const displayName = user?.full_name || user?.name || 'Гость';
@@ -164,33 +164,33 @@ export default function Sidebar() {
           {isSettingsMenuOpen && (
             <div className="absolute bottom-[calc(100%+8px)] left-[calc(100%+8px)] w-64 bg-white dark:bg-dark-surface border border-slate-100 dark:border-dark-border shadow-xl dark:shadow-[0_10px_30px_rgba(0,0,0,0.6)] dark:shadow-black/60 rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 z-50">
               <div className="py-2">
-                <div className="px-4 py-2 text-xs font-bold text-slate-400 dark:text-dark-text-muted uppercase tracking-wider mb-1">Профиль</div>
+                <div className="px-4 py-2 text-xs font-bold text-slate-400 dark:text-dark-text-muted uppercase tracking-wider mb-1">{t('sidebar.profile')}</div>
                 
                 <button onClick={() => openSettings('profile')} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-dark-bg transition-colors text-slate-700 dark:text-dark-text-main font-medium">
                   <User className="w-4 h-4 text-slate-400 dark:text-dark-text-muted" />
-                  Мой профиль
+                  {t('sidebar.my_profile')}
                 </button>
 
                 <button onClick={() => { navigate('/plans'); setIsSettingsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-dark-bg transition-colors text-slate-700 dark:text-dark-text-main font-medium">
                   <div className="flex items-center gap-3">
                     <Crown className="w-4 h-4 text-violet-500" />
-                    Тарифы и подписка
+                    {t('sidebar.plans_and_subscription')}
                   </div>
                   <span className="text-xs font-bold bg-violet-100 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 px-2 py-0.5 rounded-full">Pro</span>
                 </button>
 
                 <button onClick={() => openSettings('payments')} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-dark-bg transition-colors text-slate-700 dark:text-dark-text-main font-medium">
                   <History className="w-4 h-4 text-slate-400 dark:text-dark-text-muted" />
-                  История платежей
+                  {t('sidebar.payment_history')}
                 </button>
 
                 <div className="h-px bg-slate-100 dark:bg-dark-border my-2 mx-4"></div>
-                <div className="px-4 py-2 text-xs font-bold text-slate-400 dark:text-dark-text-muted uppercase tracking-wider mb-1">Система</div>
+                <div className="px-4 py-2 text-xs font-bold text-slate-400 dark:text-dark-text-muted uppercase tracking-wider mb-1">{t('sidebar.system')}</div>
 
                 <div className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-dark-bg transition-colors cursor-pointer text-slate-700 dark:text-dark-text-main font-medium">
                   <div className="flex items-center gap-3">
                     <Globe className="w-4 h-4 text-slate-400 dark:text-dark-text-muted" />
-                    Язык
+                    {t('common.language')}
                   </div>
                   <select 
                     value={language}
@@ -214,7 +214,7 @@ export default function Sidebar() {
                 >
                   <div className="flex items-center gap-3">
                     <Moon className="w-4 h-4 text-slate-400 dark:text-dark-text-muted" />
-                    Темная тема
+                    {t('common.dark_mode')}
                   </div>
                   <div 
                     className={`w-9 h-5 rounded-full p-0.5 flex items-center transition-colors duration-200 ${isDark ? 'bg-violet-600' : 'bg-slate-200 dark:bg-dark-border'}`}
@@ -227,7 +227,7 @@ export default function Sidebar() {
 
                 <button onClick={() => setShowLogoutModal(true)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-rose-600 dark:text-rose-400 transition-colors font-medium">
                   <LogOut className="w-4 h-4" />
-                  Выйти
+                  {t('common.logout')}
                 </button>
               </div>
             </div>
@@ -253,23 +253,23 @@ export default function Sidebar() {
               </div>
             </div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-dark-text-main text-center mb-2">
-              Выход из аккаунта
+              {t('sidebar.logout_title')}
             </h3>
             <p className="text-slate-500 dark:text-dark-text-muted text-sm text-center mb-8">
-              Вы уверены, что хотите выйти из своего аккаунта?
+              {t('sidebar.logout_confirm')}
             </p>
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowLogoutModal(false)}
                 className="flex-1 py-3 rounded-2xl font-bold text-slate-600 dark:text-dark-text-muted bg-slate-100 dark:bg-dark-bg hover:bg-slate-200 dark:hover:bg-dark-bg/80 transition-colors text-sm"
               >
-                Отмена
+                {t('common.cancel')}
               </button>
               <button 
                 onClick={handleLogout}
                 className="flex-1 py-3 rounded-2xl font-bold text-white bg-rose-500 hover:bg-rose-600 transition-colors text-sm"
               >
-                Выйти
+                {t('common.logout')}
               </button>
             </div>
           </div>

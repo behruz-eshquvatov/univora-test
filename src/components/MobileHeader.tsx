@@ -5,10 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import SettingsModal from './SettingsModal';
 import NotificationBell from './NotificationBell';
 import LanguageSwitcher from './LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
+import { useLanguageStore } from '../store/useLanguageStore';
 
 export default function MobileHeader() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const { language, setLanguage } = useLanguageStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<'profile' | 'payments'>('profile');
@@ -121,20 +125,20 @@ export default function MobileHeader() {
                 <div className="py-2">
                   <button onClick={() => openSettings('profile')} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-dark-bg transition-colors text-slate-700 dark:text-dark-text-main font-medium text-sm">
                     <User className="w-4 h-4 text-slate-400 dark:text-dark-text-muted" />
-                    Мой профиль
+                    {t('sidebar.my_profile')}
                   </button>
 
                   <button onClick={() => { navigate('/plans'); setIsMenuOpen(false); }} className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-dark-bg transition-colors text-slate-700 dark:text-dark-text-main font-medium text-sm">
                     <div className="flex items-center gap-3">
                       <Crown className="w-4 h-4 text-violet-500" />
-                      Тарифы
+                      {t('sidebar.plans_and_subscription')}
                     </div>
                     <span className="text-[10px] font-bold bg-violet-100 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 px-2 py-0.5 rounded-full">Pro</span>
                   </button>
 
                   <button onClick={() => openSettings('payments')} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-dark-bg transition-colors text-slate-700 dark:text-dark-text-main font-medium text-sm">
                     <History className="w-4 h-4 text-slate-400 dark:text-dark-text-muted" />
-                    История платежей
+                    {t('sidebar.payment_history')}
                   </button>
 
                   <div className="h-px bg-slate-100 dark:bg-dark-border my-2 mx-4"></div>
@@ -142,11 +146,21 @@ export default function MobileHeader() {
                   <div className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-dark-bg transition-colors cursor-pointer text-slate-700 dark:text-dark-text-main font-medium text-sm">
                     <div className="flex items-center gap-3">
                       <Globe className="w-4 h-4 text-slate-400 dark:text-dark-text-muted" />
-                      Язык
+                      {t('common.language')}
                     </div>
-                    <select className="bg-transparent font-medium text-slate-500 dark:text-dark-text-muted outline-none cursor-pointer text-sm">
-                      <option value="ru">Рус</option>
-                      <option value="uz">O'zb</option>
+                    <select 
+                      value={language}
+                      onChange={(e) => {
+                        const code = e.target.value as 'uz' | 'ru' | 'en';
+                        i18n.changeLanguage(code);
+                        setLanguage(code);
+                        window.location.reload();
+                      }}
+                      className="bg-transparent font-medium text-slate-500 dark:text-dark-text-muted outline-none cursor-pointer text-sm"
+                    >
+                      <option value="ru">Русский</option>
+                      <option value="uz">O'zbekcha</option>
+                      <option value="en">English</option>
                     </select>
                   </div>
 
@@ -156,7 +170,7 @@ export default function MobileHeader() {
                   >
                     <div className="flex items-center gap-3">
                       <Moon className="w-4 h-4 text-slate-400 dark:text-dark-text-muted" />
-                      Темная тема
+                      {t('common.dark_mode')}
                     </div>
                     <div className={`w-8 h-4 rounded-full p-0.5 flex items-center transition-colors duration-200 ${isDark ? 'bg-violet-600' : 'bg-slate-200 dark:bg-dark-border'}`}>
                       <div className={`w-3 h-3 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${isDark ? 'translate-x-4' : 'translate-x-0'}`}></div>
@@ -170,7 +184,7 @@ export default function MobileHeader() {
                     className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-rose-600 dark:text-rose-400 transition-colors font-medium text-sm"
                   >
                     <LogOut className="w-4 h-4" />
-                    Выйти
+                    {t('common.logout')}
                   </button>
                 </div>
               </div>
@@ -196,17 +210,17 @@ export default function MobileHeader() {
               </div>
             </div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-dark-text-main text-center mb-2">
-              Выход из аккаунта
+              {t('sidebar.logout_title')}
             </h3>
             <p className="text-slate-500 dark:text-dark-text-muted text-sm text-center mb-8">
-              Вы уверены, что хотите выйти из своего аккаунта?
+              {t('sidebar.logout_confirm')}
             </p>
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowLogoutModal(false)}
                 className="flex-1 py-3 rounded-2xl font-bold text-slate-600 dark:text-dark-text-muted bg-slate-100 dark:bg-dark-bg hover:bg-slate-200 dark:hover:bg-dark-bg/80 transition-colors text-sm"
               >
-                Отмена
+                {t('common.cancel')}
               </button>
               <button 
                 onClick={handleLogout}
