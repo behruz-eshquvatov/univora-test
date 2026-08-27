@@ -7,10 +7,10 @@ import {
   XCircle
 } from 'lucide-react';
 import { billingApi, type Payment } from '../lib/api/billing';
-
-
+import { useTranslation } from 'react-i18next';
 
 const PaymentHistorySection = () => {
+  const { t } = useTranslation();
   const [payments, setPayments] = useState<Payment[]>([]);
 
   React.useEffect(() => {
@@ -20,7 +20,7 @@ const PaymentHistorySection = () => {
   return (
     <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border h-full flex flex-col">
       <div className="flex items-center justify-between mb-8">
-        <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">История платежей</h3>
+        <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">{t('sidebar.payment_history')}</h3>
         <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-dark-bg flex items-center justify-center">
           <History className="w-5 h-5 text-slate-400 dark:text-dark-text-muted" />
         </div>
@@ -34,20 +34,20 @@ const PaymentHistorySection = () => {
             </div>
             {payment.status === 'approved' ? (
               <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold bg-emerald-100 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg">
-                <CheckCircle2 className="w-3 h-3" /> Оплачено
+                <CheckCircle2 className="w-3 h-3" /> {t('settings_modal.paid')}
               </span>
             ) : payment.status === 'pending' ? (
               <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 text-xs font-bold bg-amber-100 dark:bg-amber-950/20 px-2.5 py-1 rounded-lg">
-                <AlertCircle className="w-3 h-3" /> Ожидает
+                <AlertCircle className="w-3 h-3" /> {t('settings_modal.pending')}
               </span>
             ) : (
               <span className="flex items-center gap-1 text-rose-600 dark:text-rose-400 text-xs font-bold bg-rose-100 dark:bg-rose-950/20 px-2.5 py-1 rounded-lg">
-                <AlertCircle className="w-3 h-3" /> Отклонено
+                <AlertCircle className="w-3 h-3" /> {t('settings_modal.rejected')}
               </span>
             )}
           </div>
         )) : (
-          <div className="p-6 text-center text-slate-500 dark:text-dark-text-muted font-medium text-sm">Нет истории платежей</div>
+          <div className="p-6 text-center text-slate-500 dark:text-dark-text-muted font-medium text-sm">{t('settings_modal.no_payments')}</div>
         )}
       </div>
     </div>
@@ -55,6 +55,7 @@ const PaymentHistorySection = () => {
 };
 
 const ProfileSection = () => {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const [formData, setFormData] = useState({
     name: user?.full_name || user?.name || '',
@@ -64,13 +65,13 @@ const ProfileSection = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Профиль обновлен! (Функционал в разработке)');
+    alert(t('settings_modal.profile_updated'));
   };
 
   return (
     <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border h-full flex flex-col">
       <div className="mb-8">
-        <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">Настройки профиля</h3>
+        <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">{t('settings_modal.profile_settings')}</h3>
       </div>
       <form onSubmit={handleSubmit} className="space-y-6 flex-1">
         <div className="flex items-center gap-6">
@@ -85,37 +86,37 @@ const ProfileSection = () => {
           </div>
           <div>
             <button type="button" className="px-4 py-2 bg-violet-50 dark:bg-violet-950/20 text-violet-600 dark:text-violet-400 rounded-xl font-bold text-sm hover:bg-violet-100 dark:hover:bg-violet-950/40 transition-colors">
-              Загрузить фото
+              {t('settings_modal.upload_photo')}
             </button>
-            <p className="text-xs text-slate-500 dark:text-dark-text-muted mt-2 font-medium">JPG, PNG или GIF. Макс. 2 MB.</p>
+            <p className="text-xs text-slate-500 dark:text-dark-text-muted mt-2 font-medium">{t('settings_modal.photo_hint')}</p>
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-bold text-slate-700 dark:text-dark-text-muted mb-2">Имя и фамилия</label>
+          <label className="block text-sm font-bold text-slate-700 dark:text-dark-text-muted mb-2">{t('settings_modal.full_name')}</label>
           <input
             type="text"
             value={formData.name}
             onChange={e => setFormData({ ...formData, name: e.target.value })}
             className="w-full bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 dark:text-dark-text-main transition-all font-medium"
-            placeholder="Иван Иванов"
+            placeholder={t('settings_modal.name_placeholder')}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-bold text-slate-700 dark:text-dark-text-muted mb-2">Биография</label>
+          <label className="block text-sm font-bold text-slate-700 dark:text-dark-text-muted mb-2">{t('settings_modal.bio')}</label>
           <textarea
             value={formData.bio}
             onChange={e => setFormData({ ...formData, bio: e.target.value })}
             rows={4}
             className="w-full bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 dark:text-dark-text-main transition-all font-medium resize-none"
-            placeholder="Расскажите немного о себе..."
+            placeholder={t('settings_modal.bio_placeholder')}
           />
         </div>
 
         <div className="pt-4 mt-auto border-t border-slate-100 dark:border-dark-border">
           <button type="submit" className="w-full sm:w-auto px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition-colors text-sm">
-            Сохранить изменения
+            {t('settings_modal.save_changes')}
           </button>
         </div>
       </form>
@@ -130,6 +131,7 @@ export interface SettingsModalProps {
 }
 
 export default function SettingsModal({ isOpen, onClose, initialTab = 'profile' }: SettingsModalProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'profile' | 'payments'>(initialTab);
 
   React.useEffect(() => {
@@ -159,7 +161,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'profile' 
         {/* Sidebar */}
         <div className="w-full md:w-64 bg-white dark:bg-dark-surface border-r border-slate-100 dark:border-dark-border shrink-0 flex flex-col p-4 sm:p-6 overflow-y-auto">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-black text-slate-800 dark:text-dark-text-main">Настройки</h2>
+            <h2 className="text-2xl font-black text-slate-800 dark:text-dark-text-main">{t('settings_modal.title')}</h2>
             <button onClick={onClose} className="hidden md:flex text-slate-400 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text-main transition-colors">
               <XCircle className="w-6 h-6" />
             </button>
@@ -177,7 +179,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'profile' 
               <div className={`p-1.5 rounded-lg ${activeTab === 'profile' ? 'bg-violet-200/50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400' : 'bg-slate-100 dark:bg-dark-bg text-slate-500 dark:text-dark-text-muted'}`}>
                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
               </div>
-              Профиль
+              {t('sidebar.profile')}
             </button>
 
 
@@ -192,7 +194,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'profile' 
               <div className={`p-1.5 rounded-lg ${activeTab === 'payments' ? 'bg-violet-200/50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400' : 'bg-slate-100 dark:bg-dark-bg text-slate-500 dark:text-dark-text-muted'}`}>
                  <History className="w-4 h-4" />
               </div>
-              История платежей
+              {t('sidebar.payment_history')}
             </button>
           </nav>
         </div>

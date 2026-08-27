@@ -22,5 +22,21 @@
     "system": "Tizim",
     "logout_title": "Hisobdan chiqish",
     "logout_confirm": "Hisobingizdan chiqishni xohlaysizmi?"
+  },
+  "settings_modal": {
+    "title": "Sozlamalar",
+    "paid": "To'langan",
+    "pending": "Kutilmoqda",
+    "rejected": "Rad etilgan",
+    "no_payments": "To'lovlar tarixi yo'q",
+    "profile_updated": "Profil yangilandi! (Funksionallik ishlab chiqilmoqda)",
+    "profile_settings": "Profil sozlamalari",
+    "upload_photo": "Rasm yuklash",
+    "photo_hint": "JPG, PNG yoki GIF. Maks. 2 MB.",
+    "full_name": "Ism va familiya",
+    "name_placeholder": "Eshmat Toshmatov",
+    "bio": "Tarjimai hol",
+    "bio_placeholder": "O'zingiz haqingizda qisqacha so'zlab bering...",
+    "save_changes": "O'zgarishlarni saqlash"
   }
 }

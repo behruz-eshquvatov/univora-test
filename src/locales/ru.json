@@ -22,5 +22,21 @@
     "system": "Система",
     "logout_title": "Выход из аккаунта",
     "logout_confirm": "Вы уверены, что хотите выйти из своего аккаунта?"
+  },
+  "settings_modal": {
+    "title": "Настройки",
+    "paid": "Оплачено",
+    "pending": "Ожидает",
+    "rejected": "Отклонено",
+    "no_payments": "Нет истории платежей",
+    "profile_updated": "Профиль обновлен! (Функционал в разработке)",
+    "profile_settings": "Настройки профиля",
+    "upload_photo": "Загрузить фото",
+    "photo_hint": "JPG, PNG или GIF. Макс. 2 MB.",
+    "full_name": "Имя и фамилия",
+    "name_placeholder": "Иван Иванов",
+    "bio": "Биография",
+    "bio_placeholder": "Расскажите немного о себе...",
+    "save_changes": "Сохранить изменения"
   }
 }

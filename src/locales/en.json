@@ -22,5 +22,21 @@
     "system": "System",
     "logout_title": "Log out",
     "logout_confirm": "Are you sure you want to log out of your account?"
+  },
+  "settings_modal": {
+    "title": "Settings",
+    "paid": "Paid",
+    "pending": "Pending",
+    "rejected": "Rejected",
+    "no_payments": "No payment history",
+    "profile_updated": "Profile updated! (Feature in development)",
+    "profile_settings": "Profile Settings",
+    "upload_photo": "Upload photo",
+    "photo_hint": "JPG, PNG or GIF. Max 2 MB.",
+    "full_name": "Full Name",
+    "name_placeholder": "John Doe",
+    "bio": "Biography",
+    "bio_placeholder": "Tell us a bit about yourself...",
+    "save_changes": "Save changes"
   }
 }
