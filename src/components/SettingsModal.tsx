@@ -32,7 +32,7 @@ const PaymentHistorySection = () => {
               <p className="font-bold text-slate-800 dark:text-dark-text-main">{payment.amount} UZS</p>
               <p className="text-xs text-slate-500 dark:text-dark-text-muted font-medium mt-0.5">{new Date(payment.created_at).toLocaleString()}</p>
             </div>
-            {payment.status === 'approved' ? (
+            {payment.status === 'success' ? (
               <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold bg-emerald-100 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg">
                 <CheckCircle2 className="w-3 h-3" /> {t('settings_modal.paid')}
               </span>
