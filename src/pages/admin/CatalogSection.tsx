@@ -494,8 +494,9 @@ export default function CatalogSection() {
 
       {/* Question Modal */}
       {questionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm p-4">
+          <div className="flex min-h-full items-center justify-center py-8">
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg relative shadow-2xl">
             <button onClick={() => setQuestionModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700"><XCircle className="w-5 h-5" /></button>
             <h2 className="text-xl font-bold text-slate-900 mb-5">{editQuestionId ? 'Изменить вопрос' : 'Новый вопрос'}</h2>
             
@@ -610,6 +611,7 @@ export default function CatalogSection() {
               )}
               <button type="submit" className={BTN_PRIMARY}>{editQuestionId ? 'Сохранить' : 'Добавить вопрос'}</button>
             </form>
+          </div>
           </div>
         </div>
       )}
