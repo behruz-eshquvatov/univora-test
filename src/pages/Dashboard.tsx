@@ -24,7 +24,7 @@ const MOCK_LEADERBOARD = [
 
 
 const Dashboard = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [apiSubjects, setApiSubjects] = useState<Subject[]>([]);
   const [reviewsCount, setReviewsCount] = useState(0);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
@@ -47,7 +47,8 @@ const Dashboard = () => {
         .then(data => setLeaderboard(data.slice(0, 5)))
         .catch(err => console.log('Failed to fetch leaderboard', err));
     });
-  }, []);
+    });
+  }, [i18n.language]);
 
   const getSubjectIconAndColor = (name: string, index: number) => {
     const defaultColors = ['from-blue-500 to-cyan-400', 'from-purple-500 to-indigo-500', 'from-emerald-500 to-teal-400', 'from-rose-500 to-pink-500', 'from-amber-400 to-orange-500'];
