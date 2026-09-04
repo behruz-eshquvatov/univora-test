@@ -44,6 +44,7 @@ interface QuestionFormData {
   correct_option: string;
   explanation: string;
   image: File | null;
+  existing_image_url?: string | null;
   image_caption: string;
 }
 
@@ -82,6 +83,7 @@ export default function CatalogSection() {
     correct_option: 'A',
     explanation: '',
     image: null,
+    existing_image_url: null,
     image_caption: '',
   });
   const [editQuestionId, setEditQuestionId] = useState<number | null>(null);
@@ -181,7 +183,7 @@ export default function CatalogSection() {
       options_ru: { A: '', B: '', C: '', D: '' }, 
       options_en: { A: '', B: '', C: '', D: '' }, 
       correct_option: 'A', explanation: '',
-      image: null, image_caption: ''
+      image: null, existing_image_url: null, image_caption: ''
     });
     setEditQuestionId(null); setQuestionFormError(null); setQuestionModal(true);
   };
@@ -197,6 +199,7 @@ export default function CatalogSection() {
       correct_option: (q as any).correct_option || 'A',
       explanation: q.explanation || '',
       image: null,
+      existing_image_url: (q as any).image_url || (q as any).image || null,
       image_caption: (q as any).image_caption || '',
     });
     setEditQuestionId(q.id); setQuestionFormError(null); setQuestionModal(true);
@@ -575,6 +578,11 @@ export default function CatalogSection() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-1">Изображение (опционально)</label>
+                  {questionForm.existing_image_url && !questionForm.image && (
+                    <div className="mb-2">
+                      <img src={questionForm.existing_image_url} alt="Current" className="h-16 w-auto rounded-lg object-contain border border-slate-200" />
+                    </div>
+                  )}
                   <input 
                     type="file" 
                     accept="image/*"
