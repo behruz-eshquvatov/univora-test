@@ -387,12 +387,19 @@ export default function QuizSession() {
               </h2>
 
               {/* Question image */}
-              {currentQuestion.question.has_image && currentQuestion.question.image && (
-                <img
-                  src={currentQuestion.question.image}
-                  alt={currentQuestion.question.image_caption || 'Изображение к вопросу'}
-                  className="w-full max-h-64 object-contain rounded-xl mb-6 border border-slate-100"
-                />
+              {currentQuestion.question.image && (
+                <div className="mb-6">
+                  <img
+                    src={currentQuestion.question.image}
+                    alt={currentQuestion.question.image_caption || 'Изображение к вопросу'}
+                    className="w-full max-h-64 object-contain rounded-xl border border-slate-100 bg-slate-50/50"
+                  />
+                  {currentQuestion.question.image_caption && (
+                    <p className="text-sm text-center text-slate-500 mt-2 font-medium">
+                      {currentQuestion.question.image_caption}
+                    </p>
+                  )}
+                </div>
               )}
 
               <div className="space-y-3">
