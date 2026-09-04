@@ -236,15 +236,6 @@ export default function OnboardingQuiz() {
                     }}
                   />
                 </div>
-                
-                <button
-                  onClick={() => alert(t('onboarding_quiz.auth_apple'))}
-                  className="flex items-center justify-center gap-2 bg-black text-white shadow-sm hover:bg-gray-900 transition-colors"
-                  style={{ width: '280px', height: '40px', borderRadius: '4px' }}
-                >
-                  <Apple className="w-5 h-5 mb-0.5" />
-                  <span className="text-sm font-medium font-roboto" style={{ fontFamily: 'Roboto, arial, sans-serif' }}>Sign in with Apple</span>
-                </button>
               </div>
             )}
             <p className="text-xs text-slate-400 mt-6">

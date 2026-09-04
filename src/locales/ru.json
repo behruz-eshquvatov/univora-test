@@ -255,7 +255,7 @@
     "auth_type_direction": "вашему направлению",
     "auth_loading": "Авторизация...",
     "auth_apple": "Вход через Apple в разработке",
-    "auth_footer": "Мы используем Google и Apple для безопасной регистрации.",
+    "auth_footer": "Мы используем Google для безопасной регистрации.",
     "results_title": "Потрясающе!",
     "results_desc": "Вы успешно прошли вводный тест.",
     "results_correct": "правильных ответов",

@@ -53,15 +53,6 @@ export default function Login() {
                 }}
               />
             </div>
-            
-            <button
-              onClick={() => alert(t('login.apple_auth'))}
-              className="flex items-center justify-center gap-2 bg-black text-white shadow-sm hover:bg-gray-900 transition-colors"
-              style={{ width: '280px', height: '40px', borderRadius: '4px' }}
-            >
-              <Apple className="w-5 h-5 mb-0.5" />
-              <span className="text-sm font-medium font-roboto" style={{ fontFamily: 'Roboto, arial, sans-serif' }}>{t('login.apple_btn')}</span>
-            </button>
           </div>
         )}
       </div>

@@ -255,7 +255,7 @@
     "auth_type_direction": "your direction",
     "auth_loading": "Authenticating...",
     "auth_apple": "Apple sign-in is under development",
-    "auth_footer": "We use Google and Apple for secure registration.",
+    "auth_footer": "We use Google for secure registration.",
     "results_title": "Awesome!",
     "results_desc": "You have successfully passed the introductory test.",
     "results_correct": "correct answers",
