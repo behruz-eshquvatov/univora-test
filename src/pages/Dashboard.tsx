@@ -47,7 +47,6 @@ const Dashboard = () => {
         .then(data => setLeaderboard(data.slice(0, 5)))
         .catch(err => console.log('Failed to fetch leaderboard', err));
     });
-    });
   }, [i18n.language]);
 
   const getSubjectIconAndColor = (name: string, index: number) => {
