@@ -16,7 +16,7 @@ import {
 } from '../lib/api/testengine';
 
 export default function QuizSession() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { sessionId } = useParams<{ sessionId: string }>();
   const { isAuthenticated, login } = useAuthStore();
@@ -54,12 +54,15 @@ export default function QuizSession() {
       return;
     }
     initSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, i18n.language]);
 
+  useEffect(() => {
+    if (!sessionId) return;
     const timer = setInterval(() => {
       setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
     }, 1000);
     return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
 
   const initSession = async () => {

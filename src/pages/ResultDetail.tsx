@@ -37,7 +37,7 @@ export default function ResultDetail() {
       }
     };
     fetchResultData();
-  }, [resultId]);
+  }, [resultId, t, i18n.language]);
 
   const getSubjectIconAndColor = (name: string) => {
     const defaultColor = 'from-blue-500 to-cyan-400';
