@@ -127,7 +127,7 @@ export default function CatalogSection() {
   const openCreateSubject = () => { setSubjectForm({ name: '', name_ru: '', name_en: '', description: '' }); setEditSubjectId(null); setSubjectFormError(null); setSubjectModal(true); };
   const openEditSubject = (s: Subject, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSubjectForm({ name: s.name, name_ru: (s as any).name_ru || '', name_en: (s as any).name_en || '', description: (s as any).description || '' });
+    setSubjectForm({ name: s.name, name_ru: s.translations?.ru || '', name_en: s.translations?.en || '', description: (s as any).description || '' });
     setEditSubjectId(s.id); setSubjectFormError(null); setSubjectModal(true);
   };
   const saveSubject = async (e: React.FormEvent) => {
@@ -151,7 +151,7 @@ export default function CatalogSection() {
   const openCreateTopic = () => { setTopicForm({ name: '', name_ru: '', name_en: '' }); setEditTopicId(null); setTopicFormError(null); setTopicModal(true); };
   const openEditTopic = (t: Topic, e: React.MouseEvent) => {
     e.stopPropagation();
-    setTopicForm({ name: (t as any).name || (t as any).title || '', name_ru: (t as any).name_ru || '', name_en: (t as any).name_en || '' });
+    setTopicForm({ name: (t as any).name || (t as any).title || '', name_ru: t.translations?.ru || '', name_en: t.translations?.en || '' });
     setEditTopicId(t.id); setTopicFormError(null); setTopicModal(true);
   };
   const saveTopic = async (e: React.FormEvent) => {
@@ -160,10 +160,10 @@ export default function CatalogSection() {
     setTopicFormError(null);
     try {
       if (editTopicId) {
-        const updated = await catalogApi.updateTopic(editTopicId, { name: topicForm.name } as any);
+        const updated = await catalogApi.updateTopic(editTopicId, topicForm as any);
         setTopics(prev => prev.map(t => t.id === editTopicId ? updated : t));
       } else {
-        const created = await catalogApi.createTopic({ name: topicForm.name, subject: selectedSubject.id } as any);
+        const created = await catalogApi.createTopic({ ...topicForm, subject: selectedSubject.id } as any);
         setTopics(prev => [...prev, created]);
       }
       setTopicModal(false);
