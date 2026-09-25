@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { 
   CheckCircle2,
@@ -32,7 +33,7 @@ const PaymentHistorySection = () => {
               <p className="font-bold text-slate-800 dark:text-dark-text-main">{payment.amount} UZS</p>
               <p className="text-xs text-slate-500 dark:text-dark-text-muted font-medium mt-0.5">{new Date(payment.created_at).toLocaleString()}</p>
             </div>
-            {payment.status === 'success' ? (
+            {payment.status === 'approved' || (payment.status as string) === 'success' ? (
               <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-xs font-bold bg-emerald-100 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg">
                 <CheckCircle2 className="w-3 h-3" /> {t('settings_modal.paid')}
               </span>
@@ -56,7 +57,7 @@ const PaymentHistorySection = () => {
 
 const ProfileSection = () => {
   const { t } = useTranslation();
-  const { user } = useAuthStore();
+  const { user, login } = useAuthStore();
   const [formData, setFormData] = useState({
     name: user?.full_name || user?.name || '',
     bio: '',
@@ -65,7 +66,15 @@ const ProfileSection = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(t('settings_modal.profile_updated'));
+    if (user) {
+      const state = useAuthStore.getState();
+      login(
+        { ...user, full_name: formData.name, name: formData.name },
+        state.accessToken || '',
+        state.refreshToken || undefined
+      );
+    }
+    alert(t('settings_modal.profile_updated', 'Profil saqlandi!'));
   };
 
   return (
@@ -142,14 +151,14 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'profile' 
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
       <div 
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      <div className="relative bg-slate-50 dark:bg-dark-surface rounded-[2rem] w-full max-w-5xl h-[85vh] sm:h-[80vh] flex flex-col md:flex-row overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative z-10 bg-slate-50 dark:bg-dark-surface rounded-[2rem] w-full max-w-5xl h-[85vh] sm:h-[80vh] flex flex-col md:flex-row overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         
         <button 
           onClick={onClose}
@@ -207,6 +216,7 @@ export default function SettingsModal({ isOpen, onClose, initialTab = 'profile' 
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

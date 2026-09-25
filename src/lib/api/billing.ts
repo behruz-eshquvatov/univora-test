@@ -65,6 +65,28 @@ export interface SubscriptionRequestResponse {
   };
 }
 
+export interface PlanFeatureGroup {
+  key: string;
+  label: string;
+}
+
+export interface PlanFeatureItem {
+  key: string;
+  storage?: 'field' | 'feature';
+  kind: 'flag' | 'limit' | 'choice';
+  group?: string;
+  enforced?: boolean;
+  label?: string;
+  help?: string;
+  choices?: number[];
+  unlimited_when_empty?: boolean;
+}
+
+export interface PlanFeaturesSchema {
+  groups: PlanFeatureGroup[];
+  features: PlanFeatureItem[];
+}
+
 export const billingApi = {
   // --- Student & Admin ---
   getPlans: async (): Promise<Plan[]> => {
@@ -74,6 +96,11 @@ export const billingApi = {
 
   getPlanById: async (id: number): Promise<Plan> => {
     const response = await api.get(`/billing/plan/${id}/`);
+    return response.data;
+  },
+
+  getPlanFeatures: async (): Promise<PlanFeaturesSchema> => {
+    const response = await api.get('/billing/plan/features/');
     return response.data;
   },
 

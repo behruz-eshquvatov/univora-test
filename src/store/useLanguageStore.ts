@@ -15,7 +15,7 @@ export const useLanguageStore = create<LanguageState>()(
       setLanguage: (lang) => set({ language: lang }),
     }),
     {
-      name: 'univora-language-storage',
+      name: 'unitest-language-storage',
     }
   )
 );

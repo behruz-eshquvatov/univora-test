@@ -21,10 +21,13 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
+  isGuest: boolean;
   
   // Actions
   login: (user: User, accessToken: string, refreshToken?: string) => void;
+  loginAsGuest: () => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
+  clearAuth: () => void;
   logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
   fetchStreak: () => Promise<void>;
@@ -40,12 +43,22 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
+      isGuest: false,
 
       login: (user, accessToken, refreshToken) => set({ 
         user, 
         accessToken, 
         refreshToken: refreshToken || get().refreshToken,
-        isAuthenticated: true 
+        isAuthenticated: true,
+        isGuest: false,
+      }),
+
+      loginAsGuest: () => set({
+        user: { id: 'guest', full_name: 'Гость', email: '', role: 'student' },
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: true,
+        isGuest: true,
       }),
       
       setTokens: (accessToken, refreshToken) => set({
@@ -53,13 +66,23 @@ export const useAuthStore = create<AuthState>()(
         refreshToken
       }),
 
+      clearAuth: () => set({
+        user: null,
+        streak: 0,
+        xpSummary: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isGuest: false
+      }),
+
       logout: async () => {
-        try {
-          if (get().refreshToken) {
-            await api.post('/api/logout/', { refresh: get().refreshToken }).catch(() => {});
-          }
-        } finally {
-          set({ user: null, streak: 0, xpSummary: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+        const refresh = get().refreshToken;
+        get().clearAuth();
+        if (refresh) {
+          try {
+            await api.post('/api/auth/logout/', { refresh }).catch(() => {});
+          } catch {}
         }
       },
 
@@ -98,3 +121,4 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+

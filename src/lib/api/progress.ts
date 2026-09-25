@@ -21,6 +21,9 @@ export interface Streak {
   last_activity_date: string;
   is_active: boolean;
   freezes_available: number;
+  freezes_limit_per_month?: number | null;
+  freezes_used_this_month?: number;
+  freezes_remaining?: number | null;
 }
 
 export interface LeaderboardEntry {
@@ -41,6 +44,16 @@ export interface ReviewCard {
   next_review_date: string;
   interval_days: number;
   ease_factor: number;
+}
+
+export interface TodayReviewsResponse {
+  count: number;
+  due_total?: number;
+  limit?: number | null;
+  used_today?: number;
+  remaining_today?: number | null;
+  upgrade_required?: boolean;
+  results: ReviewCard[];
 }
 
 export const progressApi = {
@@ -71,7 +84,15 @@ export const progressApi = {
 
   getTodayReviews: async (): Promise<ReviewCard[]> => {
     const response = await api.get('/progress/reviews/today/');
-    return response.data.results || response.data; // fallback to response.data if it ever changes
+    return Array.isArray(response.data) ? response.data : (response.data.results || []);
+  },
+
+  getTodayReviewsDetails: async (): Promise<TodayReviewsResponse> => {
+    const response = await api.get('/progress/reviews/today/');
+    if (Array.isArray(response.data)) {
+      return { count: response.data.length, results: response.data };
+    }
+    return response.data;
   },
 
   getAllReviews: async (): Promise<ReviewCard[]> => {

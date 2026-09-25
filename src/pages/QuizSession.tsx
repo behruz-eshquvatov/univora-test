@@ -4,7 +4,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/useAuthStore';
 import { useProgressStore } from '../store/useProgressStore';
-import { X, Clock, ChevronRight, ChevronLeft, Loader2, Apple } from 'lucide-react';
+import { X, Clock, ChevronRight, ChevronLeft, Loader2, Apple, Crown, User as UserIcon, ListOrdered, Brain } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation, Trans } from 'react-i18next';
 import {
@@ -19,7 +19,7 @@ export default function QuizSession() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { sessionId } = useParams<{ sessionId: string }>();
-  const { isAuthenticated, login } = useAuthStore();
+  const { isAuthenticated, login, user, isGuest } = useAuthStore();
   const { decrementReviewsToday } = useProgressStore();
 
   // Session state
@@ -28,6 +28,8 @@ export default function QuizSession() {
   const [currentOrder, setCurrentOrder] = useState(1); // 1-based
   const [loadingInit, setLoadingInit] = useState(true);
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
+  const [showMobileGridModal, setShowMobileGridModal] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
 
   // Timer
   const [timeLeft, setTimeLeft] = useState(30 * 60);
@@ -212,6 +214,7 @@ export default function QuizSession() {
 
   const completeQuiz = async () => {
     try {
+      setIsFinishing(true);
       const result = await testengineApi.finishSession(sessionId!);
       setFinishResult(result);
       decrementReviewsToday();
@@ -221,6 +224,8 @@ export default function QuizSession() {
       if (e.response?.status === 400) {
         navigate('/dashboard');
       }
+    } finally {
+      setIsFinishing(false);
     }
   };
 
@@ -281,10 +286,32 @@ export default function QuizSession() {
                   <p className="text-sm font-medium text-slate-700 mb-2">
                     {r.order}. {r.question.text.substring(0, 80)}{r.question.text.length > 80 ? '...' : ''}
                   </p>
-                  <div className="flex gap-3 text-xs font-bold">
+                  <div className="flex gap-3 text-xs font-bold mb-2">
                     <span className="text-rose-500">{t('quiz.your_answer', { answer: r.selected_option || '—' })}</span>
                     <span className="text-emerald-600">{t('quiz.correct_answer', { answer: r.correct_option })}</span>
                   </div>
+
+                  {r.hint && (
+                    <div className="text-xs text-amber-800 font-medium mb-1.5 bg-amber-50 p-2 rounded-lg border border-amber-100">
+                      💡 <strong>Подсказка:</strong> {r.hint}
+                    </div>
+                  )}
+
+                  {finishResult?.explanation_access?.can_access ? (
+                    r.explanation ? (
+                      <div className="mt-2 p-2.5 rounded-lg bg-blue-50 border border-blue-100 text-xs text-blue-900 font-medium leading-relaxed">
+                        📖 <strong>Разбор решения:</strong> {r.explanation}
+                      </div>
+                    ) : null
+                  ) : (
+                    <button
+                      onClick={() => navigate('/plans')}
+                      className="mt-2 text-xs font-bold text-amber-800 hover:text-amber-900 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors border border-amber-200"
+                    >
+                      <Crown className="w-3.5 h-3.5 fill-current text-amber-600" />
+                      <span>Nega xato? → Pro'da ochiladi 👑</span>
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -330,154 +357,238 @@ export default function QuizSession() {
   return (
     <div className="min-h-screen bg-transparent flex flex-col font-body p-4 sm:p-8 items-center justify-center">
 
-      <div className="w-full max-w-3xl bg-surface rounded-[2rem] shadow-2xl border border-white/10 flex flex-col overflow-hidden relative z-10">
+      <div className="w-full max-w-6xl relative z-10 flex flex-col lg:flex-row items-center lg:items-start justify-center gap-4 lg:gap-6">
 
-        {/* Header */}
-        <header className="p-4 sm:p-6 sm:px-8 border-b border-border flex items-center justify-between bg-surface">
-          <button onClick={() => setShowExitConfirm(true)} className="text-slate-400 hover:text-rose-500 transition-colors p-1 shrink-0">
-            <X className="w-6 h-6" />
-          </button>
-
-          <div className="flex items-center justify-end gap-4 text-slate-500 font-bold">
-            <div className="flex sm:hidden items-center gap-1.5 text-sm text-slate-500 font-medium">
-              <span className="text-emerald-500 font-bold">{answeredCount}</span>
-              <span>/</span>
-              <span>{totalQuestions}</span>
-              <span className="ml-1">{t('quiz.answered')}</span>
+        {/* Mobile / Tablet Compact Top Timer Bar (Right Aligned & Shorter) */}
+        <div className="lg:hidden flex justify-end w-full max-w-2xl">
+          <div className="bg-surface rounded-full shadow-md border border-white/20 px-3.5 py-1.5 flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-full bg-violet-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+              <Clock className="w-3.5 h-3.5" />
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5" />
-              <span className="w-12 text-center">{formatTime(timeLeft)}</span>
-            </div>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-dark-text-main">
+              {t('quiz.time', 'VAQT')}
+            </span>
+            <span className="text-sm font-extrabold font-mono text-violet-700 dark:text-violet-400">
+              {formatTime(timeLeft)}
+            </span>
           </div>
-        </header>
-
-        {/* Progress Numbers (Desktop) */}
-        <div className="hidden sm:flex w-full flex-wrap items-center justify-center gap-2 py-4 px-4 sm:px-8 bg-surface border-b border-border">
-          {questions.map(q => {
-            const isActive = q.order === currentOrder;
-            const isAnswered = q.is_answered;
-            return (
-              <button
-                key={q.order}
-                onClick={() => goToQuestion(q.order)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all shrink-0 ${
-                  isActive
-                    ? 'bg-primary text-white ring-4 ring-primary/20'
-                    : isAnswered
-                      ? 'bg-emerald-100 text-emerald-700 border border-emerald-200 hover:ring-2 hover:ring-emerald-300'
-                      : 'bg-slate-100 text-slate-400 border border-slate-200 hover:bg-slate-200'
-                }`}
-              >
-                {q.order}
-              </button>
-            );
-          })}
         </div>
 
-        {/* Question Content */}
-        <main className="p-5 sm:p-8 bg-surface flex-1 flex flex-col">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentQuestion.order}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-6 leading-relaxed text-left">
-                {currentQuestion.question.text}
-              </h2>
+        {/* Left Column: Main Quiz Card (Centered) */}
+        <div className="w-full max-w-2xl bg-surface rounded-[2rem] shadow-2xl border border-white/10 flex flex-col overflow-hidden relative z-10">
+          {/* Header */}
+          <header className="p-4 sm:p-6 sm:px-8 border-b border-border flex items-center justify-between bg-surface">
+            <button onClick={() => setShowExitConfirm(true)} className="text-slate-400 hover:text-rose-500 transition-colors p-1 shrink-0">
+              <X className="w-6 h-6" />
+            </button>
 
-              {/* Question image */}
-              {currentQuestion.question.image && (
-                <div className="mb-6">
-                  <img
-                    src={currentQuestion.question.image}
-                    alt={currentQuestion.question.image_caption || 'Изображение к вопросу'}
-                    className="w-full max-h-64 object-contain rounded-xl border border-slate-100 bg-slate-50/50"
-                  />
-                  {currentQuestion.question.image_caption && (
-                    <p className="text-sm text-center text-slate-500 mt-2 font-medium">
-                      {currentQuestion.question.image_caption}
-                    </p>
-                  )}
+            <div className="flex items-center justify-end gap-3 font-bold">
+              <button
+                onClick={() => setShowMobileGridModal(true)}
+                className="lg:hidden flex items-center gap-2 px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors border border-slate-200/80 dark:border-slate-700 shadow-sm"
+              >
+                <ListOrdered className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                <span>{t('quiz.questions', 'Savollar')}</span>
+                <span className="ml-0.5 text-violet-600 dark:text-violet-400 font-extrabold">{answeredCount}/{totalQuestions}</span>
+              </button>
+            </div>
+          </header>
+
+
+
+          {/* Question Content */}
+          <main className="p-5 sm:p-8 bg-surface flex-1 flex flex-col">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentQuestion.order}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-6 leading-relaxed text-left">
+                  {currentQuestion.question.text}
+                </h2>
+
+                {/* Question image */}
+                {currentQuestion.question.image && (
+                  <div className="mb-6">
+                    <img
+                      src={currentQuestion.question.image}
+                      alt={currentQuestion.question.image_caption || 'Изображение к вопросу'}
+                      className="w-full max-h-64 object-contain rounded-xl border border-slate-100 bg-slate-50/50"
+                    />
+                    {currentQuestion.question.image_caption && (
+                      <p className="text-sm text-center text-slate-500 mt-2 font-medium">
+                        {currentQuestion.question.image_caption}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  {currentQuestion.question && Object.entries(currentQuestion.question.options).map(([key, opt]) => {
+                    const isSelected = selectedOption === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => handleOptionClick(key)}
+                        disabled={submittingAnswer}
+                        className={`w-full text-left px-5 py-3.5 rounded-2xl border-2 transition-all duration-200 flex items-center gap-4 group ${
+                          isSelected
+                            ? 'border-primary bg-primary/5 shadow-sm'
+                            : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                        } ${submittingAnswer ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      >
+                        <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
+                          isSelected ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'
+                        }`}>
+                          {key}
+                        </div>
+                        <span className={`text-base sm:text-lg font-medium ${isSelected ? 'text-primary' : 'text-slate-700'}`}>
+                          {opt as string}
+                        </span>
+                        {submittingAnswer && isSelected && (
+                          <Loader2 className="w-4 h-4 ml-auto text-primary animate-spin" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
-              )}
+              </motion.div>
+            </AnimatePresence>
+          </main>
 
-              <div className="space-y-3">
-                {currentQuestion.question && Object.entries(currentQuestion.question.options).map(([key, opt]) => {
-                  const isSelected = selectedOption === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => handleOptionClick(key)}
-                      disabled={submittingAnswer}
-                      className={`w-full text-left px-5 py-3.5 rounded-2xl border-2 transition-all duration-200 flex items-center gap-4 group ${
-                        isSelected
-                          ? 'border-primary bg-primary/5 shadow-sm'
-                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
-                      } ${submittingAnswer ? 'opacity-70 cursor-not-allowed' : ''}`}
-                    >
-                      <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
-                        isSelected ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'
-                      }`}>
-                        {key}
-                      </div>
-                      <span className={`text-base sm:text-lg font-medium ${isSelected ? 'text-primary' : 'text-slate-700'}`}>
-                        {opt as string}
-                      </span>
-                      {submittingAnswer && isSelected && (
-                        <Loader2 className="w-4 h-4 ml-auto text-primary animate-spin" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </main>
-
-        {/* Footer Navigation */}
-        <footer className="p-4 sm:px-8 sm:py-5 border-t border-border flex items-center justify-between bg-slate-50">
-          <div className="flex items-center gap-2">
-            {/* Finish early */}
+          {/* Footer Navigation */}
+          <footer className="p-4 sm:px-8 sm:py-5 border-t border-border flex items-center justify-between bg-slate-50 gap-3">
             <button
               onClick={() => setShowFinishConfirm(true)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-slate-500 hover:text-rose-500 hover:bg-rose-50 transition-colors text-sm"
             >
               {t('quiz.finish_early')}
             </button>
-          </div>
 
-          <div className="flex items-center gap-2">
-            {/* Prev button */}
-            <button
-              onClick={goPrev}
-              disabled={currentOrder <= 1}
-              className="flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="hidden sm:inline">{t('quiz.back')}</span>
-            </button>
+            <div className="flex items-center gap-2 sm:gap-3">
+              {currentOrder > 1 && (
+                <button
+                  onClick={goPrev}
+                  className="flex items-center justify-center gap-1 px-3.5 sm:px-5 py-2.5 rounded-xl font-bold text-slate-700 bg-slate-200 hover:bg-slate-300 transition-all text-sm sm:text-base"
+                  title={t('quiz.back', 'Orqaga')}
+                >
+                  <ChevronLeft className="w-5 h-5 shrink-0" />
+                  <span className="hidden sm:inline">{t('quiz.back', 'Orqaga')}</span>
+                </button>
+              )}
 
-            {/* Next / Finish button */}
-            <button
-              onClick={goNext}
-              className={`flex items-center justify-center gap-1.5 py-2.5 text-white rounded-xl font-bold hover:brightness-110 transition-all shadow-md ${
-                currentOrder === totalQuestions
-                  ? 'px-5 sm:px-8 bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
-                  : 'px-3 sm:px-8 bg-primary shadow-primary/20'
-              }`}
-            >
-              <span className={currentOrder === totalQuestions ? "" : "hidden sm:inline"}>
-                {currentOrder === totalQuestions ? t('quiz.finish') : t('quiz.forward')}
+              {(() => {
+                const isAllAnswered = answeredCount === totalQuestions;
+                const isLast = currentOrder === totalQuestions;
+                const showFinish = isAllAnswered || isLast;
+                return (
+                  <button
+                    onClick={goNext}
+                    className={`flex items-center justify-center gap-1 sm:gap-2 px-4 sm:px-8 py-2.5 text-white rounded-xl font-bold hover:brightness-110 transition-all shadow-md text-sm sm:text-base ${
+                      showFinish
+                        ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
+                        : 'bg-primary shadow-primary/20'
+                    }`}
+                  >
+                    <span className={!showFinish ? "hidden sm:inline" : ""}>
+                      {showFinish ? t('quiz.finish', 'Tugatish') : t('quiz.forward', 'Keyingisi')}
+                    </span>
+                    {!showFinish && <ChevronRight className="w-5 h-5 shrink-0" />}
+                  </button>
+                );
+              })()}
+            </div>
+          </footer>
+        </div>
+
+        {/* Right Column: User Profile & Multi-row Question Grid (Desktop Only) */}
+        <div className="hidden lg:flex w-72 flex-col gap-4 shrink-0 lg:absolute lg:right-0 lg:top-1/2 lg:-translate-y-1/2 xl:relative xl:top-0 xl:translate-y-0">
+          
+          {/* Standalone Container 1: Timer Card */}
+          <div className="bg-surface rounded-[2rem] shadow-xl border border-white/20 p-4 sm:p-5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-violet-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-violet-500/20">
+                <Clock className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                {t('quiz.time', 'VAQT')}
               </span>
-              {currentOrder !== totalQuestions && <ChevronRight className="w-5 h-5" />}
-            </button>
+            </div>
+            <span className="text-lg font-extrabold font-mono text-violet-700">
+              {formatTime(timeLeft)}
+            </span>
           </div>
-        </footer>
+
+          {/* Standalone Container 2: Profile & Question Navigation Card */}
+          <div className="bg-surface rounded-[2rem] shadow-xl border border-white/20 p-6 flex flex-col gap-5">
+            {/* User Profile Card (Shown ONLY for authorized non-guest users) */}
+            {user && !isGuest && (
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                {user.avatar_url || user.avatar ? (
+                  <img
+                    src={user.avatar_url || user.avatar}
+                    alt={user.full_name || user.name || 'User'}
+                    className="w-10 h-10 rounded-full object-cover border border-violet-200 shrink-0"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold shrink-0">
+                    <UserIcon className="w-5 h-5" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-extrabold text-sm text-slate-800 truncate">
+                    {user.full_name || user.name || 'Foydalanuvchi'}
+                  </h4>
+                  <p className="text-xs font-semibold text-slate-400 truncate">
+                    {user.email}
+                  </p>
+                </div>
+              </div>
+            )}
+
+          {/* Question Grid Section */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h5 className="font-bold text-xs text-slate-700 uppercase tracking-wider">
+                {t('quiz.questions', 'Savollar')}
+              </h5>
+              <span className="text-xs font-extrabold px-2.5 py-0.5 bg-violet-50 text-violet-700 rounded-lg">
+                {answeredCount} / {totalQuestions}
+              </span>
+            </div>
+
+            {/* Grid of Question Circles (5 columns, circular, no overflow scroll limit) */}
+            <div className="grid grid-cols-5 gap-2.5 p-1.5">
+              {questions.map(q => {
+                const isActive = q.order === currentOrder;
+                const isAnswered = q.is_answered;
+                return (
+                  <button
+                    key={q.order}
+                    onClick={() => goToQuestion(q.order)}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-extrabold transition-all ${
+                      isActive
+                        ? 'bg-primary text-white ring-4 ring-primary/20 scale-105 shadow-md shadow-violet-500/20'
+                        : isAnswered
+                          ? 'bg-emerald-500 text-white shadow-sm hover:ring-2 hover:ring-emerald-300'
+                          : 'bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 shadow-sm'
+                    }`}
+                  >
+                    {q.order}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+
       </div>
+
+    </div>
 
       {/* Auth Modal */}
       <AnimatePresence>
@@ -626,6 +737,100 @@ export default function QuizSession() {
                 >
                   {t('quiz.finish')}
                 </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Question Grid Modal / Drawer */}
+      <AnimatePresence>
+        {showMobileGridModal && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-slate-100 flex flex-col gap-4 max-h-[85vh] text-slate-800"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <ListOrdered className="w-5 h-5 text-violet-600" />
+                  <h4 className="font-extrabold text-base text-slate-800">
+                    {t('quiz.questions', 'Savollar')}
+                  </h4>
+                  <span className="text-xs font-extrabold px-2.5 py-0.5 bg-violet-50 text-violet-700 rounded-lg">
+                    {answeredCount} / {totalQuestions}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowMobileGridModal(false)}
+                  className="p-1 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto max-h-[60vh] p-1.5">
+                <div className="grid grid-cols-5 gap-3 p-1.5">
+                  {questions.map((q) => {
+                    const isActive = q.order === currentOrder;
+                    const isAnswered = q.is_answered;
+                    return (
+                      <button
+                        key={q.order}
+                        onClick={() => {
+                          goToQuestion(q.order);
+                          setShowMobileGridModal(false);
+                        }}
+                        className={`w-11 h-11 rounded-full flex items-center justify-center text-sm font-extrabold transition-all ${
+                          isActive
+                            ? 'bg-primary text-white ring-4 ring-primary/20 scale-105 shadow-md shadow-violet-500/20'
+                            : isAnswered
+                              ? 'bg-emerald-500 text-white shadow-sm hover:ring-2 hover:ring-emerald-300'
+                              : 'bg-slate-800 text-white border border-slate-700 hover:bg-slate-700 shadow-sm'
+                        }`}
+                      >
+                        {q.order}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Finishing Preloader Overlay */}
+      <AnimatePresence>
+        {isFinishing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-md flex flex-col items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="bg-white dark:bg-dark-surface rounded-3xl p-8 sm:p-10 max-w-sm w-full shadow-2xl border border-slate-100 dark:border-dark-border text-center flex flex-col items-center justify-center gap-4"
+            >
+              <div className="relative flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-violet-100 dark:bg-violet-950/50 flex items-center justify-center">
+                  <Brain className="w-8 h-8 text-violet-600 animate-pulse" />
+                </div>
+                <Loader2 className="w-20 h-20 text-violet-600 animate-spin absolute -inset-2" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-xl text-slate-800 dark:text-dark-text-main mb-1.5">
+                  {t('quiz.finishing_title', 'Test yakunlanmoqda...')}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-dark-text-muted font-medium leading-relaxed">
+                  {t('quiz.finishing_desc', 'Natijalaringiz hisoblanmoqda va saqlanmoqda')}
+                </p>
               </div>
             </motion.div>
           </motion.div>

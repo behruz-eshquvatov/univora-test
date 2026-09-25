@@ -45,19 +45,41 @@ export default function ResultDetail() {
     
     if (!name) return { icon, color: defaultColor };
     
-    const lowerName = name.toLowerCase();
-    if (lowerName.includes('mat') || lowerName.includes('мат')) icon = <Calculator className="w-8 h-8 text-white" />;
-    if (lowerName.includes('phy') || lowerName.includes('физ')) icon = <Atom className="w-8 h-8 text-white" />;
-    if (lowerName.includes('inf') || lowerName.includes('ит') || lowerName.includes('it')) icon = <Terminal className="w-8 h-8 text-white" />;
-    if (lowerName.includes('eng') || lowerName.includes('анг') || lowerName.includes('яз')) icon = <Globe className="w-8 h-8 text-white" />;
+    const lower = name.toLowerCase();
+    if (lower.includes('mat') || lower.includes('мат') || lower.includes('math') || lower.includes('alg') || lower.includes('geom')) {
+      icon = <Calculator className="w-8 h-8 text-white" />;
+    } else if (lower.includes('fiz') || lower.includes('физ') || lower.includes('phys')) {
+      icon = <Atom className="w-8 h-8 text-white" />;
+    } else if (lower.includes('inf') || lower.includes('инф') || lower.includes('it') || lower.includes('comp') || lower.includes('dastur')) {
+      icon = <Terminal className="w-8 h-8 text-white" />;
+    } else if (lower.includes('ing') || lower.includes('eng') || lower.includes('англ') || lower.includes('яз') || lower.includes('til')) {
+      icon = <Globe className="w-8 h-8 text-white" />;
+    }
     
     return { icon, color: defaultColor };
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-2rem)]">
-        <Clock className="w-8 h-8 animate-spin text-violet-500" />
+      <div className="bg-white dark:bg-dark-surface min-h-[calc(100vh-2rem)] rounded-[2rem] p-6 sm:p-10 border border-slate-100 dark:border-dark-border animate-pulse">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="w-32 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+          <div className="bg-slate-50 dark:bg-dark-bg rounded-3xl p-8 border border-slate-100 dark:border-dark-border flex items-center gap-6">
+            <div className="w-24 h-24 rounded-2xl bg-slate-200 dark:bg-slate-800 shrink-0" />
+            <div className="flex-1 space-y-3">
+              <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
+              <div className="h-5 bg-slate-100 dark:bg-slate-800/60 rounded w-1/3" />
+            </div>
+          </div>
+          <div className="space-y-4">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="p-6 rounded-2xl bg-slate-50 dark:bg-dark-bg border border-slate-100 dark:border-dark-border space-y-3">
+                <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
+                <div className="h-4 bg-slate-100 dark:bg-slate-800/60 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

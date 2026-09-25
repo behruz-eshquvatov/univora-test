@@ -1,14 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, FileText, Bot, BarChart2 } from 'lucide-react';
+import { Home, FileText, BarChart2, Crown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function MobileBottomNav() {
   const location = useLocation();
+  const { t } = useTranslation();
 
   const navLinks = [
-    { name: 'Главная', path: '/dashboard', icon: Home },
-    { name: 'Тесты', path: '/tests', icon: FileText },
-    { name: 'Наставник', path: '/mentor', icon: Bot },
-    { name: 'Прогресс', path: '/progress', icon: BarChart2 },
+    { name: t('nav.dashboard', 'Главная'), path: '/dashboard', icon: Home },
+    { name: t('nav.tests', 'Тесты'), path: '/tests', icon: FileText },
+    { name: t('nav.progress', 'Прогресс'), path: '/progress', icon: BarChart2 },
+    { name: t('nav.plans', 'Тарифы'), path: '/plans', icon: Crown },
   ];
 
   return (

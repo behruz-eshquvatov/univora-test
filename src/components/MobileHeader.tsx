@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { GraduationCap, Flame, LogOut, Globe, Moon, Crown, History, User } from 'lucide-react';
+import { Flame, LogOut, Globe, Moon, Crown, History, User } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import SettingsModal from './SettingsModal';
@@ -7,9 +7,10 @@ import NotificationBell from './NotificationBell';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { useLanguageStore } from '../store/useLanguageStore';
+import { AuthRequiredModal } from './AuthRequiredModal';
 
 export default function MobileHeader() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, isGuest, streak } = useAuthStore();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { language, setLanguage } = useLanguageStore();
@@ -17,6 +18,7 @@ export default function MobileHeader() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<'profile' | 'payments'>('profile');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showAuthRequiredModal, setShowAuthRequiredModal] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
@@ -82,20 +84,28 @@ export default function MobileHeader() {
     <>
       <header className={`md:hidden bg-white/90 dark:bg-dark-surface/90 backdrop-blur-md border-b border-slate-100 dark:border-dark-border shadow-[0_4px_25px_rgba(0,0,0,0.05)] dark:shadow-black/60 p-4 flex items-center justify-between fixed top-0 left-0 right-0 z-40 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         <div className="flex items-center gap-2">
-          <div className="bg-violet-600 p-2 rounded-xl">
-            <GraduationCap className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-dark-bg border border-slate-100 dark:border-dark-border p-1 shadow-sm flex items-center justify-center">
+            <img src="/logo.png" alt="Unitest Logo" className="w-full h-full object-contain" />
           </div>
+          <span className="font-extrabold text-lg text-slate-800 dark:text-dark-text-main tracking-tight">
+            Uni-test
+          </span>
         </div>
 
         <div className="flex items-center gap-4" ref={menuRef}>
-          {/* Streak icon */}
-          <div className="flex items-center gap-1 font-bold text-slate-600 dark:text-dark-text-muted text-base">
-            <Flame className="w-6 h-6 text-orange-500 fill-orange-500" />
-            <span>{useAuthStore((state) => state.streak)}</span>
-          </div>
+          {/* Streak icon (Hidden in guest mode) */}
+          {!isGuest && (
+            <div 
+              onClick={() => navigate('/progress')}
+              className="flex items-center gap-1 font-bold text-slate-600 dark:text-dark-text-muted text-base cursor-pointer hover:opacity-80 transition-opacity"
+            >
+              <Flame className="w-6 h-6 text-orange-500 fill-orange-500" />
+              <span>{streak}</span>
+            </div>
+          )}
 
           <LanguageSwitcher />
-          <NotificationBell />
+          {!isGuest && <NotificationBell />}
 
           <div className="relative cursor-pointer" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {(user?.avatar || user?.avatar_url) ? (
@@ -232,6 +242,11 @@ export default function MobileHeader() {
           </div>
         </div>
       )}
+      {/* Auth Required Modal */}
+      <AuthRequiredModal
+        isOpen={showAuthRequiredModal}
+        onClose={() => setShowAuthRequiredModal(false)}
+      />
     </>
   );
 }

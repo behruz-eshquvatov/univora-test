@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { billingApi } from '../../lib/api/billing';
 import type { Payment } from '../../lib/api/billing';
 
 export default function PaymentsTab() {
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
   const [rejectModalId, setRejectModalId] = useState<number | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [isRejecting, setIsRejecting] = useState(false);
 
   const loadPayments = () => {
-    billingApi.getPayments().then(setPayments).catch(console.error);
+    billingApi.getPayments().then(setPayments).catch(console.error).finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -67,48 +68,57 @@ export default function PaymentsTab() {
             </tr>
           </thead>
           <tbody>
-            {payments.length > 0 ? payments.map(p => (
-              <tr key={p.id} className="border-b border-slate-100 last:border-none hover:bg-slate-50">
-                <td className="p-4 text-slate-500">#{p.id}</td>
-                <td className="p-4 font-bold text-slate-900">
-                  {p.user_full_name || p.user_email || `User ${p.user}`}
-                </td>
-                <td className="p-4 font-medium">{p.amount_display || `${p.amount} UZS`}</td>
-                <td className="p-4 text-sm text-slate-500">{new Date(p.created_at).toLocaleDateString()}</td>
-                <td className="p-4 text-sm">
-                  {p.contact_telegram && (
-                    <a href={p.contact_telegram.startsWith('@') ? `https://t.me/${p.contact_telegram.substring(1)}` : p.contact_telegram} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline block">
-                      {p.contact_telegram}
-                    </a>
-                  )}
-                  {p.contact_phone && (
-                    <span className="text-slate-500 block">{p.contact_phone}</span>
-                  )}
-                  {!p.contact_telegram && !p.contact_phone && <span className="text-slate-400">-</span>}
-                </td>
-                <td className="p-4">
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                    p.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                    p.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-200' :
-                    'bg-amber-50 text-amber-600 border-amber-200'
-                  }`}>
-                    {p.status_display || (p.status === 'approved' ? 'Одобрен' : p.status === 'rejected' ? 'Отклонён' : 'Ожидает')}
-                  </span>
-                </td>
-                <td className="p-4">
-                  {p.status === 'pending' && (
-                    <div className="flex gap-2">
-                      <button onClick={() => handleApprove(p.id)} className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => handleRejectClick(p.id)} className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg">
-                        <XCircle className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="p-12 text-center">
+                  <Loader2 className="w-8 h-8 text-violet-600 animate-spin mx-auto mb-2" />
+                  <span className="text-slate-500 font-bold text-sm">Arizalar yuklanmoqda...</span>
                 </td>
               </tr>
-            )) : (
+            ) : payments.length > 0 ? (
+              payments.map(p => (
+                <tr key={p.id} className="border-b border-slate-100 last:border-none hover:bg-slate-50">
+                  <td className="p-4 text-slate-500">#{p.id}</td>
+                  <td className="p-4 font-bold text-slate-900">
+                    {p.user_full_name || p.user_email || `User ${p.user}`}
+                  </td>
+                  <td className="p-4 font-medium">{p.amount_display || `${p.amount} UZS`}</td>
+                  <td className="p-4 text-sm text-slate-500">{new Date(p.created_at).toLocaleDateString()}</td>
+                  <td className="p-4 text-sm">
+                    {p.contact_telegram && (
+                      <a href={p.contact_telegram.startsWith('@') ? `https://t.me/${p.contact_telegram.substring(1)}` : p.contact_telegram} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline block">
+                        {p.contact_telegram}
+                      </a>
+                    )}
+                    {p.contact_phone && (
+                      <span className="text-slate-500 block">{p.contact_phone}</span>
+                    )}
+                    {!p.contact_telegram && !p.contact_phone && <span className="text-slate-400">-</span>}
+                  </td>
+                  <td className="p-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                      p.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                      p.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-200' :
+                      'bg-amber-50 text-amber-600 border-amber-200'
+                    }`}>
+                      {p.status_display || (p.status === 'approved' ? 'Одобрен' : p.status === 'rejected' ? 'Отклонён' : 'Ожидает')}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    {p.status === 'pending' && (
+                      <div className="flex gap-2">
+                        <button onClick={() => handleApprove(p.id)} className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleRejectClick(p.id)} className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg">
+                          <XCircle className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
               <tr><td colSpan={7} className="p-8 text-center text-slate-400">Нет заявок</td></tr>
             )}
           </tbody>

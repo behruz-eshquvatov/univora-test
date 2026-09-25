@@ -3,6 +3,47 @@ import { billingApi, type Plan, type CurrentSubscriptionResponse, type Subscript
 import { Check, Sparkles, Zap, Shield, Crown, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 
+const getPlanFeaturesList = (plan: Plan): string[] => {
+  const list: string[] = [];
+
+  if (Array.isArray(plan.features)) {
+    return plan.features;
+  } else if (plan.features && typeof plan.features === 'object') {
+    Object.entries(plan.features).forEach(([key, val]) => {
+      if (val === true) list.push(key);
+      else if (typeof val === 'string' || typeof val === 'number') list.push(`${key}: ${val}`);
+    });
+  }
+
+  if (plan.daily_topic_limit) {
+    list.push(`Kunlik ${plan.daily_topic_limit} ta mavzuda test`);
+  } else if (plan.daily_topic_limit === null && plan.is_pro) {
+    list.push("Mavzular bo'yicha cheksiz testlar");
+  }
+
+  if (plan.max_question_count) {
+    list.push(`Bir testda ${plan.max_question_count} tagacha savol`);
+  }
+
+  if (plan.can_view_explanations) {
+    list.push(plan.explanation_limit_per_day ? `Kuniga ${plan.explanation_limit_per_day} ta izoh` : "Barcha savollar izohlarini ko'rish");
+  }
+
+  if (plan.can_use_exam_mode) {
+    list.push("Taymer ostida DTM Imtihon rejimi");
+  }
+
+  if (plan.can_view_analytics) {
+    list.push("Zaif mavzular va batafsil tahlil");
+  }
+
+  if (plan.streak_freezes_per_month) {
+    list.push(`Oyiga ${plan.streak_freezes_per_month} ta strikni muzlatish`);
+  }
+
+  return list;
+};
+
 export default function Plans() {
   const { t } = useTranslation();
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -13,10 +54,20 @@ export default function Plans() {
   const [requestSuccess, setRequestSuccess] = useState<SubscriptionRequestResponse | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    billingApi.getPlans().then(setPlans).catch(console.error);
-    billingApi.getCurrentSubscription().then(setCurrentSubData).catch(console.error);
+    setLoading(true);
+    Promise.all([
+      billingApi.getPlans().then(setPlans).catch(err => {
+        console.warn('Failed to load plans or unauthenticated:', err?.response?.status || err);
+        return [];
+      }),
+      billingApi.getCurrentSubscription().then(setCurrentSubData).catch(err => {
+        console.warn('Failed to load subscription status:', err?.response?.status || err);
+        return null;
+      })
+    ]).finally(() => setLoading(false));
   }, []);
 
   const confirmSelectPlan = async () => {
@@ -63,7 +114,7 @@ export default function Plans() {
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-dark-text-main mb-4 tracking-tight">
             <Trans i18nKey="plans.title">
-              Выберите доступ к <span className="text-violet-600">Univora</span>
+              Выберите доступ к <span className="text-violet-600">Unitest</span>
             </Trans>
           </h1>
           <p className="text-slate-500 dark:text-dark-text-muted font-medium max-w-2xl mx-auto mb-8">
@@ -113,84 +164,118 @@ export default function Plans() {
         )}
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8 max-w-lg lg:max-w-none mx-auto relative z-10">
-          {plans.map((plan, idx) => {
-            const isCurrent = currentSubData?.subscription?.plan.id === plan.id;
-            const isRecommended = idx === 1; // Highlight the middle plan like in Gemini's design
-
-            return (
-              <div 
-                key={plan.id}
-                className={`relative bg-white dark:bg-dark-surface rounded-3xl p-8 flex flex-col transition-all duration-300
-                  ${isRecommended 
-                    ? 'border-2 border-violet-500 dark:border-violet-600 shadow-2xl shadow-violet-500/10 dark:shadow-violet-950/20 scale-[1.02]' 
-                    : 'border border-slate-200 dark:border-dark-border shadow-lg shadow-slate-200/50 dark:shadow-black/50 hover:shadow-xl dark:hover:shadow-black/70 dark:hover:border-violet-950'
-                  }`}
+        {loading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8 max-w-lg lg:max-w-none mx-auto relative z-10">
+            {[1, 2, 3].map((n) => (
+              <div
+                key={n}
+                className="bg-white dark:bg-dark-surface rounded-3xl p-8 flex flex-col border border-slate-200 dark:border-dark-border animate-pulse shadow-lg space-y-6"
               >
-                {/* Badges */}
-                {(isRecommended || isCurrent) && (
-                  <div className="absolute top-0 left-8 -translate-y-1/2 bg-white dark:bg-dark-surface px-2 flex gap-3">
-                    {isRecommended && (
-                      <span className="text-xs font-black text-violet-600 dark:text-violet-400 tracking-widest uppercase">
-                        Recommended
-                      </span>
-                    )}
-                    {isCurrent && (
-                      <span className="text-xs font-black text-emerald-500 dark:text-emerald-400 tracking-widest uppercase flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> {t('plans.current')}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* Plan Header */}
-                <h3 className="text-xl font-bold text-slate-900 dark:text-dark-text-main mb-2">
-                  Univora <span className={isRecommended ? "text-violet-600 dark:text-violet-400" : "text-slate-600 dark:text-dark-text-muted"}>{plan.name}</span>
-                </h3>
-                <p className="text-slate-500 dark:text-dark-text-muted text-sm h-10 line-clamp-2">
-                  {plan.name.toLowerCase().includes('premium') ? t('plans.desc_premium') : 
-                   plan.name.toLowerCase().includes('pro') ? t('plans.desc_pro') : 
-                   plan.name.includes('1+1') ? t('plans.desc_duo') : 
-                   t('plans.desc_base')}
-                </p>
-
-                {/* Price */}
-                <div className="mt-6 mb-8">
-                  <div className="flex items-baseline gap-2 flex-wrap">
-                    <span className="text-4xl font-extrabold text-slate-900 dark:text-dark-text-main">
-                      {Number(plan.price).toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
-                    </span>
-                    <span className="text-slate-500 dark:text-dark-text-muted font-medium whitespace-nowrap">
-                      {t('plans.currency_days', { days: plan.duration_days })}
-                    </span>
-                  </div>
+                <div className="flex justify-between items-center">
+                  <div className="h-6 bg-slate-200 dark:bg-dark-bg rounded-lg w-1/2" />
+                  <div className="h-5 bg-slate-200 dark:bg-dark-bg rounded-full w-1/4" />
                 </div>
+                <div className="h-4 bg-slate-200 dark:bg-dark-bg rounded-lg w-3/4" />
+                <div className="h-10 bg-slate-200 dark:bg-dark-bg rounded-xl w-2/3 mt-2" />
+                <div className="h-12 bg-slate-200 dark:bg-dark-bg rounded-2xl w-full" />
+                <div className="h-px bg-slate-100 dark:bg-dark-border" />
+                <div className="space-y-4">
+                  <div className="h-4 bg-slate-200 dark:bg-dark-bg rounded w-full" />
+                  <div className="h-4 bg-slate-200 dark:bg-dark-bg rounded w-5/6" />
+                  <div className="h-4 bg-slate-200 dark:bg-dark-bg rounded w-4/6" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xl:gap-8 max-w-lg lg:max-w-none mx-auto relative z-10">
+            {plans.map((plan, idx) => {
+              const isFreePlan = plan.is_free || Number(plan.price) === 0 || plan.code === 'free' || plan.name.toLowerCase().includes('bepul') || plan.name.toLowerCase().includes('free');
+              const isCurrent = currentSubData?.subscription
+                ? currentSubData.subscription.plan.id === plan.id
+                : isFreePlan;
+              const isRecommended = idx === 1; // Highlight the middle plan like in Gemini's design
 
-                {/* Action Button */}
-                <div className="mt-2 mb-8">
-                  {isCurrent ? (
-                    <div className="flex flex-col gap-3">
-                      <button 
-                        onClick={() => setShowCancelModal(true)}
-                        disabled={cancelLoading}
-                        className="w-full py-3.5 rounded-2xl font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-100 dark:border-rose-900/50 transition-colors text-sm disabled:opacity-50"
-                      >
-                        {cancelLoading ? t('plans.canceling') : t('plans.cancel_subscription')}
-                      </button>
+              return (
+                <div 
+                  key={plan.id}
+                  className={`relative bg-white dark:bg-dark-surface rounded-3xl p-8 flex flex-col transition-all duration-300
+                    ${isRecommended 
+                      ? 'border-2 border-violet-500 dark:border-violet-600 shadow-2xl shadow-violet-500/10 dark:shadow-violet-950/20 scale-[1.02]' 
+                      : 'border border-slate-200 dark:border-dark-border shadow-lg shadow-slate-200/50 dark:shadow-black/50 hover:shadow-xl dark:hover:shadow-black/70 dark:hover:border-violet-950'
+                    }`}
+                >
+                  {/* Badges */}
+                  {(isRecommended || isCurrent) && (
+                    <div className="absolute top-0 left-8 -translate-y-1/2 bg-white dark:bg-dark-surface px-2 flex gap-3">
+                      {isRecommended && (
+                        <span className="text-xs font-black text-violet-600 dark:text-violet-400 tracking-widest uppercase">
+                          Recommended
+                        </span>
+                      )}
+                      {isCurrent && (
+                        <span className="text-xs font-black text-emerald-500 dark:text-emerald-400 tracking-widest uppercase flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> {t('plans.current')}
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowPlanModal(plan)}
-                      className={`w-full py-3.5 rounded-2xl font-bold transition-all text-sm ${
-                        isRecommended 
-                          ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-md' 
-                          : 'bg-slate-50 dark:bg-dark-bg hover:bg-slate-100 dark:hover:bg-dark-bg/60 text-violet-600 dark:text-violet-400 border border-slate-200 dark:border-dark-border'
-                      }`}
-                    >
-                      {t('plans.select_plan', { name: plan.name })}
-                    </button>
                   )}
-                </div>
+
+                  {/* Plan Header */}
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-dark-text-main mb-2">
+                    Unitest <span className={isRecommended ? "text-violet-600 dark:text-violet-400" : "text-slate-600 dark:text-dark-text-muted"}>{plan.name}</span>
+                  </h3>
+                  <p className="text-slate-500 dark:text-dark-text-muted text-sm h-10 line-clamp-2">
+                    {plan.name.toLowerCase().includes('premium') ? t('plans.desc_premium') : 
+                     plan.name.toLowerCase().includes('pro') ? t('plans.desc_pro') : 
+                     plan.name.includes('1+1') ? t('plans.desc_duo') : 
+                     t('plans.desc_base')}
+                  </p>
+
+                  {/* Price */}
+                  <div className="mt-6 mb-8">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className="text-4xl font-extrabold text-slate-900 dark:text-dark-text-main">
+                        {Number(plan.price).toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
+                      </span>
+                      <span className="text-slate-500 dark:text-dark-text-muted font-medium whitespace-nowrap">
+                        {t('plans.currency_days', { days: plan.duration_days })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="mt-2 mb-8">
+                    {isCurrent ? (
+                      isFreePlan ? (
+                        <div className="w-full py-3.5 rounded-2xl font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-sm flex items-center justify-center gap-2">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>{t('plans.current', 'Joriy tarif')}</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-3">
+                          <button 
+                            onClick={() => setShowCancelModal(true)}
+                            disabled={cancelLoading}
+                            className="w-full py-3.5 rounded-2xl font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 border border-rose-100 dark:border-rose-900/50 transition-colors text-sm disabled:opacity-50"
+                          >
+                            {cancelLoading ? t('plans.canceling') : t('plans.cancel_subscription')}
+                          </button>
+                        </div>
+                      )
+                    ) : (
+                      <button
+                        onClick={() => setShowPlanModal(plan)}
+                        className={`w-full py-3.5 rounded-2xl font-bold transition-all text-sm ${
+                          isRecommended 
+                            ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-md' 
+                            : 'bg-violet-50 dark:bg-violet-950/40 hover:bg-violet-100 dark:hover:bg-violet-900/50 text-violet-700 dark:text-violet-300 border border-violet-100 dark:border-violet-900/60 shadow-sm'
+                        }`}
+                      >
+                        {t('plans.select_plan', { name: plan.name })}
+                      </button>
+                    )}
+                  </div>
 
                 <div className="h-px w-full bg-slate-100 dark:bg-dark-border mb-6"></div>
 
@@ -201,28 +286,32 @@ export default function Plans() {
                     <span className="font-bold text-slate-800 dark:text-dark-text-main text-sm">{t('plans.includes')}</span>
                   </div>
                   
-                  <ul className="space-y-4">
-                    {plan.features?.map((feature, fIdx) => (
-                      <li key={fIdx} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                        <span className="text-slate-600 dark:text-dark-text-muted text-sm leading-relaxed">{feature}</span>
-                      </li>
-                    ))}
-                    
-                    {/* Fake static features to make it look tall like the image */}
-                    {!plan.features?.length && (
-                      <>
-                        <li className="flex items-start gap-3">
-                          <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                          <span className="text-slate-600 dark:text-dark-text-muted text-sm leading-relaxed">{t('plans.base_features')}</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                          <Check className="w-5 h-5 text-emerald-500 shrink-0" />
-                          <span className="text-slate-600 dark:text-dark-text-muted text-sm leading-relaxed">{t('plans.support')}</span>
-                        </li>
-                      </>
-                    )}
-                  </ul>
+                  {(() => {
+                    const featureList = getPlanFeaturesList(plan);
+                    return (
+                      <ul className="space-y-4">
+                        {featureList.map((feature, fIdx) => (
+                          <li key={fIdx} className="flex items-start gap-3">
+                            <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                            <span className="text-slate-600 dark:text-dark-text-muted text-sm leading-relaxed">{feature}</span>
+                          </li>
+                        ))}
+                        
+                        {!featureList.length && (
+                          <>
+                            <li className="flex items-start gap-3">
+                              <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                              <span className="text-slate-600 dark:text-dark-text-muted text-sm leading-relaxed">{t('plans.base_features')}</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <Check className="w-5 h-5 text-emerald-500 shrink-0" />
+                              <span className="text-slate-600 dark:text-dark-text-muted text-sm leading-relaxed">{t('plans.support')}</span>
+                            </li>
+                          </>
+                        )}
+                      </ul>
+                    );
+                  })()}
 
                   <div className="h-px w-full bg-slate-100 dark:bg-dark-border my-6"></div>
 
@@ -253,6 +342,7 @@ export default function Plans() {
             );
           })}
         </div>
+        )}
 
       </div>
 

@@ -24,7 +24,7 @@ export default function Register() {
         { id: '1', name, email, role: 'student' },
         'mock-jwt-token-12345'
       );
-      navigate('/onboarding');
+      navigate('/dashboard');
     }, 1000);
   };
 

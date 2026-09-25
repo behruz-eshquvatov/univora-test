@@ -5,7 +5,7 @@ import uz from './locales/uz.json';
 import ru from './locales/ru.json';
 import en from './locales/en.json';
 
-const savedLanguage = JSON.parse(localStorage.getItem('univora-language-storage') || '{}')?.state?.language || 'uz';
+const savedLanguage = JSON.parse(localStorage.getItem('unitest-language-storage') || '{}')?.state?.language || 'uz';
 
 i18n
   .use(initReactI18next)

@@ -4,7 +4,6 @@ import { useAuthStore } from './store/useAuthStore';
 
 import Landing from './pages/Landing';
 import Login from './pages/Login';
-import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import QuizSession from './pages/QuizSession';
 import Onboarding from './pages/Onboarding';
@@ -21,15 +20,23 @@ import DashboardLayout from './components/DashboardLayout';
 import Admin from './pages/Admin';
 import OnboardingQuiz from './pages/OnboardingQuiz';
 import Notifications from './pages/Notifications';
+import GuestQuizSession from './pages/GuestQuizSession';
+import IntroQuiz from './pages/IntroQuiz';
+import { useLimitStore } from './store/useLimitStore';
+import { ProUpgradeModal } from './components/ProUpgradeModal';
+import MockExamSession from './pages/MockExamSession';
 
 function App() {
-  const { isAuthenticated, fetchUser, accessToken } = useAuthStore();
+  const { isAuthenticated, isGuest, fetchUser, accessToken } = useAuthStore();
+  const { isOpen, title, reason, resetAt, closeLimitModal } = useLimitStore();
 
   useEffect(() => {
     if (accessToken) {
       fetchUser();
     }
   }, [accessToken, fetchUser]);
+
+  const isRealAuth = isAuthenticated && !isGuest;
 
   return (
     <BrowserRouter>
@@ -40,14 +47,18 @@ function App() {
         
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
-          <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
-          <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />} />
+          <Route path="/" element={isRealAuth ? <Navigate to="/dashboard" replace /> : <Landing />} />
+          <Route path="/login" element={isRealAuth ? <Navigate to="/dashboard" replace /> : <Login />} />
+          <Route path="/register" element={<Navigate to="/login" replace />} />
           
           {/* Guest Flow Routes */}
+          <Route path="/intro" element={<Navigate to="/onboarding-quiz" replace />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/onboarding-quiz" element={<OnboardingQuiz />} />
+          <Route path="/guest-quiz" element={<GuestQuizSession />} />
           <Route path="/quiz/:sessionId" element={<QuizSession />} />
+          <Route path="/mock-exam" element={<MockExamSession />} />
+          <Route path="/mock-exam/:id" element={<MockExamSession />} />
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
@@ -69,6 +80,15 @@ function App() {
             <Route path="/admin" element={<Admin />} />
           </Route>
         </Routes>
+
+        {/* Global Pro Upgrade & Limit Modal */}
+        <ProUpgradeModal
+          isOpen={isOpen}
+          onClose={closeLimitModal}
+          title={title}
+          reason={reason}
+          resetAt={resetAt}
+        />
       </div>
     </BrowserRouter>
   );

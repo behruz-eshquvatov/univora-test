@@ -1,21 +1,33 @@
-import { useState } from 'react';
-import { Users, BookOpen, Layers, CreditCard } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Users, BookOpen, Layers, CreditCard, BellRing, Sparkles } from 'lucide-react';
 import UsersTab from './admin/UsersTab';
 import CatalogSection from './admin/CatalogSection';
 import BillingTab from './admin/BillingTab';
 import PaymentsTab from './admin/PaymentsTab';
 import AnnouncementsTab from './admin/AnnouncementsTab';
-import { BellRing } from 'lucide-react';
+import AdminIntroQuestionsTab from './admin/AdminIntroQuestionsTab';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '../store/useAuthStore';
 
-type Tab = 'users' | 'catalog' | 'billing' | 'payments' | 'announcements';
+type Tab = 'users' | 'catalog' | 'billing' | 'payments' | 'announcements' | 'intro';
 
 export default function Admin() {
   const { t } = useTranslation();
+  const { user } = useAuthStore();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('users');
+
+  useEffect(() => {
+    // If user is loaded and not admin/staff, redirect to dashboard
+    if (user && user.role !== 'admin' && !(user as any).is_staff && !(user as any).is_superuser) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
   
   const TABS: { key: Tab; label: string; icon: React.ElementType }[] = [
     { key: 'users', label: t('admin.tab_users'), icon: Users },
+    { key: 'intro', label: 'Kirish savollari', icon: Sparkles },
     { key: 'catalog', label: t('admin.tab_catalog'), icon: Layers },
     { key: 'billing', label: t('admin.tab_billing'), icon: BookOpen },
     { key: 'payments', label: t('admin.tab_payments'), icon: CreditCard },
@@ -50,6 +62,7 @@ export default function Admin() {
         {/* Tab Content */}
         <div className="mt-2">
           {activeTab === 'users'    && <UsersTab />}
+          {activeTab === 'intro'    && <AdminIntroQuestionsTab />}
           {activeTab === 'catalog'  && <CatalogSection />}
           {activeTab === 'billing'  && <BillingTab />}
           {activeTab === 'payments' && <PaymentsTab />}

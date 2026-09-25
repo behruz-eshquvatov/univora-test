@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Send, CheckCircle2, Clock } from 'lucide-react';
+import { Send, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 import { notificationsApi, type Announcement } from '../../lib/api/notifications';
 
 export default function AnnouncementsTab() {
@@ -7,6 +7,7 @@ export default function AnnouncementsTab() {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadAnnouncements();
@@ -27,6 +28,8 @@ export default function AnnouncementsTab() {
       setAnnouncements(data);
     } catch (err) {
       console.error('Failed to load announcements', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,29 +115,38 @@ export default function AnnouncementsTab() {
               </tr>
             </thead>
             <tbody>
-              {announcements.length > 0 ? announcements.map(a => (
-                <tr key={a.id} className="border-b border-slate-100 last:border-none hover:bg-slate-50">
-                  <td className="p-4">
-                    <div className="font-bold text-slate-900">{a.title}</div>
-                    <div className="text-sm text-slate-500 truncate max-w-xs" title={a.message}>{a.message}</div>
-                  </td>
-                  <td className="p-4 text-sm text-slate-500">{new Date(a.created_at).toLocaleString()}</td>
-                  <td className="p-4 text-sm text-slate-700">{a.created_by_email}</td>
-                  <td className="p-4">
-                    {a.is_sent ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Отправлено ({a.recipients_count})
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-200">
-                        <Clock className="w-3.5 h-3.5" />
-                        Отправляется...
-                      </span>
-                    )}
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="p-12 text-center text-slate-500">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-violet-600" />
+                    <span>Загрузка анонсов...</span>
                   </td>
                 </tr>
-              )) : (
+              ) : announcements.length > 0 ? (
+                announcements.map(a => (
+                  <tr key={a.id} className="border-b border-slate-100 last:border-none hover:bg-slate-50">
+                    <td className="p-4">
+                      <div className="font-bold text-slate-900">{a.title}</div>
+                      <div className="text-sm text-slate-500 truncate max-w-xs" title={a.message}>{a.message}</div>
+                    </td>
+                    <td className="p-4 text-sm text-slate-500">{new Date(a.created_at).toLocaleString()}</td>
+                    <td className="p-4 text-sm text-slate-700">{a.created_by_email}</td>
+                    <td className="p-4">
+                      {a.is_sent ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Отправлено ({a.recipients_count})
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-200">
+                          <Clock className="w-3.5 h-3.5" />
+                          Отправляется...
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
                 <tr><td colSpan={4} className="p-8 text-center text-slate-400">История анонсов пуста</td></tr>
               )}
             </tbody>

@@ -5,14 +5,35 @@
     "mentor": "AI Mentor",
     "progress": "Progress",
     "notifications": "Notifications",
-    "plans": "Plans"
+    "plans": "Plans",
+    "reviews": "Reviews"
+  },
+  "reviews": {
+    "btn_label": "Reviews / Feedback",
+    "modal_title": "Feedback & Suggestions",
+    "modal_subtitle": "Share your experience or report an issue",
+    "type_label": "Submission type",
+    "type_feedback": "Review",
+    "type_bug": "Bug",
+    "type_feature": "Idea",
+    "rating_label": "Your Rating",
+    "topic_label": "Topic or Section",
+    "topic_placeholder": "e.g., Math Tests, User Interface...",
+    "message_label": "Message",
+    "message_placeholder": "Describe your thoughts, problem or suggestion in detail...",
+    "send": "Submit",
+    "thank_you": "Thank you for your feedback!",
+    "success_desc": "Your feedback helps us make Uni-test better."
   },
   "common": {
     "language": "Language",
     "dark_mode": "Dark mode",
     "settings": "Settings",
     "logout": "Log out",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "skip": "Skip",
+    "back": "Back",
+    "ok_continue": "Got it"
   },
   "sidebar": {
     "profile": "Profile",
@@ -53,12 +74,20 @@
     "all_subjects": "All subjects",
     "check_knowledge": "Check your knowledge",
     "weekly_top": "Weekly Top",
-    "view_full_rating": "View full rating"
+    "view_full_rating": "View Full Rating",
+    "guest_banner_title": "You are in guest mode",
+    "guest_banner_desc": "Register to save scores, test history, and earn XP.",
+    "guest_banner_btn": "Register Now"
+  },
+  "pro": {
+    "modal_title": "Upgrade to Pro",
+    "modal_desc": "You reached your daily limit of 4 topics. Upgrade to Pro for unlimited access!",
+    "btn_view_plans": "View Pro Plans"
   },
   "plans": {
     "error_request": "Error while processing request",
     "error_cancel": "Error while canceling subscription",
-    "title": "Choose access to <1>Univora</1>",
+    "title": "Choose access to <1>Uni-test</1>",
     "subtitle": "Cancel anytime. By subscribing, you agree to the Terms of Service.",
     "discount": "Save 16% when paying annually",
     "pending_title": "Your request is under review",
@@ -108,7 +137,13 @@
     "correct_answers": "{{correct}}/{{total}} correct",
     "no_tests_yet": "You haven't completed any tests yet.",
     "view_full_history": "View full history",
-    "default_subject": "Subject"
+    "default_subject": "Subject",
+    "select_grade": "Select Grade / Book",
+    "select_topic": "Select a topic for test",
+    "all_topics": "All topics in subject",
+    "no_grades": "No grades or books added for this subject yet.",
+    "no_topics": "No topics in this category yet.",
+    "start_full_test": "Start full subject test"
   },
   "quiz": {
     "finished_title": "Test completed!",
@@ -197,10 +232,27 @@
     "empty_desc": "You have no notification history yet."
   },
   "leaderboard": {
-    "title": "Weekly Leaderboard",
+    "title": "Leaderboards & Leagues",
     "anonymous": "Anonymous",
     "you": "(You)",
-    "no_data": "No data to display yet"
+    "no_data": "No data to display yet",
+    "tab_league": "Weekly League (30 users)",
+    "tab_global": "Global Leaderboard",
+    "current_tier": "Current Tier",
+    "your_rank": "Your Rank",
+    "promotion_zone": "Promotion Zone ↗",
+    "safe_zone": "Safe Zone",
+    "demotion_zone": "Demotion Zone ↘",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "all_time": "All Time"
+  },
+  "weak_topics": {
+    "title": "Weak Topics",
+    "subtitle": "Topics where you made mistakes during practice",
+    "practice": "Practice Now",
+    "empty_title": "No weak topics right now!",
+    "empty_desc": "Great job! Keep solving tests to track your progress."
   },
   "mentor": {
     "title": "AI Mentor",
@@ -247,7 +299,8 @@
   "onboarding_quiz": {
     "title": "Introductory test",
     "finish_early": "Finish early",
-    "btn_forward": "Forward",
+    "btn_forward": "Next",
+    "btn_back": "Back",
     "btn_finish": "Finish",
     "auth_title": "Test completed!",
     "auth_desc": "To see your results and start preparing for {{type}}, please log in.",
@@ -256,6 +309,7 @@
     "auth_loading": "Authenticating...",
     "auth_apple": "Apple sign-in is under development",
     "auth_footer": "We use Google for secure registration.",
+    "btn_skip": "Skip",
     "results_title": "Awesome!",
     "results_desc": "You have successfully passed the introductory test.",
     "results_correct": "correct answers",
@@ -265,7 +319,7 @@
     "btn_cancel": "Cancel"
   },
   "landing": {
-    "loading": "loading...",
+    "loading": "LOADING...",
     "btn_start": "Start test",
     "math": "Mathematics",
     "informatics": "Informatics",
@@ -284,12 +338,23 @@
   "login": {
     "title": "Welcome",
     "subtitle": "Log in to continue",
+    "or": "or",
+    "continue_as_guest": "Continue as guest",
     "apple_auth": "Apple sign-in is under development",
     "apple_btn": "Sign in with Apple"
   },
+  "guest": {
+    "mode": "Guest mode",
+    "modal_title": "Enter guest mode",
+    "modal_desc": "You can try out the platform without registration. Here is what you should know:",
+    "available_label": "Available:",
+    "available_desc": "Solving 20-question practice tests.",
+    "limits_label": "Limits:",
+    "limits_desc": "No scores, test history, XP earning, or streaks saved until you create an account."
+  },
   "register": {
     "title": "Create an Account",
-    "subtitle": "Join Univora and start preparing.",
+    "subtitle": "Join Unitest and start preparing.",
     "name_placeholder": "Full Name",
     "email_placeholder": "Email address",
     "password_placeholder": "Password",

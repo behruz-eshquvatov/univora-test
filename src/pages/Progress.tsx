@@ -1,10 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Flame, Snowflake, Star, Zap, History, Clock, BookOpen, Target } from 'lucide-react';
+import { X, Flame, Snowflake, Zap, History, Clock, BookOpen, Target, UserPlus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { progressApi, type XPSummary, type Streak, type XPTransaction, type ReviewCard } from '../lib/api/progress';
+import WeakTopicsWidget from '../components/WeakTopicsWidget';
+import { useAuthStore } from '../store/useAuthStore';
 
 export default function Progress() {
   const { t } = useTranslation();
+  const { isGuest } = useAuthStore();
   const [xpSummary, setXpSummary] = useState<XPSummary | null>(null);
   const [streak, setStreak] = useState<Streak | null>(null);
   const [transactions, setTransactions] = useState<XPTransaction[]>([]);
@@ -17,12 +21,21 @@ export default function Progress() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const startTimeRef = useRef<number>(0);
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    progressApi.getXpSummary().then(setXpSummary).catch(console.error);
-    progressApi.getStreak().then(setStreak).catch(console.error);
-    progressApi.getXpTransactions().then(setTransactions).catch(console.error);
-    progressApi.getTodayReviews().then(setReviews).catch(console.error);
-  }, []);
+    if (!isGuest) {
+      setLoading(true);
+      Promise.all([
+        progressApi.getXpSummary().then(setXpSummary).catch(console.error),
+        progressApi.getStreak().then(setStreak).catch(console.error),
+        progressApi.getXpTransactions().then(setTransactions).catch(console.error),
+        progressApi.getTodayReviews().then(setReviews).catch(console.error)
+      ]).finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [isGuest]);
 
   useEffect(() => {
     if (isReviewing && reviews[currentReviewIndex]) {
@@ -80,15 +93,36 @@ export default function Progress() {
   return (
     <div className="md:bg-slate-50/95 dark:md:bg-dark-surface/90 md:backdrop-blur-xl md:rounded-2xl md:shadow-2xl md:border md:border-white/60 dark:md:border-dark-border/60 min-h-[calc(100vh-2rem)] md:p-8 flex flex-col gap-6 md:gap-8 relative overflow-hidden">
       
+      {/* Guest Mode Overlay Alert */}
+      {isGuest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 dark:bg-black/70 backdrop-blur-md">
+          <div className="bg-white dark:bg-dark-surface rounded-3xl p-8 sm:p-10 max-w-md w-full shadow-2xl border border-slate-100 dark:border-dark-border text-center flex flex-col items-center animate-in fade-in zoom-in-95">
+            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-dark-text-main mb-3">
+              {t('progress.guest_lock_title', 'Statistikani ko\'rish uchun ro\'yxatdan o\'ting')}
+            </h2>
+            <p className="text-slate-500 dark:text-dark-text-muted text-sm font-medium mb-8 leading-relaxed">
+              {t('progress.guest_lock_desc', 'Bollaringiz, takrorlash kartochkalari va zaif mavzular tahlilini saqlab borish uchun shaxsiy hisobingizga kiring.')}
+            </p>
+            <Link
+              to="/login"
+              className="w-full py-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold rounded-2xl transition-all text-base hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+            >
+              <UserPlus className="w-5 h-5" />
+              {t('dashboard.guest_banner_btn', 'Ro\'yxatdan o\'tish')}
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+      <div className={`relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2 ${isGuest ? 'filter blur-md opacity-30 select-none pointer-events-none' : ''}`}>
         <div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-dark-text-main tracking-tight">{t('progress.title')}</h1>
           <p className="text-slate-500 dark:text-dark-text-muted mt-2 font-medium text-lg">{t('progress.subtitle')}</p>
         </div>
       </div>
 
-      <div className="relative z-10 flex flex-col gap-8">
+      <div className={`relative z-10 flex flex-col gap-8 ${isGuest ? 'filter blur-md opacity-30 select-none pointer-events-none' : ''}`}>
         
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -192,7 +226,20 @@ export default function Progress() {
             </div>
             
             <div className="flex-1 overflow-y-auto max-h-[300px] pr-2 space-y-3">
-              {transactions.length > 0 ? transactions.map(tx => (
+              {loading ? (
+                [1, 2, 3].map((n) => (
+                  <div key={n} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-dark-bg border border-slate-100 dark:border-dark-border animate-pulse">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-xl shrink-0" />
+                      <div className="space-y-1.5">
+                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28" />
+                        <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-20" />
+                      </div>
+                    </div>
+                    <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12" />
+                  </div>
+                ))
+              ) : transactions.length > 0 ? transactions.map(tx => (
                 <div key={tx.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-dark-bg border border-slate-100 dark:border-dark-border hover:border-violet-200 dark:hover:border-violet-950 transition-colors">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-violet-100 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-xl flex items-center justify-center">
@@ -211,24 +258,8 @@ export default function Progress() {
             </div>
           </div>
 
-          {/* Leaderboard Preview */}
-          <div className="bg-white dark:bg-dark-surface rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-dark-border flex flex-col">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-extrabold text-slate-800 dark:text-dark-text-main text-xl">{t('progress.development_areas')}</h3>
-              <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-dark-bg flex items-center justify-center">
-                <Star className="w-5 h-5 text-slate-400 dark:text-dark-text-muted" />
-              </div>
-            </div>
-            <p className="text-slate-600 dark:text-dark-text-muted mb-4 leading-relaxed">
-              {t('progress.development_desc')}
-            </p>
-            <div className="mt-auto bg-violet-50 dark:bg-violet-950/20 rounded-2xl p-5 border border-violet-100 dark:border-violet-900/30 text-center">
-              <p className="text-sm font-bold text-violet-800 dark:text-violet-400 mb-2">{t('progress.ready_compete')}</p>
-              <a href="/leaderboard" className="inline-block bg-violet-600 hover:bg-violet-700 text-white font-bold py-2.5 px-6 rounded-xl transition-colors text-sm">
-                {t('progress.open_leaderboard')}
-              </a>
-            </div>
-          </div>
+          {/* Weak Topics Widget */}
+          <WeakTopicsWidget />
 
         </div>
 

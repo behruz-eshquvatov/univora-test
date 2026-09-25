@@ -42,12 +42,20 @@ export interface SessionQuestion {
   is_answered: boolean;
 }
 
-/** Один вопрос сессии (после завершения — есть правильный ответ). */
+/** Один вопрос сессии (после завершения — есть правильный ответ и пояснение). */
 export interface SessionQuestionReview extends SessionQuestion {
   correct_option: string;
   selected_option: string | null;
   is_correct: boolean;
   time_spent_seconds: number;
+  hint?: string | null;
+  explanation?: string | null;
+}
+
+export interface ExplanationAccess {
+  can_access: boolean;
+  code?: string;
+  reason?: string;
 }
 
 export interface TestSession {
@@ -65,7 +73,6 @@ export interface TestSession {
   updated_at: string;
 }
 
-/** Детальная сессия: дополнительно contains счётчики прогресса. */
 export interface TestSessionDetail extends TestSession {
   total_questions: number;
   answered_count: number;
@@ -102,11 +109,86 @@ export interface FinishResponse {
   session: TestSessionDetail;
   result: TestResult;
   review: SessionQuestionReview[];
+  explanation_access?: ExplanationAccess;
+}
+
+export interface AvailableCountsResponse {
+  tiers: number[];
+  is_available: boolean;
+  reason: string | null;
+  min_required: number;
+  access: {
+    can_start: boolean;
+    daily_topic_limit: number | null;
+    topics_used_today: number;
+    topics_remaining_today: number | null;
+    reset_at: string | null;
+    upgrade_required: boolean;
+  };
+  entitlements?: any;
+  topic?: any;
+  subject?: any;
+  grade?: any;
+}
+
+export interface MyLimitsResponse {
+  daily_topic_limit: number | null;
+  topics_used_today: number;
+  topics_remaining_today: number | null;
+  reset_at: string | null;
+  question_count_tiers: number[];
+  entitlements?: any;
+}
+
+export interface MockExamSubjectItem {
+  session_id: number;
+  order: number;
+  subject: SubjectMinimal;
+  question_count: number;
+  is_finished: boolean;
+  correct_count: number;
+  incorrect_count: number;
+  unanswered_count: number;
+  total_score: number;
+}
+
+export interface MockExamSummary {
+  total_questions: number;
+  correct_count: number;
+  incorrect_count: number;
+  unanswered_count: number;
+  total_score: number;
+  accuracy_percent: number;
+}
+
+export interface MockExam {
+  id: number;
+  time_limit_seconds: number;
+  expires_at: string;
+  seconds_left: number;
+  finished_at: string | null;
+  is_finished: boolean;
+  auto_finished: boolean;
+  subjects: MockExamSubjectItem[];
+  summary: MockExamSummary;
+  created_at?: string;
 }
 
 // ─── API ────────────────────────────────────────────────────────────────────
 
 export const testengineApi = {
+  // Available counts for a topic
+  getAvailableCounts: async (topicId: number | string): Promise<AvailableCountsResponse> => {
+    const response = await api.get(`/testengine/topics/${topicId}/available-counts/`);
+    return response.data;
+  },
+
+  // My limits (daily topic limits status)
+  getMyLimits: async (): Promise<MyLimitsResponse> => {
+    const response = await api.get('/testengine/my-limits/');
+    return response.data;
+  },
+
   // Список сессий (пагинированный)
   getSessions: async (): Promise<TestSession[]> => {
     const response = await api.get('/testengine/sessions/');
@@ -116,12 +198,30 @@ export const testengineApi = {
   // Создать новую сессию
   startSession: async (
     subjectId: number,
-    options?: { question_count?: number; mode?: string }
+    options?: { question_count?: number; count?: number; mode?: string; topics?: number[] } | number
   ): Promise<TestSessionDetail> => {
+    const question_count = typeof options === 'number' ? options : (options?.question_count || options?.count);
+    const mode = typeof options === 'object' ? options?.mode : 'practice';
+    const topics = typeof options === 'object' ? options?.topics : undefined;
     const response = await api.post('/testengine/sessions/', {
       subject: subjectId,
-      mode: options?.mode || 'practice',
-      question_count: options?.question_count,
+      mode: mode || 'practice',
+      question_count: question_count,
+      topics: topics,
+    });
+    return response.data;
+  },
+
+  // Запуск теста по конкретной теме
+  startTopicTest: async (
+    topicId: number,
+    options?: { count?: number; mode?: string } | number
+  ): Promise<TestSessionDetail> => {
+    const count = typeof options === 'number' ? options : options?.count;
+    const mode = typeof options === 'object' ? options?.mode : 'practice';
+    const response = await api.post(`/testengine/topics/${topicId}/start-test/`, {
+      count: count,
+      mode: mode || 'practice',
     });
     return response.data;
   },
@@ -206,6 +306,78 @@ export const testengineApi = {
   // Legacy: next-question (ещё работает на бэке, оставляем как fallback)
   getNextQuestion: async (id: string | number): Promise<SessionQuestion> => {
     const response = await api.get(`/testengine/sessions/${id}/next-question/`);
+    return response.data;
+  },
+
+  // ─── Guest API ─────────────────────────────────────────────────────────────
+  getGuestTopics: async (params?: { subject?: number | string; grade?: number | string }): Promise<any[]> => {
+    const response = await api.get('/testengine/guest/topics/', { params });
+    return response.data.results || response.data;
+  },
+
+  startGuestTest: async (topicId: number): Promise<{
+    token: string;
+    question_count: number;
+    questions: TestQuestion[];
+    topic: any;
+    subject: any;
+    is_guest: boolean;
+    notice?: string;
+  }> => {
+    const response = await api.post('/testengine/guest/start/', { topic: topicId });
+    return response.data;
+  },
+
+  submitGuestTest: async (
+    token: string,
+    answers: { question: number; selected_option: string; time_spent_seconds?: number }[]
+  ): Promise<{
+    requires_registration: boolean;
+    results_hidden: boolean;
+    title: string;
+    detail: string;
+    actions: { register: string; later: string };
+    total_questions: number;
+    answered_count: number;
+    code: string;
+  }> => {
+    const response = await api.post('/testengine/guest/submit/', { token, answers });
+    return response.data;
+  },
+
+  // ─── DTM Mock Exams (Blok imtihoni) ───────────────────────────────────────
+  createMockExam: async (subjects: number[], question_count: number): Promise<MockExam> => {
+    const response = await api.post('/testengine/mock-exams/', { subjects, question_count });
+    return response.data;
+  },
+
+  getMockExam: async (id: number | string): Promise<MockExam> => {
+    const response = await api.get(`/testengine/mock-exams/${id}/`);
+    return response.data;
+  },
+
+  finishMockExam: async (id: number | string): Promise<MockExam> => {
+    const response = await api.post(`/testengine/mock-exams/${id}/finish/`);
+    return response.data;
+  },
+
+  getMockExams: async (page: number = 1): Promise<{ count: number; results: MockExam[] }> => {
+    const response = await api.get('/testengine/mock-exams/', { params: { page } });
+    return response.data;
+  },
+
+  // ─── Mistakes Test ───────────────────────────────────────────────────────
+  startMistakesTest: async (count?: number): Promise<TestSession> => {
+    const response = await api.post('/testengine/mistakes/start-test/', count ? { count } : {});
+    return response.data;
+  },
+
+  // ─── Results Export ──────────────────────────────────────────────────────
+  exportResults: async (type: 'xlsx' | 'pdf' = 'xlsx'): Promise<Blob> => {
+    const response = await api.get('/testengine/results/export/', {
+      params: { type },
+      responseType: 'blob',
+    });
     return response.data;
   },
 };
